@@ -1,4 +1,6 @@
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+// Creative SEO: tradução pt-BR e marca no build. Ver creative/DECISOES.md.
+import { creativeSeo } from "./scripts/creative/vite-plugin-creative";
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
@@ -70,6 +72,8 @@ export default defineConfig(({ mode, command }) => {
       outDir: emitSourcemaps ? "dist-sourcemaps" : "dist",
     },
     plugins: [
+      // Primeiro da lista: recebe o TSX cru, antes do TanStack Router separar as rotas.
+      creativeSeo(),
       leanWorkerBundle(),
       showDevtools
         ? devtools({

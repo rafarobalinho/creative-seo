@@ -1,0 +1,53 @@
+# Creative SEO: o que o CI do original não confere. A tradução pt-BR cobre
+# todos os textos do original e o build não mostra a marca dele. Ver
+# creative/DECISOES.md.
+name: Creative SEO
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: creative-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  creative:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Testes da camada creative
+        run: pnpm exec vitest run scripts/creative
+
+      # Falha se algum texto do original não tiver tradução, se uma tradução
+      # perder ou inventar variável, ou se uma chave também for lógica.
+      - name: Cobertura da tradução
+        run: pnpm exec tsx scripts/creative/extrair-textos.ts --verificar
+
+      - name: Build
+        run: pnpm exec vite build --mode selfhost
+
+      - name: Marca do original no build
+        run: pnpm exec tsx scripts/creative/verificar-marca.ts

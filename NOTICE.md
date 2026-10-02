@@ -11,4 +11,4 @@ alteração, como a licença exige.
 A licença MIT cobre o código, não a marca. Por isso o nome OpenSEO não aparece
 para os usuários do Creative SEO. As modificações deste fork estão concentradas
 em `creative/`, `scripts/creative/` e nas funcionalidades novas; ver
-[`creative/DECISOES.md`](creative/DECISOES.md).
+[`creative/DECISOES.md`](creative/DECISOES.md); como operar a camada, em [`creative/README.md`](creative/README.md).

@@ -1,0 +1,160 @@
+# Creative SEO: traz as atualizações do OpenSEO original toda semana.
+#
+# Mescla every-app/open-seo numa branch, regenera os arquivos gerados em vez de
+# conciliá-los, roda as checagens e abre um PR que lista os textos novos ainda
+# sem tradução e os workflows novos do original. Conflito em arquivo que não é
+# gerado aborta a mesclagem e abre uma issue com a lista: aí é decisão humana.
+#
+# Precisa do segredo CREATIVE_SYNC_TOKEN (token fine-grained deste repositório
+# com Contents, Pull requests, Issues e Workflows em leitura e escrita). O
+# GITHUB_TOKEN não serve: ele não empurra mudanças em .github/workflows, e o
+# original as tem com frequência. Ver creative/DECISOES.md.
+name: Creative SEO — sincroniza com o original
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # segundas, 9h UTC
+  workflow_dispatch:
+
+concurrency:
+  group: creative-sincroniza-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sincroniza:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.CREATIVE_SYNC_TOKEN }}
+
+      - name: Busca o original
+        id: original
+        run: |
+          set -euo pipefail
+          git config user.name "creative-seo-sync"
+          git config user.email "creative-seo-sync@users.noreply.github.com"
+          git remote add upstream https://github.com/every-app/open-seo.git
+          git fetch --no-tags upstream main
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Nada novo no original."
+            echo "novo=nao" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "novo=sim" >> "$GITHUB_OUTPUT"
+          echo "branch=sync/upstream-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Mescla
+        id: mescla
+        if: steps.original.outputs.novo == 'sim'
+        env:
+          BRANCH: ${{ steps.original.outputs.branch }}
+          GH_TOKEN: ${{ secrets.CREATIVE_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          git switch -c "$BRANCH"
+          git rev-parse HEAD > /tmp/antes
+          if git merge --no-edit --no-ff upstream/main; then
+            exit 0
+          fi
+          # Arquivos gerados: fica a versão do original, regenerada adiante.
+          for gerado in src/routeTree.gen.ts pnpm-lock.yaml src/worker-configuration.d.ts; do
+            if git diff --name-only --diff-filter=U | grep -qx "$gerado"; then
+              git checkout --theirs -- "$gerado"
+              git add -- "$gerado"
+            fi
+          done
+          restantes="$(git diff --name-only --diff-filter=U)"
+          if [ -z "$restantes" ]; then
+            git commit --no-edit
+            exit 0
+          fi
+          git merge --abort
+          {
+            echo "A sincronização semanal com o OpenSEO original encontrou conflito em arquivos que não são gerados:"
+            echo
+            printf '%s\n' "$restantes" | sed 's/^/- `/; s/$/`/'
+            echo
+            echo "Resolva à mão: \`git fetch upstream && git merge upstream/main\`. As regras estão em \`creative/DECISOES.md\`."
+          } > /tmp/issue.md
+          gh issue create --title "Sincronização com o original: conflito em $(date -u +%Y-%m-%d)" --body-file /tmp/issue.md
+          exit 1
+
+      - name: Setup pnpm
+        if: steps.original.outputs.novo == 'sim'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: steps.original.outputs.novo == 'sim'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instala e regenera
+        if: steps.original.outputs.novo == 'sim'
+        run: |
+          set -euo pipefail
+          pnpm install --no-frozen-lockfile
+          # src/routeTree.gen.ts é regenerado pelo build, no passo de checagens.
+          pnpm exec tsx scripts/creative/extrair-textos.ts > /tmp/traducao.txt || true
+
+      # Se o original renomear a variável que desliga a telemetria, ela volta
+      # a mandar dados para o PostHog deles sem aviso. Melhor falhar.
+      - name: Telemetria do original continua desligável
+        if: steps.original.outputs.novo == 'sim'
+        run: grep -q OPENSEO_TELEMETRY_DISABLED src/server/lib/self-host-telemetry.ts
+
+      - name: Checagens
+        id: checagens
+        if: steps.original.outputs.novo == 'sim'
+        run: |
+          set +e
+          falhas=""
+          pnpm run ci:check > /tmp/ci-check.txt 2>&1 || falhas="$falhas ci:check"
+          pnpm run test:ci > /tmp/testes.txt 2>&1 || falhas="$falhas testes"
+          pnpm exec vite build --mode selfhost > /tmp/build.txt 2>&1 || falhas="$falhas build"
+          pnpm exec tsx scripts/creative/verificar-marca.ts > /tmp/marca.txt 2>&1 || falhas="$falhas marca"
+          echo "falhas=${falhas# }" >> "$GITHUB_OUTPUT"
+
+      - name: Abre o PR
+        if: steps.original.outputs.novo == 'sim'
+        env:
+          BRANCH: ${{ steps.original.outputs.branch }}
+          FALHAS: ${{ steps.checagens.outputs.falhas }}
+          GH_TOKEN: ${{ secrets.CREATIVE_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          git add -A src/routeTree.gen.ts pnpm-lock.yaml creative/i18n/textos-originais.json
+          git diff --cached --quiet || git commit -m "chore: regenera arquivos gerados apos sincronizar com o original"
+          git push -u origin "$BRANCH"
+          antes="$(cat /tmp/antes)"
+          {
+            echo "Sincronização automática com \`every-app/open-seo\`."
+            echo
+            echo "## Commits do original"
+            git log --oneline --no-merges "$antes..upstream/main" | head -60 | sed 's/^/- /'
+            echo
+            echo "## Workflows novos ou alterados no original"
+            echo "Workflows do original rodam neste fork se estiverem habilitados. Confira e desative os que não servem."
+            git diff --name-only "$antes" HEAD -- .github/workflows | sed 's/^/- `/; s/$/`/' || true
+            echo
+            echo "## Tradução"
+            echo '```'
+            cat /tmp/traducao.txt
+            echo '```'
+            echo
+            echo "## Checagens"
+            if [ -z "$FALHAS" ]; then echo "Todas passaram."; else echo "**Falharam:** $FALHAS. Ver o log do workflow."; fi
+            echo
+            echo "Textos novos sem tradução entram em \`creative/i18n/pt-BR.json\` antes do merge; o CI do Creative SEO bloqueia enquanto faltar."
+          } > /tmp/pr.md
+          gh pr create --base main --head "$BRANCH" --title "Sincroniza com o OpenSEO original ($(date -u +%Y-%m-%d))" --body-file /tmp/pr.md
+          if [ -n "$FALHAS" ]; then exit 1; fi

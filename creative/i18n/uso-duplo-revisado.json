@@ -1,0 +1,9 @@
+{
+  "New chat": "Rótulo do botão de nova conversa do SAM. O título padrão é criado e comparado no servidor (SamChatAgent.ts), que fica em inglês.",
+  "Other": "Traduzido só em mapas de rótulo (papel de página-chave, agrupamentos). As opções do onboarding (INTEREST_OPTIONS, WORK_FOR_OPTIONS) ficam fora da tradução, então o valor salvo e comparado continua \"Other\".",
+  "keywords": "countLabel da tabela de palavras-chave do domínio. As comparações com \"keywords\" são abas e campos e ficam em inglês.",
+  "page": "Singular de contagem (\"1 página\") nas auditorias e no painel. As comparações são nomes de aba e campo.",
+  "pages": "Plural de contagem e countLabel da aba de páginas. As comparações são nomes de aba e campo.",
+  "queries": "Rótulo de seleção em lote no GSC. As comparações são nomes de aba e campo.",
+  "query": "Rótulo de seleção em lote no GSC (\"1 consulta\"). A comparação é um campo de busca."
+}

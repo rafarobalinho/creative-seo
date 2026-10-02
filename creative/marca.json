@@ -1,0 +1,31 @@
+{
+  "variaveis": {
+    "dominio": null,
+    "emailSuporte": null,
+    "documentacao": null
+  },
+  "termos": [
+    ["OpenSEO-Audit", "CreativeSEO-Audit"],
+    ["OpenSEO-Onboarding", "CreativeSEO-Onboarding"],
+    ["OpenSEO", "Creative SEO"],
+    [
+      "https://github.com/every-app/open-seo",
+      "https://github.com/rafarobalinho/creative-seo"
+    ],
+    ["https://app.openseo.so", "https://{dominio}"],
+    ["https://openseo.so/docs", "{documentacao}"],
+    ["https://openseo.so/privacy", "https://{dominio}/privacidade"],
+    ["https://openseo.so/terms-and-conditions", "https://{dominio}/termos"],
+    ["https://openseo.so/?utm_source=shared_report", "https://{dominio}"],
+    ["https://openseo.so/social-card.jpg", "https://{dominio}/social-card.jpg"],
+    [
+      "https://openseo.so/android-chrome-512x512.png",
+      "https://{dominio}/android-chrome-512x512.png"
+    ],
+    ["https://openseo.so", "https://{dominio}"],
+    ["ben@openseo.so", "{emailSuporte}"],
+    ["@openseo.so", "@{dominio}"],
+    ["https://discord.gg/c9uGs3cFXr", "mailto:{emailSuporte}"],
+    ["openseo.so", "{dominio}"]
+  ]
+}
