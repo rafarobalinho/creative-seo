@@ -67,7 +67,16 @@
     "chave": "10 pages is ~8x more expensive than 1 page"
   },
   {
+    "chave": "2xx"
+  },
+  {
     "chave": "30d"
+  },
+  {
+    "chave": "3xx"
+  },
+  {
+    "chave": "4xx/5xx"
   },
   {
     "chave": "50 keywords would cost{0}{1}/month"
@@ -115,6 +124,9 @@
     "chave": "A project can track {0} competitors. Remove some first."
   },
   {
+    "chave": "A project named \"Default\" with no domain already exists. Pick a different name or add a domain."
+  },
+  {
     "chave": "A rank check is already running"
   },
   {
@@ -149,6 +161,15 @@
   },
   {
     "chave": "AI"
+  },
+  {
+    "chave": "AI Overview — AI-generated summary at top of search"
+  },
+  {
+    "chave": "AI Workflows (MCP + Skills)"
+  },
+  {
+    "chave": "AI features"
   },
   {
     "chave": "AI mention data is temporarily unavailable for{0}{1}. Please try again shortly."
@@ -221,6 +242,9 @@
   },
   {
     "chave": "Actions for {0}"
+  },
+  {
+    "chave": "Activating {0}"
   },
   {
     "chave": "Active"
@@ -328,6 +352,12 @@
     "chave": "Adjust heading levels so they descend one step at a time (H1 → H2 → H3) without skipping."
   },
   {
+    "chave": "Admin"
+  },
+  {
+    "chave": "Affected Items"
+  },
+  {
     "chave": "Affected items ({0})"
   },
   {
@@ -406,7 +436,13 @@
     "chave": "An MCP client is requesting access to your OpenSEO workspace."
   },
   {
+    "chave": "An active hosted subscription is required before you can use OpenSEO."
+  },
+  {
     "chave": "An active project named \"Default\" with no domain already exists. Rename it first, then restore this one."
+  },
+  {
+    "chave": "An unexpected error occurred. Please check server logs and try again."
   },
   {
     "chave": "An unexpected error occurred. Please check server logs."
@@ -450,6 +486,9 @@
   {
     "chave": "Apply or remove tags across {0} selected keyword(s).",
     "plural": true
+  },
+  {
+    "chave": "Apr"
   },
   {
     "chave": "Arabic"
@@ -506,6 +545,9 @@
     "chave": "Ask one prompt across ChatGPT, Claude, Gemini, and Perplexity at the same time and compare their answers — including which sources each model cites."
   },
   {
+    "chave": "Audience: the client's marketing lead, not technical.\nSections, in order: Where we are / What we did this month / What moved / What to expect next.\nTone: plain and confident. Gloss every SEO term. No exclamation points.\nSign off as: Acme SEO\nAccent: #1C4ED8"
+  },
+  {
     "chave": "Audit actions"
   },
   {
@@ -521,13 +563,22 @@
     "chave": "Audit your site"
   },
   {
+    "chave": "Audits a Google Business Profile and Maps visibility."
+  },
+  {
     "chave": "Audits that render JavaScript are limited to this many pages."
   },
   {
     "chave": "Audits that render JavaScript are limited to {0} pages."
   },
   {
+    "chave": "Aug"
+  },
+  {
     "chave": "Australia"
+  },
+  {
+    "chave": "Australian Capital Territory"
   },
   {
     "chave": "Austria"
@@ -557,6 +608,9 @@
     "chave": "Authority score for this target page."
   },
   {
+    "chave": "Authorization response did not include a redirect URL."
+  },
+  {
     "chave": "Authorization: Bearer"
   },
   {
@@ -570,6 +624,9 @@
   },
   {
     "chave": "Auto"
+  },
+  {
+    "chave": "Average cost per click in Google Ads (USD)"
   },
   {
     "chave": "Avg Lighthouse SEO"
@@ -731,6 +788,9 @@
     "chave": "Best links: {0}"
   },
   {
+    "chave": "Best practices"
+  },
+  {
     "chave": "Beta"
   },
   {
@@ -738,6 +798,9 @@
   },
   {
     "chave": "Billing"
+  },
+  {
+    "chave": "Blocked"
   },
   {
     "chave": "Bolivia"
@@ -777,6 +840,9 @@
   },
   {
     "chave": "Bring your real clicks, impressions, and rankings into OpenSEO and query them from Claude or Codex over MCP. It never uses credits."
+  },
+  {
+    "chave": "British Columbia"
   },
   {
     "chave": "Broaden the scope to see domain-level citations."
@@ -825,6 +891,9 @@
   },
   {
     "chave": "Burmese"
+  },
+  {
+    "chave": "Business overview"
   },
   {
     "chave": "By CPC"
@@ -941,7 +1010,13 @@
     "chave": "Change property or account"
   },
   {
+    "chave": "Change vs previous"
+  },
+  {
     "chave": "Chat session not found"
+  },
+  {
+    "chave": "ChatGPT"
   },
   {
     "chave": "Check brand mentions"
@@ -961,6 +1036,9 @@
   {
     "chave": "Check {0} keyword(s)?",
     "plural": true
+  },
+  {
+    "chave": "Checked {0} of {1} keyword(s){2}"
   },
   {
     "chave": "Checking connected projects…"
@@ -1018,6 +1096,12 @@
   },
   {
     "chave": "City or region"
+  },
+  {
+    "chave": "Claude"
+  },
+  {
+    "chave": "Claude Code"
   },
   {
     "chave": "Claude Code on laptop"
@@ -1086,7 +1170,13 @@
     "chave": "Color"
   },
   {
+    "chave": "Comm"
+  },
+  {
     "chave": "Command copied"
+  },
+  {
+    "chave": "Commercial"
   },
   {
     "chave": "Comp"
@@ -1194,13 +1284,25 @@
     "chave": "Continue with Google"
   },
   {
+    "chave": "Continue with email"
+  },
+  {
     "chave": "Copied"
+  },
+  {
+    "chave": "Copied all actionable issues"
   },
   {
     "chave": "Copied data"
   },
   {
+    "chave": "Copied saved Lighthouse payload"
+  },
+  {
     "chave": "Copied to clipboard"
+  },
+  {
+    "chave": "Copied {0} issues"
   },
   {
     "chave": "Copied {0} {1}"
@@ -1254,10 +1356,34 @@
     "chave": "Could not copy to clipboard"
   },
   {
+    "chave": "Could not delete tag. Detach it from all keywords and try again."
+  },
+  {
+    "chave": "Could not export"
+  },
+  {
     "chave": "Could not load AI agent setup status."
   },
   {
+    "chave": "Could not load Ahrefs DR."
+  },
+  {
     "chave": "Could not load backlinks"
+  },
+  {
+    "chave": "Could not load backlinks data."
+  },
+  {
+    "chave": "Could not load this tab."
+  },
+  {
+    "chave": "Could not mint a Google Analytics access token."
+  },
+  {
+    "chave": "Could not mint a Search Console access token (grant revoked or expired)."
+  },
+  {
+    "chave": "Could not update tag"
   },
   {
     "chave": "Could not verify the Cloudflare Access token against TEAM_DOMAIN's signing keys. Check that TEAM_DOMAIN is your team's https://<team>.cloudflareaccess.com domain."
@@ -1311,6 +1437,9 @@
     "chave": "Country hint sent: {0}. This is not a verified search location."
   },
   {
+    "chave": "Crawl for broken links, missing tags, and indexability problems."
+  },
+  {
     "chave": "Crawl result"
   },
   {
@@ -1341,6 +1470,9 @@
     "chave": "Crawler was blocked"
   },
   {
+    "chave": "Crawling"
+  },
+  {
     "chave": "Crawling pages"
   },
   {
@@ -1357,6 +1489,9 @@
   },
   {
     "chave": "Create another project"
+  },
+  {
+    "chave": "Create another project, or let your AI agent set up a list of sites."
   },
   {
     "chave": "Create project"
@@ -1377,6 +1512,9 @@
     "chave": "Creating account..."
   },
   {
+    "chave": "Critical"
+  },
+  {
     "chave": "Critical {0}"
   },
   {
@@ -1390,6 +1528,12 @@
   },
   {
     "chave": "Current Google ranking position"
+  },
+  {
+    "chave": "Current Google ranking position, showing change from the comparison period"
+  },
+  {
+    "chave": "Current goal"
   },
   {
     "chave": "Current page · selected view"
@@ -1473,7 +1617,13 @@
     "chave": "DataForSEO llm_responses returned an invalid response shape"
   },
   {
+    "chave": "DataForSEO rejected the API key. Check that DATAFORSEO_API_KEY is the base64 of your DataForSEO login:password."
+  },
+  {
     "chave": "DataForSEO rejected this tracker: {0}"
+  },
+  {
+    "chave": "DataForSEO request failed"
   },
   {
     "chave": "DataForSEO request timed out on {0}"
@@ -1483,6 +1633,9 @@
   },
   {
     "chave": "DataForSEO returned an empty response"
+  },
+  {
+    "chave": "DataForSEO task failed"
   },
   {
     "chave": "DataForSEO task failed ({0})"
@@ -1503,13 +1656,22 @@
     "chave": "DataForSEO's 0-100 authority score."
   },
   {
+    "chave": "Database query failed — check server logs."
+  },
+  {
     "chave": "Date"
   },
   {
     "chave": "Date range"
   },
   {
+    "chave": "Dates must be valid YYYY-MM-DD values with startDate on or before endDate."
+  },
+  {
     "chave": "Day of week"
+  },
+  {
+    "chave": "Dec"
   },
   {
     "chave": "Decline"
@@ -1572,6 +1734,9 @@
     "chave": "Destination on your site"
   },
   {
+    "chave": "Details"
+  },
+  {
     "chave": "Device"
   },
   {
@@ -1596,10 +1761,19 @@
     "chave": "Discover keyword ideas, search demand, and ranking opportunities."
   },
   {
+    "chave": "Discovery"
+  },
+  {
     "chave": "Dismiss"
   },
   {
+    "chave": "Display Value"
+  },
+  {
     "chave": "Displays the mobile sidebar."
+  },
+  {
+    "chave": "District of Columbia"
   },
   {
     "chave": "Docker self-hosting: {0}"
@@ -1621,6 +1795,9 @@
   },
   {
     "chave": "Domain Overview"
+  },
+  {
+    "chave": "Domain Rank"
   },
   {
     "chave": "Domain added for rank tracking"
@@ -1779,6 +1956,9 @@
     "chave": "Enter a domain or URL"
   },
   {
+    "chave": "Enter a domain or URL to analyze."
+  },
+  {
     "chave": "Enter a domain or URL to get started"
   },
   {
@@ -1797,10 +1977,16 @@
     "chave": "Enter a project name."
   },
   {
+    "chave": "Enter a prompt"
+  },
+  {
     "chave": "Enter a prompt to compare model answers"
   },
   {
     "chave": "Enter a valid domain like example.com"
+  },
+  {
+    "chave": "Enter a valid domain or page URL."
   },
   {
     "chave": "Enter a valid domain, like acme.com."
@@ -1848,6 +2034,9 @@
     "chave": "Estimated monthly search demand for this prompt's topic. This is prompt demand, not the number of brand mentions."
   },
   {
+    "chave": "Estimated monthly search volume from Google"
+  },
+  {
     "chave": "Estimated monthly searches in {0} from Google Ads"
   },
   {
@@ -1858,6 +2047,9 @@
   },
   {
     "chave": "Estimated spam risk of this site or page."
+  },
+  {
+    "chave": "Estimated {0} to {1} for up to {2} pages. Sites with aggressive bot detection need our more capable renderer and cost more."
   },
   {
     "chave": "Estonia"
@@ -1873,6 +2065,9 @@
   },
   {
     "chave": "Ewe"
+  },
+  {
+    "chave": "Exact URL"
   },
   {
     "chave": "Exactly matches"
@@ -1905,6 +2100,9 @@
     "chave": "Expires"
   },
   {
+    "chave": "Explains where you stand and picks your next step."
+  },
+  {
     "chave": "Explore a competitor"
   },
   {
@@ -1923,6 +2121,9 @@
     "chave": "Export Excel"
   },
   {
+    "chave": "Export failed"
+  },
+  {
     "chave": "Export to Sheets"
   },
   {
@@ -1938,16 +2139,28 @@
     "chave": "FR"
   },
   {
+    "chave": "FS"
+  },
+  {
     "chave": "Failed"
   },
   {
     "chave": "Failed query:"
   },
   {
+    "chave": "Failed to copy payload"
+  },
+  {
     "chave": "Failed to create chat session"
   },
   {
+    "chave": "Failed to export payload"
+  },
+  {
     "chave": "Failed to load Lighthouse issues."
+  },
+  {
+    "chave": "Failed to load SERP data."
   },
   {
     "chave": "Failed to load Search Console data"
@@ -2028,6 +2241,18 @@
     "chave": "Failed to start a new chat."
   },
   {
+    "chave": "Failed to start audit"
+  },
+  {
+    "chave": "Failed to start rank check workflow"
+  },
+  {
+    "chave": "Failed to start scheduled workflow"
+  },
+  {
+    "chave": "Failed to update sharing"
+  },
+  {
     "chave": "Failed to validate API key"
   },
   {
@@ -2037,13 +2262,25 @@
     "chave": "Farsi"
   },
   {
+    "chave": "Featured Snippet — highlighted answer box at top of results"
+  },
+  {
+    "chave": "Feb"
+  },
+  {
     "chave": "Fetch current Google positions"
   },
   {
     "chave": "Fetch new volume, difficulty, and CPC"
   },
   {
+    "chave": "Fetched At"
+  },
+  {
     "chave": "Fetched sample of prompts whose AI answer cited{0}{1}{2}{3}"
+  },
+  {
+    "chave": "Fetched-sample prompt examples"
   },
   {
     "chave": "Fetching or rendering failed, so this page was not checked for content issues."
@@ -2070,10 +2307,22 @@
     "chave": "Filters"
   },
   {
+    "chave": "Finalizing"
+  },
+  {
     "chave": "Find project…"
   },
   {
+    "chave": "Find topics and links worth learning from."
+  },
+  {
     "chave": "Finding your top keywords..."
+  },
+  {
+    "chave": "Finds keyword opportunities from a few seed topics."
+  },
+  {
+    "chave": "Finds link prospects and drafts outreach."
   },
   {
     "chave": "Finish"
@@ -2086,6 +2335,9 @@
   },
   {
     "chave": "First Seen"
+  },
+  {
+    "chave": "First seen"
   },
   {
     "chave": "Flags"
@@ -2104,6 +2356,9 @@
   },
   {
     "chave": "France"
+  },
+  {
+    "chave": "Free plan audits are limited to {0} pages. Upgrade to run larger audits."
   },
   {
     "chave": "French"
@@ -2146,6 +2401,9 @@
   },
   {
     "chave": "Ganda"
+  },
+  {
+    "chave": "Gemini"
   },
   {
     "chave": "General"
@@ -2209,7 +2467,52 @@
     "chave": "Go to{0}{1}{2}and request API credentials by email."
   },
   {
+    "chave": "Google"
+  },
+  {
+    "chave": "Google AI Overview"
+  },
+  {
     "chave": "Google Analytics"
+  },
+  {
+    "chave": "Google Analytics Admin API error ({0})."
+  },
+  {
+    "chave": "Google Analytics Admin API is temporarily unavailable."
+  },
+  {
+    "chave": "Google Analytics connection expired."
+  },
+  {
+    "chave": "Google Analytics denied access to this property."
+  },
+  {
+    "chave": "Google Analytics denied access. Check the account's property access and enabled APIs."
+  },
+  {
+    "chave": "Google Analytics is not connected for this project."
+  },
+  {
+    "chave": "Google Analytics rate limit reached."
+  },
+  {
+    "chave": "Google Analytics rejected this report."
+  },
+  {
+    "chave": "Google Analytics reporting is temporarily unavailable."
+  },
+  {
+    "chave": "Google Analytics reporting quota is exhausted. Try again later."
+  },
+  {
+    "chave": "Google Analytics reporting quota was exhausted."
+  },
+  {
+    "chave": "Google Analytics returned an invalid report."
+  },
+  {
+    "chave": "Google Analytics returned an invalid reporting response."
   },
   {
     "chave": "Google Analytics · last 28 days"
@@ -2230,6 +2533,9 @@
     "chave": "Google account removed"
   },
   {
+    "chave": "Google account · {0}"
+  },
+  {
     "chave": "Google credentials are set, but Search Console stays DISABLED until BETTER_AUTH_SECRET is at least {0} characters (it encrypts stored OAuth tokens)."
   },
   {
@@ -2242,6 +2548,12 @@
     "chave": "Google reports one combined volume for similar keywords. This estimates each keyword's own volume. Costs 2x the credits."
   },
   {
+    "chave": "Google sign in is not available right now."
+  },
+  {
+    "chave": "Google sign up is not available right now."
+  },
+  {
     "chave": "Google's permission screen was closed or declined. Try again whenever you're ready."
   },
   {
@@ -2251,7 +2563,13 @@
     "chave": "Greek"
   },
   {
+    "chave": "Grok Bot"
+  },
+  {
     "chave": "Group keywords"
+  },
+  {
+    "chave": "Groups keywords by intent and maps them to pages."
   },
   {
     "chave": "Guatemala"
@@ -2344,10 +2662,16 @@
     "chave": "Hosted mode requires{0}{1}(32+ characters), {2}, and Google OAuth credentials on the deployment."
   },
   {
+    "chave": "How To Fix"
+  },
+  {
     "chave": "How did you find OpenSEO?"
   },
   {
     "chave": "How to fix:"
+  },
+  {
+    "chave": "Hub page"
   },
   {
     "chave": "Hungarian"
@@ -2378,6 +2702,9 @@
   },
   {
     "chave": "INP"
+  },
+  {
+    "chave": "INP (ms)"
   },
   {
     "chave": "IQ"
@@ -2428,7 +2755,19 @@
     "chave": "Images missing alt text"
   },
   {
+    "chave": "Images — image results shown in the SERP"
+  },
+  {
+    "chave": "Img"
+  },
+  {
     "chave": "Impact"
+  },
+  {
+    "chave": "Impact (bytes)"
+  },
+  {
+    "chave": "Impact (ms)"
   },
   {
     "chave": "Impressions"
@@ -2467,7 +2806,16 @@
     "chave": "Indonesian"
   },
   {
+    "chave": "Info"
+  },
+  {
     "chave": "Info {0}"
+  },
+  {
+    "chave": "Informational"
+  },
+  {
+    "chave": "Inspection failed"
   },
   {
     "chave": "Instructions"
@@ -2507,6 +2855,9 @@
   },
   {
     "chave": "Invitation declined"
+  },
+  {
+    "chave": "Invitation limit reached for today. Try again tomorrow."
   },
   {
     "chave": "Invitation resent"
@@ -2569,6 +2920,9 @@
     "chave": "Italy"
   },
   {
+    "chave": "Its reports are hidden until the owner restores it."
+  },
+  {
     "chave": "JE"
   },
   {
@@ -2587,10 +2941,16 @@
     "chave": "Jamaica"
   },
   {
+    "chave": "Jan"
+  },
+  {
     "chave": "Japan"
   },
   {
     "chave": "Japanese"
+  },
+  {
+    "chave": "JavaScript rendering"
   },
   {
     "chave": "JavaScript rendering is not available on this deployment. It needs a Cloudflare deployment with Browser Run, or CONTEXT_API_KEY. Run the audit without rendering instead."
@@ -2614,6 +2974,12 @@
     "chave": "Jordan"
   },
   {
+    "chave": "Jul"
+  },
+  {
+    "chave": "Jun"
+  },
+  {
     "chave": "KD"
   },
   {
@@ -2624,6 +2990,9 @@
   },
   {
     "chave": "KH"
+  },
+  {
+    "chave": "KP"
   },
   {
     "chave": "KR"
@@ -2656,6 +3025,12 @@
     "chave": "Keep one H1 for the page's main heading and demote the others to H2/H3 (or unstyled elements for non-headings like logos)."
   },
   {
+    "chave": "Keep prompts under {0} characters"
+  },
+  {
+    "chave": "Keep the brand under {0} characters"
+  },
+  {
     "chave": "Kenya"
   },
   {
@@ -2678,6 +3053,9 @@
   },
   {
     "chave": "Keyword difficulty"
+  },
+  {
+    "chave": "Keyword difficulty score (0-100) — higher means harder to rank"
   },
   {
     "chave": "Keyword source"
@@ -2711,6 +3089,9 @@
   },
   {
     "chave": "Kirundi"
+  },
+  {
+    "chave": "Knowledge Panel — info box about an entity"
   },
   {
     "chave": "Kongo"
@@ -2749,6 +3130,9 @@
     "chave": "LCP"
   },
   {
+    "chave": "LCP (ms)"
+  },
+  {
     "chave": "LI"
   },
   {
@@ -2776,13 +3160,31 @@
     "chave": "Laos"
   },
   {
+    "chave": "Last 12 available months"
+  },
+  {
+    "chave": "Last 28 days"
+  },
+  {
+    "chave": "Last 3 months"
+  },
+  {
+    "chave": "Last 7 days"
+  },
+  {
     "chave": "Last Fetched"
+  },
+  {
+    "chave": "Last Seen"
   },
   {
     "chave": "Last check failed."
   },
   {
     "chave": "Last scheduled check was skipped due to insufficient credits. Top up your balance to resume automatic tracking."
+  },
+  {
+    "chave": "Last seen"
   },
   {
     "chave": "Last used"
@@ -2827,6 +3229,9 @@
     "chave": "Lighthouse measures the performance of your pages and identifies issues."
   },
   {
+    "chave": "Lighthouse returned no category scores"
+  },
+  {
     "chave": "Lighthouse tests"
   },
   {
@@ -2849,6 +3254,9 @@
   },
   {
     "chave": "Link to this page from relevant pages (navigation, related content, hub pages), or remove it from the sitemap if it shouldn't be indexed."
+  },
+  {
+    "chave": "Links Count"
   },
   {
     "chave": "Links pointing to broken pages here."
@@ -2885,6 +3293,9 @@
   },
   {
     "chave": "Local"
+  },
+  {
+    "chave": "Local Pack — map with local business listings"
   },
   {
     "chave": "Local development: {0}"
@@ -3040,6 +3451,12 @@
     "chave": "Map the competition"
   },
   {
+    "chave": "Maps who wins in your market and why."
+  },
+  {
+    "chave": "Mar"
+  },
+  {
     "chave": "Marathi"
   },
   {
@@ -3062,6 +3479,9 @@
   },
   {
     "chave": "Maximum {0} tracked domains per project"
+  },
+  {
+    "chave": "May"
   },
   {
     "chave": "Maybe later"
@@ -3113,6 +3533,12 @@
     "chave": "Min"
   },
   {
+    "chave": "Missing"
+  },
+  {
+    "chave": "Missing Alt"
+  },
+  {
     "chave": "Missing Better Auth hosted configuration"
   },
   {
@@ -3120,6 +3546,9 @@
   },
   {
     "chave": "Missing H1 heading"
+  },
+  {
+    "chave": "Missing alt"
   },
   {
     "chave": "Missing meta description"
@@ -3150,6 +3579,9 @@
   },
   {
     "chave": "Monaco"
+  },
+  {
+    "chave": "Money page"
   },
   {
     "chave": "Mongolia"
@@ -3203,6 +3635,12 @@
     "chave": "Must not contain… e.g. jobs"
   },
   {
+    "chave": "My Company's Website"
+  },
+  {
+    "chave": "My Own Business"
+  },
+  {
     "chave": "My Site"
   },
   {
@@ -3251,6 +3689,12 @@
     "chave": "National"
   },
   {
+    "chave": "Nav"
+  },
+  {
+    "chave": "Navigational"
+  },
+  {
     "chave": "Nepal"
   },
   {
@@ -3261,6 +3705,24 @@
   },
   {
     "chave": "Never"
+  },
+  {
+    "chave": "New Brunswick"
+  },
+  {
+    "chave": "New Hampshire"
+  },
+  {
+    "chave": "New Jersey"
+  },
+  {
+    "chave": "New Mexico"
+  },
+  {
+    "chave": "New South Wales"
+  },
+  {
+    "chave": "New York"
   },
   {
     "chave": "New Zealand"
@@ -3294,6 +3756,12 @@
   },
   {
     "chave": "New: Connect Google Search Console"
+  },
+  {
+    "chave": "Newfoundland and Labrador"
+  },
+  {
+    "chave": "News"
   },
   {
     "chave": "Next page"
@@ -3380,6 +3848,9 @@
     "chave": "No keywords"
   },
   {
+    "chave": "No keywords could be checked."
+  },
+  {
     "chave": "No keywords match these filters"
   },
   {
@@ -3395,6 +3866,12 @@
     "chave": "No keywords yet"
   },
   {
+    "chave": "No locations found for \"{0}\""
+  },
+  {
+    "chave": "No matching ecommerce activity was reported for this period and channel."
+  },
+  {
     "chave": "No matching properties or accounts"
   },
   {
@@ -3402,6 +3879,12 @@
   },
   {
     "chave": "No matching tracked domains"
+  },
+  {
+    "chave": "No measured site-search terms were reported for this period."
+  },
+  {
+    "chave": "No missing alt"
   },
   {
     "chave": "No organic search traffic recorded in the last 28 days yet."
@@ -3491,10 +3974,19 @@
     "chave": "None of this domain's top cited pages fall under {0}."
   },
   {
+    "chave": "North Carolina"
+  },
+  {
+    "chave": "North Dakota"
+  },
+  {
     "chave": "North Macedonia"
   },
   {
     "chave": "Northern Sotho"
+  },
+  {
+    "chave": "Northwest Territories"
   },
   {
     "chave": "Norway"
@@ -3554,7 +4046,16 @@
     "chave": "Nothing written down yet"
   },
   {
+    "chave": "Nov"
+  },
+  {
+    "chave": "Nova Scotia"
+  },
+  {
     "chave": "Nyankole"
+  },
+  {
+    "chave": "OK"
   },
   {
     "chave": "OM"
@@ -3563,10 +4064,16 @@
     "chave": "OPENROUTER_API_KEY"
   },
   {
+    "chave": "OPENROUTER_API_KEY is not set for this deployment yet. Add it to your environment, restart OpenSEO, then confirm here."
+  },
+  {
     "chave": "OPENROUTER_API_KEY not set (optional) — SAM, the in-app SEO agent, is disabled."
   },
   {
     "chave": "OPENROUTER_API_KEY set"
+  },
+  {
+    "chave": "Oct"
   },
   {
     "chave": "Off"
@@ -3593,10 +4100,16 @@
     "chave": "One or more images on the page lack alt attributes. Alt text is an accessibility requirement and the main way search engines understand images."
   },
   {
+    "chave": "One page only"
+  },
+  {
     "chave": "One per domain"
   },
   {
     "chave": "One quick setup step"
+  },
+  {
+    "chave": "One-page site audit built around a single do-this-week action."
   },
   {
     "chave": "Only 1 check so far"
@@ -3653,6 +4166,12 @@
     "chave": "OpenSEO"
   },
   {
+    "chave": "OpenSEO app"
+  },
+  {
+    "chave": "OpenSEO auth is not configured. Follow the README setup steps for Cloudflare Access."
+  },
+  {
     "chave": "OpenSEO needs the {0} secret before AI features like SAM, the in-app SEO agent, can run. It is optional — everything else in OpenSEO works without it."
   },
   {
@@ -3677,6 +4196,9 @@
     "chave": "Organic Keywords"
   },
   {
+    "chave": "Organic Search"
+  },
+  {
     "chave": "Organic Traffic"
   },
   {
@@ -3698,6 +4220,9 @@
     "chave": "Orphan page"
   },
   {
+    "chave": "Other"
+  },
+  {
     "chave": "Other answer"
   },
   {
@@ -3707,7 +4232,13 @@
     "chave": "Overview"
   },
   {
+    "chave": "Owner"
+  },
+  {
     "chave": "PA"
+  },
+  {
+    "chave": "PAA"
   },
   {
     "chave": "PE"
@@ -3860,10 +4391,16 @@
     "chave": "Paste the value from Shopify admin"
   },
   {
+    "chave": "Paste this prompt into your agent to automatically configure OpenSEO for you."
+  },
+  {
     "chave": "Paste your OpenRouter API key and save."
   },
   {
     "chave": "Paste your OpenRouter API key when prompted."
+  },
+  {
+    "chave": "People Also Ask — expandable related questions"
   },
   {
     "chave": "People also search for"
@@ -3876,6 +4413,9 @@
   },
   {
     "chave": "Performance ({0})"
+  },
+  {
+    "chave": "Perplexity"
   },
   {
     "chave": "Personal"
@@ -3903,6 +4443,24 @@
   },
   {
     "chave": "Platform"
+  },
+  {
+    "chave": "Please check your input and try again."
+  },
+  {
+    "chave": "Please enter a URL."
+  },
+  {
+    "chave": "Please enter a domain"
+  },
+  {
+    "chave": "Please enter at least one keyword."
+  },
+  {
+    "chave": "Please enter no more than {0} keywords (one per line)."
+  },
+  {
+    "chave": "Please sign in and try again."
   },
   {
     "chave": "Please sign up with a non-disposable email address."
@@ -3938,6 +4496,9 @@
     "chave": "Position distribution"
   },
   {
+    "chave": "Positioning"
+  },
+  {
     "chave": "Preparing..."
   },
   {
@@ -3945,6 +4506,12 @@
   },
   {
     "chave": "Previous page"
+  },
+  {
+    "chave": "Previous-period comparison is only available for event key events, channel-group acquisition, device audiences, and new-versus-returning audiences."
+  },
+  {
+    "chave": "Prince Edward Island"
   },
   {
     "chave": "Privacy Policy"
@@ -4005,6 +4572,9 @@
   },
   {
     "chave": "Provide a name or color to update."
+  },
+  {
+    "chave": "Provide both startDate and endDate, or neither."
   },
   {
     "chave": "Public link"
@@ -4073,6 +4643,9 @@
     "chave": "Ranked-keyword suggestions aren't available for this country. Continue and add the keywords you want to track manually."
   },
   {
+    "chave": "Rate limited"
+  },
+  {
     "chave": "Rate limited (429)"
   },
   {
@@ -4083,6 +4656,9 @@
   },
   {
     "chave": "Reaching the final page requires two or more consecutive redirects. Each hop adds latency, leaks link equity, and burns crawl budget; long chains may not be followed at all."
+  },
+  {
+    "chave": "Read"
   },
   {
     "chave": "Read more"
@@ -4139,6 +4715,9 @@
     "chave": "Refreshing..."
   },
   {
+    "chave": "Rel Attributes"
+  },
+  {
     "chave": "Related queries the model considered"
   },
   {
@@ -4152,6 +4731,9 @@
   },
   {
     "chave": "Remove crawler access for {0}"
+  },
+  {
+    "chave": "Remove failed."
   },
   {
     "chave": "Remove from recent searches"
@@ -4189,6 +4771,9 @@
   },
   {
     "chave": "Rendering couldn't get past it."
+  },
+  {
+    "chave": "Rendering up to {0} pages needs {1} of credits available. Lower the page limit or add credits."
   },
   {
     "chave": "Replacement tags are required when tagMode is replace."
@@ -4233,7 +4818,16 @@
     "chave": "Research competitors and keywords, audit your site, and connect your tools."
   },
   {
+    "chave": "Research failed."
+  },
+  {
     "chave": "Research log"
+  },
+  {
+    "chave": "Research log ({0} {1})"
+  },
+  {
+    "chave": "Research scope: 'domain' (hostname without subdomains), 'subdomains' (hostname plus all subdomains), 'subfolder' (path and its children), or 'exact_url' (one page). Defaults to 'subdomains' for root inputs and 'subfolder' when the input has a path."
   },
   {
     "chave": "Resend email"
@@ -4246,6 +4840,9 @@
   },
   {
     "chave": "Reset password"
+  },
+  {
+    "chave": "Response Time (ms)"
   },
   {
     "chave": "Restart OpenSEO."
@@ -4275,6 +4872,9 @@
     "chave": "Revoke “{0}”?"
   },
   {
+    "chave": "Rhode Island"
+  },
+  {
     "chave": "Role"
   },
   {
@@ -4294,6 +4894,9 @@
   },
   {
     "chave": "Run a new audit to try again, or email{0}{1} if this keeps happening."
+  },
+  {
+    "chave": "Run already {0}"
   },
   {
     "chave": "Run an OpenSEO skill such as seo-audit from Claude Code or Codex and the report will appear here."
@@ -4317,6 +4920,9 @@
     "chave": "Run tools and write results back to your organization."
   },
   {
+    "chave": "Run {0} is no longer active (status={1})"
+  },
+  {
     "chave": "Run {0}{1}{2}"
   },
   {
@@ -4329,6 +4935,9 @@
     "chave": "Running..."
   },
   {
+    "chave": "Runs {0} at {1} ({2}{3} UTC)"
+  },
+  {
     "chave": "Russian"
   },
   {
@@ -4336,6 +4945,9 @@
   },
   {
     "chave": "SA"
+  },
+  {
+    "chave": "SAM"
   },
   {
     "chave": "SAM stopped before finishing this reply."
@@ -4420,6 +5032,9 @@
     "chave": "Save keyword ideas from research, organize them with tags, and revisit when you're ready to act."
   },
   {
+    "chave": "Save property"
+  },
+  {
     "chave": "Save signature"
   },
   {
@@ -4450,6 +5065,12 @@
     "chave": "Saved {0} {1}"
   },
   {
+    "chave": "Saves any of the above as a report on your Reports page."
+  },
+  {
+    "chave": "Saves your goals, competitors, and key pages as shared context."
+  },
+  {
     "chave": "Save{0}"
   },
   {
@@ -4477,6 +5098,9 @@
     "chave": "Scheduled check skipped — paid plan required"
   },
   {
+    "chave": "Scheduled checks"
+  },
+  {
     "chave": "Scheduled checks will stop and this domain will be hidden from the list. Ranking history is preserved."
   },
   {
@@ -4495,7 +5119,25 @@
     "chave": "Search"
   },
   {
+    "chave": "Search Console"
+  },
+  {
+    "chave": "Search Console API error ({0}): {1}"
+  },
+  {
     "chave": "Search Console data can take a few days to appear."
+  },
+  {
+    "chave": "Search Console denied access to this property (no verified permission, or the connection was revoked)."
+  },
+  {
+    "chave": "Search Console is not connected for this project"
+  },
+  {
+    "chave": "Search Console property not found. It may have been removed in Search Console."
+  },
+  {
+    "chave": "Search Console rate limit reached. Retry shortly."
   },
   {
     "chave": "Search Depth"
@@ -4555,6 +5197,9 @@
     "chave": "Search volume"
   },
   {
+    "chave": "Searching..."
+  },
+  {
     "chave": "Section content"
   },
   {
@@ -4573,10 +5218,16 @@
     "chave": "See how ChatGPT and Google AI Overview cite any brand or domain — total mentions, sample prompts where it appears, and the pages cited alongside it."
   },
   {
+    "chave": "See the individual links pointing to your target, including source page, anchor text, and link quality signals."
+  },
+  {
     "chave": "See the prompts"
   },
   {
     "chave": "See what the models cite"
+  },
+  {
+    "chave": "See which pages on the target site attract the most backlinks and referring domains."
   },
   {
     "chave": "See your site's clicks, impressions, CTR, and position from Google Search Console."
@@ -4589,6 +5240,9 @@
   },
   {
     "chave": "Select all rows"
+  },
+  {
+    "chave": "Select at least one model"
   },
   {
     "chave": "Select country"
@@ -4622,6 +5276,9 @@
   },
   {
     "chave": "Senegal"
+  },
+  {
+    "chave": "Sep"
   },
   {
     "chave": "Serbia"
@@ -4708,10 +5365,19 @@
     "chave": "Share of Voice compares whole domains — it is not narrowed to the page or folder you searched."
   },
   {
+    "chave": "Share the work, or keep things solo for now."
+  },
+  {
+    "chave": "Shared organization"
+  },
+  {
     "chave": "Sharing is only available on hosted OpenSEO."
   },
   {
     "chave": "Shona"
+  },
+  {
+    "chave": "Shop"
   },
   {
     "chave": "Shopify also shows a Signature-Agent value. You don't need to paste it: OpenSEO sends it with every request."
@@ -4729,7 +5395,13 @@
     "chave": "Shopify signature"
   },
   {
+    "chave": "Shopify won't accept this signature for {0}. Check that you created it for {1} and copied both values in full."
+  },
+  {
     "chave": "Shopify's crawler access guide"
+  },
+  {
+    "chave": "Shopping — product listings with prices"
   },
   {
     "chave": "Shorten the title to roughly 50–60 characters, front-loading the most important words."
@@ -4741,7 +5413,19 @@
     "chave": "Show top 20"
   },
   {
+    "chave": "Showing backlinks for this exact page. Switch the scope to Domain or Subdomains for site-wide results — trend charts need one of those."
+  },
+  {
+    "chave": "Showing backlinks pointing into this subfolder. Counts come from filtered backlink totals; rank, trends, and the referring-domains breakdown need Domain or Subdomains scope."
+  },
+  {
     "chave": "Showing the {0} most recent reports."
+  },
+  {
+    "chave": "Showing {0} keywords"
+  },
+  {
+    "chave": "Showing {0} of {1} keywords"
   },
   {
     "chave": "Shows the latest saved version. Hidden from search engines.{0}"
@@ -4751,6 +5435,9 @@
   },
   {
     "chave": "Sign in"
+  },
+  {
+    "chave": "Sign in to read this report."
   },
   {
     "chave": "Sign out"
@@ -4795,6 +5482,9 @@
     "chave": "Site audit · {0}"
   },
   {
+    "chave": "Skill: {0}"
+  },
+  {
     "chave": "Skills"
   },
   {
@@ -4837,6 +5527,9 @@
     "chave": "Something went wrong while talking to Google. Please try again — if it keeps failing, contact support."
   },
   {
+    "chave": "Something went wrong. Please try again."
+  },
+  {
     "chave": "Sort by {0}"
   },
   {
@@ -4844,6 +5537,15 @@
   },
   {
     "chave": "Source"
+  },
+  {
+    "chave": "Source AI search volume"
+  },
+  {
+    "chave": "Source Page Rank"
+  },
+  {
+    "chave": "Source URL"
   },
   {
     "chave": "Source URL Contains"
@@ -4862,6 +5564,15 @@
   },
   {
     "chave": "South Africa"
+  },
+  {
+    "chave": "South Australia"
+  },
+  {
+    "chave": "South Carolina"
+  },
+  {
+    "chave": "South Dakota"
   },
   {
     "chave": "South Korea"
@@ -4891,6 +5602,9 @@
     "chave": "Special backlink attributes, such as lost, broken, nofollow, or multiple links from the same source."
   },
   {
+    "chave": "Special result features appearing on the search results page (e.g. AI Overview, People Also Ask)"
+  },
+  {
     "chave": "Speed"
   },
   {
@@ -4910,6 +5624,9 @@
   },
   {
     "chave": "Start a large audit?"
+  },
+  {
+    "chave": "Start from one keyword and see what people search for."
   },
   {
     "chave": "Start from one keyword that describes what you offer. You’ll get related searches with volume and difficulty."
@@ -4942,10 +5659,22 @@
     "chave": "Striking distance ({0})"
   },
   {
+    "chave": "Studies one competitor's keywords, content, and backlinks."
+  },
+  {
+    "chave": "Subdomains"
+  },
+  {
+    "chave": "Subfolder"
+  },
+  {
     "chave": "Subscribe to run site audits"
   },
   {
     "chave": "Summary is {0} characters; the limit is {1}. Shorten it and save again."
+  },
+  {
+    "chave": "Supporting page"
   },
   {
     "chave": "Suriname"
@@ -4996,6 +5725,9 @@
     "chave": "TTFB"
   },
   {
+    "chave": "TTFB (ms)"
+  },
+  {
     "chave": "TTI"
   },
   {
@@ -5005,16 +5737,26 @@
     "chave": "TZ"
   },
   {
+    "chave": "Tablet"
+  },
+  {
     "chave": "Tag"
   },
   {
     "chave": "Tag deleted"
   },
   {
+    "chave": "Tag is attached to {0} keyword(s). Remove the tag from those keywords first.",
+    "plural": true
+  },
+  {
     "chave": "Tag updated"
   },
   {
     "chave": "Tagalog"
+  },
+  {
+    "chave": "Tags"
   },
   {
     "chave": "Taiwan"
@@ -5032,6 +5774,9 @@
     "chave": "Tamil"
   },
   {
+    "chave": "TanStack Router"
+  },
+  {
     "chave": "Tanzania"
   },
   {
@@ -5041,7 +5786,13 @@
     "chave": "Target Domain"
   },
   {
+    "chave": "Target Rank"
+  },
+  {
     "chave": "Target Spam Score"
+  },
+  {
+    "chave": "Target URL"
   },
   {
     "chave": "Target is required"
@@ -5104,6 +5855,12 @@
     "chave": "That Search Console property isn't available on your connected Google account."
   },
   {
+    "chave": "The Google Analytics Data API is not enabled for this OAuth application."
+  },
+  {
+    "chave": "The Google Analytics connection has expired or was revoked."
+  },
+  {
     "chave": "The HTML has no closing </html>; the model stopped early. On Codex, escape backticks and ${."
   },
   {
@@ -5113,10 +5870,43 @@
     "chave": "The attempt expired or was interrupted. Try again in a single browser tab and finish the Google steps within 10 minutes. If it keeps happening, make sure your browser allows cookies for this site."
   },
   {
+    "chave": "The connected DataForSEO account has a billing or balance issue"
+  },
+  {
+    "chave": "The connected DataForSEO account has a billing or balance issue."
+  },
+  {
+    "chave": "The connected Google account can no longer access this property."
+  },
+  {
     "chave": "The crawl stopped early because of the site’s rate limit."
   },
   {
+    "chave": "The current rank check costs {0} credits, above the approved maximum of {1}. Call estimate_rank_tracker_cost again and ask the user to approve the updated amount."
+  },
+  {
+    "chave": "The data provider is temporarily unavailable. Please retry in a moment."
+  },
+  {
+    "chave": "The domain plus all its subdomains"
+  },
+  {
+    "chave": "The fetched report is incomplete or limited, so ecommerce activity cannot be determined."
+  },
+  {
+    "chave": "The fetched report is incomplete or limited, so site-search activity cannot be determined."
+  },
+  {
     "chave": "The heading hierarchy skips levels (e.g. an H4 directly after an H2). This weakens document structure for accessibility tools and content parsing."
+  },
+  {
+    "chave": "The hostname, without subdomains"
+  },
+  {
+    "chave": "The invitation was saved but the email couldn't be sent. Use Resend in a moment to retry."
+  },
+  {
+    "chave": "The link may have been turned off, or the report may have been deleted."
   },
   {
     "chave": "The meta description exceeds ~160 characters, so search engines will truncate the snippet."
@@ -5164,6 +5954,9 @@
     "chave": "The page is 5+ clicks from the homepage. Deep pages get crawled less often and receive less link equity."
   },
   {
+    "chave": "The page on your site that ranks for this keyword"
+  },
+  {
     "chave": "The page returned a 5xx server error. Search engines that repeatedly see server errors will crawl the site less and may drop the page from the index."
   },
   {
@@ -5173,16 +5966,28 @@
     "chave": "The page's HTML contains a JavaScript app container with very little readable content and no headings, links, or images. The page may load its content in the browser, or it was still loading when rendered. Content checks were skipped because this HTML may not represent the complete page."
   },
   {
+    "chave": "The path and everything under it"
+  },
+  {
     "chave": "The referring site linking to your target."
   },
   {
     "chave": "The requested cooldown exceeded the audit time limit, so some URLs were left unvisited. This report is incomplete."
   },
   {
+    "chave": "The requested resource was not found."
+  },
+  {
+    "chave": "The resolved startDate is after the last complete Analytics day."
+  },
+  {
     "chave": "The results below cover everything crawled before it stopped. Run a new audit to try again, or email{0}{1} if this keeps happening."
   },
   {
     "chave": "The scheduled check within the hour covers these keywords"
+  },
+  {
+    "chave": "The search term being tracked in Google"
   },
   {
     "chave": "The search term this domain ranks for"
@@ -5201,6 +6006,9 @@
   },
   {
     "chave": "The security check couldn’t load. Allow challenges.cloudflare.com in your browser or ad blocker, then reload the page."
+  },
+  {
+    "chave": "The selected Google Analytics property is no longer available."
   },
   {
     "chave": "The server answered 429 Too Many Requests, so this page could not be audited. The crawler waits before retrying when the site's cooldown fits within the audit time limit."
@@ -5233,6 +6041,9 @@
     "chave": "Theme"
   },
   {
+    "chave": "These filters exceed the {0}-condition limit for this view. Remove conditions in Filters{1}. Your filters have been kept."
+  },
+  {
     "chave": "These keywords will be saved to your current project."
   },
   {
@@ -5251,6 +6062,9 @@
     "chave": "Thinking…"
   },
   {
+    "chave": "This Lighthouse run was saved without issue details. Re-run the audit to see them."
+  },
+  {
     "chave": "This address has already received several invitations today."
   },
   {
@@ -5265,6 +6079,9 @@
   },
   {
     "chave": "This chat was archived or does not exist."
+  },
+  {
+    "chave": "This crawl target is blocked by security policy."
   },
   {
     "chave": "This crawled URL returned a client error (e.g. 404). If it is referenced from your sitemap or other pages, crawlers keep wasting requests on it."
@@ -5298,6 +6115,12 @@
     "chave": "This invitation may have expired, been canceled, or belong to a different email address. You’re signed in as{0}{1}."
   },
   {
+    "chave": "This link has expired. Request a new email to keep going."
+  },
+  {
+    "chave": "This link is no longer valid. Request a new email to keep going."
+  },
+  {
     "chave": "This model is temporarily unavailable. Please try again."
   },
   {
@@ -5316,10 +6139,19 @@
     "chave": "This page links to an internal URL that returns an error status (4xx/5xx). Broken links waste crawl budget, leak link equity, and frustrate users — they are among the most common and most damaging technical SEO issues."
   },
   {
+    "chave": "This person is already a member."
+  },
+  {
+    "chave": "This project has been archived."
+  },
+  {
     "chave": "This project has {0} report templates, the limit. Delete one from the Templates page."
   },
   {
     "chave": "This project has {0} reports, the limit. Delete one from the Reports page."
+  },
+  {
+    "chave": "This project is archived, so its reports are hidden. Restore {0} to read them."
   },
   {
     "chave": "This project was not found."
@@ -5334,6 +6166,24 @@
     "chave": "This report does not exist or you do not have access to it."
   },
   {
+    "chave": "This report is not compatible with the selected Analytics property."
+  },
+  {
+    "chave": "This report isn't shared."
+  },
+  {
+    "chave": "This request conflicts with existing data."
+  },
+  {
+    "chave": "This reset link can't be used anymore. Request a new one and try again."
+  },
+  {
+    "chave": "This reset link has expired. Request a new one to keep going."
+  },
+  {
+    "chave": "This reset link is no longer valid. Request a new one and try again."
+  },
+  {
     "chave": "This reset link is no longer valid. Request a new one to keep going."
   },
   {
@@ -5344,6 +6194,9 @@
   },
   {
     "chave": "This signature has already expired. Create a new one in Shopify admin."
+  },
+  {
+    "chave": "This signature was created for {0}, not {1}. In Shopify admin, create a signature for {2}."
   },
   {
     "chave": "This site's bot protection blocked our crawler."
@@ -5411,6 +6264,9 @@
     "chave": "Too many filter conditions ({0} of{1}{2} max). Remove some terms or ranges before applying."
   },
   {
+    "chave": "Too many requests. Please wait and try again."
+  },
+  {
     "chave": "Top 3"
   },
   {
@@ -5418,6 +6274,9 @@
   },
   {
     "chave": "Top Pages"
+  },
+  {
+    "chave": "Top Stories — news articles carousel"
   },
   {
     "chave": "Total backlinks found from this domain."
@@ -5454,6 +6313,12 @@
   },
   {
     "chave": "Traffic"
+  },
+  {
+    "chave": "Trans"
+  },
+  {
+    "chave": "Transactional"
   },
   {
     "chave": "Transfer ownership"
@@ -5519,6 +6384,9 @@
     "chave": "Type"
   },
   {
+    "chave": "Type a city, county, or region"
+  },
+  {
     "chave": "UA"
   },
   {
@@ -5561,6 +6429,24 @@
     "chave": "Ukrainian"
   },
   {
+    "chave": "Unable to complete authorization."
+  },
+  {
+    "chave": "Unable to create account right now. Please try again."
+  },
+  {
+    "chave": "Unable to create account."
+  },
+  {
+    "chave": "Unable to load locations"
+  },
+  {
+    "chave": "Unable to save the site's crawl cooldown."
+  },
+  {
+    "chave": "Unable to sign in right now. Please try again."
+  },
+  {
     "chave": "Unable to stop the running audit."
   },
   {
@@ -5601,6 +6487,9 @@
   },
   {
     "chave": "Unknown backlinks scope"
+  },
+  {
+    "chave": "Unknown error"
   },
   {
     "chave": "Unlock {0}"
@@ -5692,6 +6581,9 @@
     "chave": "Use 'Check rankings' to check these keywords"
   },
   {
+    "chave": "Use OpenSEO inside Claude or your favorite agent."
+  },
+  {
     "chave": "Use Sam anyway"
   },
   {
@@ -5737,6 +6629,12 @@
     "chave": "Version"
   },
   {
+    "chave": "Video"
+  },
+  {
+    "chave": "Video — video results shown in the SERP"
+  },
+  {
     "chave": "Vietnam"
   },
   {
@@ -5755,7 +6653,13 @@
     "chave": "View sample user questions where LLMs reference your brand or domain."
   },
   {
+    "chave": "View the unique domains linking to your target, grouped at the site level instead of by individual link."
+  },
+  {
     "chave": "Visibility"
+  },
+  {
+    "chave": "Voice, words to avoid, topics that are off-limits."
   },
   {
     "chave": "Vol"
@@ -5765,6 +6669,9 @@
   },
   {
     "chave": "Volume, difficulty & CPC — not rankings"
+  },
+  {
+    "chave": "Warning"
   },
   {
     "chave": "Warning {0}"
@@ -5782,10 +6689,31 @@
     "chave": "We could not verify your DataForSEO setup. If features are not working, check the setup steps on the {0}."
   },
   {
+    "chave": "We couldn't accept the invitation."
+  },
+  {
+    "chave": "We couldn't accept the invitation. Please try again."
+  },
+  {
+    "chave": "We couldn't confirm this email. Request a new email and try again."
+  },
+  {
     "chave": "We couldn't confirm your email"
   },
   {
+    "chave": "We couldn't decline the invitation."
+  },
+  {
+    "chave": "We couldn't decline the invitation. Please try again."
+  },
+  {
     "chave": "We couldn't find any keywords {0} currently ranks for. You can add keywords manually."
+  },
+  {
+    "chave": "We couldn't find that city, county, or region. Pick a location from the list, or clear the field to search the whole country."
+  },
+  {
+    "chave": "We couldn't find this account anymore. Try creating it again."
   },
   {
     "chave": "We couldn't load your API keys."
@@ -5795,6 +6723,9 @@
   },
   {
     "chave": "We couldn't load your team right now."
+  },
+  {
+    "chave": "We couldn't reach OpenSEO. Please try again."
   },
   {
     "chave": "We couldn't read {0}{1}{2}."
@@ -5809,10 +6740,25 @@
     "chave": "We couldn't send another email."
   },
   {
+    "chave": "We couldn't send that invitation."
+  },
+  {
+    "chave": "We couldn't send the reset email right now. Please try again."
+  },
+  {
+    "chave": "We couldn't send the reset email."
+  },
+  {
+    "chave": "We couldn't sign you in."
+  },
+  {
     "chave": "We couldn't transfer ownership. Ownership didn't change."
   },
   {
     "chave": "We couldn't update your analytics setting."
+  },
+  {
+    "chave": "We couldn't update your password right now. Please try again."
   },
   {
     "chave": "We found {0} keywords {1} ranks for."
@@ -5839,6 +6785,9 @@
     "chave": "Welsh"
   },
   {
+    "chave": "West Virginia"
+  },
+  {
     "chave": "We’ll snapshot who links to your domain — nothing to set up."
   },
   {
@@ -5846,6 +6795,12 @@
   },
   {
     "chave": "What brings you here?"
+  },
+  {
+    "chave": "What you sell, who buys it, and where."
+  },
+  {
+    "chave": "What you're pushing for right now, and by when."
   },
   {
     "chave": "What your customers might ask AI."
@@ -5866,6 +6821,12 @@
     "chave": "Who are you doing SEO for?"
   },
   {
+    "chave": "Whole domain incl. subdomains"
+  },
+  {
+    "chave": "Why someone picks you over the alternatives."
+  },
+  {
     "chave": "Why they matter — e.g. wins every comparison keyword (optional)"
   },
   {
@@ -5881,6 +6842,21 @@
     "chave": "Workers & Pages"
   },
   {
+    "chave": "Workflow completed without finalizing the run"
+  },
+  {
+    "chave": "Workflow instance not found"
+  },
+  {
+    "chave": "Workflow instance was not found"
+  },
+  {
+    "chave": "Workflow instance {0}"
+  },
+  {
+    "chave": "Workflow is no longer active ({0})"
+  },
+  {
     "chave": "Working on multiple websites?"
   },
   {
@@ -5891,6 +6867,9 @@
   },
   {
     "chave": "Write a unique title for each page describing its specific content. For templated pages, include the distinguishing attribute (name, category, location) in the template."
+  },
+  {
+    "chave": "Writing preferences"
   },
   {
     "chave": "Xhosa"
@@ -5935,6 +6914,9 @@
     "chave": "You declined the invitation to join{0}{1}."
   },
   {
+    "chave": "You do not have access to this resource."
+  },
+  {
     "chave": "You don't have verified access to that Search Console property."
   },
   {
@@ -5942,6 +6924,15 @@
   },
   {
     "chave": "You're all set. Taking you to your account now."
+  },
+  {
+    "chave": "You've reached audit capacity for your account. Delete old audits from your projects to start a new one."
+  },
+  {
+    "chave": "You've reached the limit of audits running at once. Wait for one to finish or delete it before starting another."
+  },
+  {
+    "chave": "You've run out of credits. Add more credits or upgrade your plan to continue."
   },
   {
     "chave": "Your Shopify signature for this store has expired."
@@ -5980,10 +6971,16 @@
     "chave": "Zulu"
   },
   {
+    "chave": "_Older entries within the {0}-day window are omitted._"
+  },
+  {
     "chave": "a page within"
   },
   {
-    "chave": "aiSearchVolume"
+    "chave": "all"
+  },
+  {
+    "chave": "already_running"
   },
   {
     "chave": "article"
@@ -5992,16 +6989,19 @@
     "chave": "audit, checker, template"
   },
   {
-    "chave": "backlinks"
-  },
-  {
-    "chave": "backlinks-target-error"
+    "chave": "blocked"
   },
   {
     "chave": "blog, tag, archive"
   },
   {
-    "chave": "brand-lookup-input-error"
+    "chave": "border-l-destructive/60"
+  },
+  {
+    "chave": "border-l-info/60"
+  },
+  {
+    "chave": "border-l-warning/60"
   },
   {
     "chave": "change"
@@ -6010,19 +7010,49 @@
     "chave": "change this project's connection"
   },
   {
+    "chave": "cloudflare_access"
+  },
+  {
+    "chave": "cloudflare_access (default — AUTH_MODE is unset)"
+  },
+  {
+    "chave": "competitive-landscape"
+  },
+  {
+    "chave": "competitor-analysis"
+  },
+  {
     "chave": "competitor.com"
+  },
+  {
+    "chave": "copy-json"
+  },
+  {
+    "chave": "copy-list"
   },
   {
     "chave": "critical"
   },
   {
-    "chave": "date"
+    "chave": "csv"
+  },
+  {
+    "chave": "desktop"
   },
   {
     "chave": "destructive"
   },
   {
-    "chave": "domain-input-error"
+    "chave": "e.g. Booking software for independent restaurants in the US and Canada. Buyers are owner-operators, not marketers."
+  },
+  {
+    "chave": "e.g. Double organic signups by Q4. Comparison pages are the current bet."
+  },
+  {
+    "chave": "e.g. Plain and direct, no hype. Never say 'seamless' or 'game-changing'. Don't write about competitor pricing."
+  },
+  {
+    "chave": "e.g. The only booking tool that sets up in an afternoon. Cheaper than the incumbents, simpler than the DIY stack."
   },
   {
     "chave": "e.g. free, cheap"
@@ -6052,6 +7082,9 @@
     "chave": "example.com/pricing"
   },
   {
+    "chave": "excel"
+  },
+  {
     "chave": "extendDomain"
   },
   {
@@ -6079,13 +7112,13 @@
     "chave": "feb"
   },
   {
-    "chave": "filtered"
-  },
-  {
     "chave": "ga4"
   },
   {
     "chave": "gsc"
+  },
+  {
+    "chave": "h-12 text-sm group-data-[collapsible=icon]:p-0!"
   },
   {
     "chave": "h-16"
@@ -6130,22 +7163,43 @@
     "chave": "info"
   },
   {
+    "chave": "invalid"
+  },
+  {
     "chave": "invite or remove teammates"
   },
   {
     "chave": "jobs, salary, course"
   },
   {
-    "chave": "keywords"
+    "chave": "json"
   },
   {
-    "chave": "label"
+    "chave": "keyword-clustering"
+  },
+  {
+    "chave": "keyword-research"
+  },
+  {
+    "chave": "keywords"
   },
   {
     "chave": "language-"
   },
   {
-    "chave": "left"
+    "chave": "languageCode"
+  },
+  {
+    "chave": "limit must be an integer from 1 to 100."
+  },
+  {
+    "chave": "limit must be an integer from 1 to {0}."
+  },
+  {
+    "chave": "link-prospecting"
+  },
+  {
+    "chave": "local-seo"
   },
   {
     "chave": "local_noauth — no auth, single admin user. Do not expose publicly without your own auth in front."
@@ -6158,9 +7212,6 @@
   },
   {
     "chave": "lost"
-  },
-  {
-    "chave": "lostBacklinks"
   },
   {
     "chave": "max-h-64"
@@ -6184,9 +7235,6 @@
     "chave": "maxVolume"
   },
   {
-    "chave": "mentions"
-  },
-  {
     "chave": "minCpc"
   },
   {
@@ -6205,16 +7253,13 @@
     "chave": "missing"
   },
   {
+    "chave": "mobile"
+  },
+  {
     "chave": "model"
   },
   {
     "chave": "models"
-  },
-  {
-    "chave": "month"
-  },
-  {
-    "chave": "newBacklinks"
   },
   {
     "chave": "no"
@@ -6226,7 +7271,7 @@
     "chave": "no {0}"
   },
   {
-    "chave": "no-data"
+    "chave": "no_keywords"
   },
   {
     "chave": "noindex, nofollow"
@@ -6239,6 +7284,9 @@
   },
   {
     "chave": "offcanvas"
+  },
+  {
+    "chave": "offset must be a non-negative integer."
   },
   {
     "chave": "og:description"
@@ -6289,9 +7337,6 @@
     "chave": "pinterest, /tag"
   },
   {
-    "chave": "positions"
-  },
-  {
     "chave": "pricing, reviews"
   },
   {
@@ -6307,16 +7352,13 @@
     "chave": "query"
   },
   {
+    "chave": "rate_limited"
+  },
+  {
     "chave": "reddit, forbes"
   },
   {
     "chave": "redirect"
-  },
-  {
-    "chave": "referringDomains"
-  },
-  {
-    "chave": "right"
   },
   {
     "chave": "round"
@@ -6325,13 +7367,28 @@
     "chave": "s"
   },
   {
-    "chave": "searchVolume"
+    "chave": "scheduled_soon"
+  },
+  {
+    "chave": "selected"
   },
   {
     "chave": "send Loops event"
   },
   {
-    "chave": "sessions"
+    "chave": "seo-audit"
+  },
+  {
+    "chave": "seo-coach"
+  },
+  {
+    "chave": "seo-project-setup"
+  },
+  {
+    "chave": "seo-report"
+  },
+  {
+    "chave": "sheets"
   },
   {
     "chave": "sig1=(...);expires=..."
@@ -6391,9 +7448,6 @@
     "chave": "var(--trend-fill-start-opacity)"
   },
   {
-    "chave": "volume"
-  },
-  {
     "chave": "vs 90 days ago"
   },
   {
@@ -6404,6 +7458,9 @@
   },
   {
     "chave": "vs yesterday"
+  },
+  {
+    "chave": "vs {0} to {1}"
   },
   {
     "chave": "v{0}"
@@ -6424,10 +7481,25 @@
     "chave": "width=device-width, initial-scale=1, viewport-fit=cover"
   },
   {
+    "chave": "wrong_domain"
+  },
+  {
     "chave": "www."
   },
   {
+    "chave": "yes"
+  },
+  {
+    "chave": "you"
+  },
+  {
+    "chave": "your AI client"
+  },
+  {
     "chave": "{0} \"near me\" queries, city/county keywords, service-area pages."
+  },
+  {
+    "chave": "{0} 'page' is a deprecated alias of 'exact_url'. Subfolder counts are computed from filtered backlink totals; rank, trends, and the referring-domains breakdown are unavailable for subfolders."
   },
   {
     "chave": "{0} / {1} checks{2}"
@@ -6464,6 +7536,12 @@
   },
   {
     "chave": "{0} disconnected from this project"
+  },
+  {
+    "chave": "{0} doesn’t support country selection."
+  },
+  {
+    "chave": "{0} doesn’t support {1} as a search country."
   },
   {
     "chave": "{0} is not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and BETTER_AUTH_SECRET."

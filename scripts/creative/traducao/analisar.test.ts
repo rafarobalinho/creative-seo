@@ -79,6 +79,39 @@ describe("análise dos textos do original", () => {
     ]);
   });
 
+  it("lista frases fora de posição de exibição, agrupadas pelo contexto", () => {
+    const r = analisa(
+      [
+        {
+          caminho: "src/client/erros.ts",
+          codigo: `if (!a) throw new Error("Sidebar must be used within a provider.");
+if (!b) throw new Error("Tab is missing a request.");
+const chave = "dashboard-setup";
+console.log("Debug message here.");`,
+        },
+      ],
+      {},
+      [],
+    );
+    expect(r.foraDePosicao).toEqual([
+      {
+        contexto: "new Error()",
+        exemplos: [
+          "Sidebar must be used within a provider.",
+          "Tab is missing a request.",
+        ],
+        total: 2,
+      },
+    ]);
+  });
+
+  it("não volta a acusar uso duplo já revisado", () => {
+    const r = analisa(arquivos, { Save: "Salvar" }, [], {
+      Save: "rótulo de botão; a comparação fica em inglês",
+    });
+    expect(r.usoDuplo).toEqual([]);
+  });
+
   it("acusa tradução que perde ou inventa variável", () => {
     const r = analisa(
       arquivos,

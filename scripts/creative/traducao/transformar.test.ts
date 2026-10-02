@@ -21,6 +21,22 @@ const opcoes: OpcoesTransformacao = {
     "Delete this project?": "Excluir este projeto?",
     "in AI answers.": "nas respostas de IA.",
     "· Next: {0}": "· Próximo: {0}",
+    "Find topics and links worth learning from.":
+      "Encontre temas e links que valem a pena estudar.",
+    Severity: "Gravidade",
+    Issue: "Problema",
+    "Critical issue": "Problema crítico",
+    "Explains where you stand.": "Explica onde você está.",
+    "Enter a valid domain.": "Informe um domínio válido.",
+    pending: "pendente",
+    "Google Analytics is not connected.":
+      "O Google Analytics não está conectado.",
+    "Failed to start audit": "Não foi possível iniciar a auditoria",
+    "Search Console is not connected.": "O Search Console não está conectado.",
+    "Research scope": "Escopo da pesquisa",
+    "Please enter a domain": "Informe um domínio",
+    "Ahrefs DR": "DR da Ahrefs",
+    "Failed to export payload": "Não foi possível exportar os dados",
   },
   marca: [
     ["OpenSEO", "Creative SEO"],
@@ -90,6 +106,12 @@ describe("literais em posição de exibição", () => {
     );
   });
 
+  it("não troca chave de dado de gráfico, id nem atributo HTML enumerado", () => {
+    const codigo = `const A = () => <><Line dataKey="Save" stackId="Done" yAxisId="Save" /><html translate="Done" /><Card metric="Save" /></>;`;
+    expect(t(codigo)).not.toContain("Salvar");
+    expect(t(codigo)).not.toContain("Concluído");
+  });
+
   it("não troca atributos de lógica, mesmo com o texto no dicionário", () => {
     const codigo = `const A = () => <Item value="Save" key="Save" className="Done" />;`;
     expect(t(codigo)).toBe(codigo);
@@ -139,6 +161,84 @@ if (y === "Save") {}`;
       t('toast.success(`Deleted ${n} report${n === 1 ? "" : "s"}`);'),
     ).toBe(
       "toast.success(((n === 1) ? `${n} relatório excluído` : `${n} relatórios excluídos`));",
+    );
+  });
+});
+
+describe("rótulos fora de JSX", () => {
+  it("troca a propriedade detail e cabeçalhos em lista", () => {
+    expect(
+      t(`const p = { detail: "Find topics and links worth learning from." };`),
+    ).toContain('"Encontre temas e links que valem a pena estudar."');
+    expect(t(`const x = { headers: ["Severity", "Issue"] };`)).toBe(
+      `const x = { headers: ["Gravidade", "Problema"] };`,
+    );
+  });
+
+  it("troca valores de constantes de rótulo pelo nome, sem tocar nas chaves", () => {
+    expect(t(`const SEVERITY_LABEL = { critical: "Critical issue" };`)).toBe(
+      `const SEVERITY_LABEL = { critical: "Problema crítico" };`,
+    );
+    expect(t(`const ISSUES_HEADERS = ["Severity", "Issue"];`)).toBe(
+      `const ISSUES_HEADERS = ["Gravidade", "Problema"];`,
+    );
+    expect(
+      t(`const SKILLS = [["seo-coach", "Explains where you stand."]];`),
+    ).toBe(`const SKILLS = [["seo-coach", "Explica onde você está."]];`);
+  });
+
+  it("troca frase devolvida por função, mas não valor de lógica", () => {
+    expect(t(`function v() { return "Enter a valid domain."; }`)).toBe(
+      `function v() { return "Informe um domínio válido."; }`,
+    );
+    const codigo = `function s() { return "pending"; }`;
+    expect(t(codigo)).toBe(codigo);
+  });
+
+  it("troca mensagens de erros de domínio e de funções de mensagem", () => {
+    expect(
+      t(`throw new Ga4ReportError("Google Analytics is not connected.");`),
+    ).toBe(
+      `throw new Ga4ReportError("O Google Analytics não está conectado.");`,
+    );
+    expect(t(`getStandardErrorMessage(e, "Failed to start audit");`)).toBe(
+      `getStandardErrorMessage(e, "Não foi possível iniciar a auditoria");`,
+    );
+  });
+});
+
+describe("mensagens em formas menos óbvias", () => {
+  it("troca mensagem passada para super() numa classe de erro", () => {
+    expect(
+      t(
+        `class E extends Error { constructor() { super("Search Console is not connected."); } }`,
+      ),
+    ).toContain(`super("O Search Console não está conectado.")`);
+  });
+
+  it("troca valor padrão de parâmetro de texto", () => {
+    expect(t(`function F({ label = "Research scope" }) {}`)).toContain(
+      `label = "Escopo da pesquisa"`,
+    );
+    expect(t(`function G(title = "Research scope") {}`)).toContain(
+      `title = "Escopo da pesquisa"`,
+    );
+  });
+
+  it("troca frase em qualquer propriedade, mas não valor solto", () => {
+    expect(t(`const erros = { domain: "Please enter a domain" };`)).toBe(
+      `const erros = { domain: "Informe um domínio" };`,
+    );
+    const codigo = `const filtro = { domain: "Research scope".length, status: "pending" };`;
+    expect(t(codigo)).toBe(codigo);
+  });
+
+  it("troca texto dentro de lista espalhada e em variável chamada message", () => {
+    expect(
+      t(`const c = { headers: [...base, ...(x ? ["Ahrefs DR"] : [])] };`),
+    ).toContain(`"DR da Ahrefs"`);
+    expect(t(`const message = "Failed to export payload";`)).toBe(
+      `const message = "Não foi possível exportar os dados";`,
     );
   });
 });

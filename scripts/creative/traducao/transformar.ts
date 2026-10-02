@@ -5,16 +5,19 @@
 import ts from "typescript";
 import {
   ARQUIVOS_COM_LOCALE_DE_LOGICA,
-  ATRIBUTOS_ARIA_DE_TEXTO,
-  ATRIBUTOS_BLOQUEADOS,
+  atributoDeTexto,
   CHAVES_PERMITIDAS,
   CONSTRUTORES_INTL,
+  ehFrase,
   ELEMENTOS_EM_LINHA,
+  ERROS_GENERICOS,
   FUNCOES_DE_AVISO,
+  FUNCOES_DE_MENSAGEM,
   METODOS_DE_LOCALE,
   METODOS_VALIDACAO,
   normalizaTextoJsx,
   temLetras,
+  variavelDeTexto,
 } from "./regras";
 
 export type ValorTraducao = string | { um: string; outros: string };
@@ -30,6 +33,7 @@ export type OpcoesTransformacao = {
     principal: boolean;
     linha: number;
     plural: boolean;
+    inicio: number;
   }) => void;
 };
 
@@ -192,8 +196,9 @@ export function transformar(
     plural = false,
   ): ValorTraducao | undefined => {
     if (!opcoes.traduzir) return undefined;
-    const linha = arquivo.getLineAndCharacterOfPosition(inicioDe(no)).line + 1;
-    opcoes.aoConsultar?.({ chave, principal, linha, plural });
+    const inicio = inicioDe(no);
+    const linha = arquivo.getLineAndCharacterOfPosition(inicio).line + 1;
+    opcoes.aoConsultar?.({ chave, principal, linha, plural, inicio });
     return Object.hasOwn(opcoes.dicionario, chave)
       ? opcoes.dicionario[chave]
       : undefined;
@@ -336,27 +341,54 @@ export function transformar(
     });
   };
 
+  // `profundo`: desce em valores de objeto (mapas de rótulo). `soFrase`: só
+  // aceita frase de verdade, para posições ambíguas como `return`.
+  type ModoPosicao = {
+    emAtributo?: boolean;
+    profundo?: boolean;
+    soFrase?: boolean;
+  };
   const visitaPosicao = (
     expr: ts.Expression | undefined,
-    emAtributo = false,
+    modo: ModoPosicao = {},
   ) => {
     if (!expr) return;
     const no = desembrulha(expr);
-    if (ts.isStringLiteral(no) || ts.isNoSubstitutionTemplateLiteral(no))
-      traduzLiteral(no, emAtributo);
-    else if (ts.isTemplateExpression(no)) traduzTemplate(no);
-    else if (ts.isConditionalExpression(no)) {
-      visitaPosicao(no.whenTrue);
-      visitaPosicao(no.whenFalse);
+    const segue = { ...modo, emAtributo: false };
+    if (ts.isStringLiteral(no) || ts.isNoSubstitutionTemplateLiteral(no)) {
+      if (!modo.soFrase || ehFrase(no.text))
+        traduzLiteral(no, modo.emAtributo ?? false);
+    } else if (ts.isTemplateExpression(no)) {
+      const texto = [
+        no.head.text,
+        ...no.templateSpans.map((s) => s.literal.text),
+      ].join(" ");
+      if (!modo.soFrase || ehFrase(texto)) traduzTemplate(no);
+    } else if (ts.isConditionalExpression(no)) {
+      visitaPosicao(no.whenTrue, segue);
+      visitaPosicao(no.whenFalse, segue);
     } else if (ts.isBinaryExpression(no)) {
       const op = no.operatorToken.kind;
-      if (op === ts.SyntaxKind.AmpersandAmpersandToken) visitaPosicao(no.right);
+      if (op === ts.SyntaxKind.AmpersandAmpersandToken)
+        visitaPosicao(no.right, segue);
       else if (
         op === ts.SyntaxKind.BarBarToken ||
         op === ts.SyntaxKind.QuestionQuestionToken
       ) {
-        visitaPosicao(no.left);
-        visitaPosicao(no.right);
+        visitaPosicao(no.left, segue);
+        visitaPosicao(no.right, segue);
+      }
+    } else if (ts.isArrayLiteralExpression(no)) {
+      for (const elemento of no.elements) {
+        visitaPosicao(
+          ts.isSpreadElement(elemento) ? elemento.expression : elemento,
+          segue,
+        );
+      }
+    } else if (modo.profundo && ts.isObjectLiteralExpression(no)) {
+      for (const propriedade of no.properties) {
+        if (ts.isPropertyAssignment(propriedade))
+          visitaPosicao(propriedade.initializer, segue);
       }
     }
   };
@@ -552,12 +584,7 @@ export function transformar(
       if (ts.isJsxElement(no) || ts.isJsxFragment(no))
         visitaFilhosJsx(no.children);
       else if (ts.isJsxAttribute(no)) {
-        const nome = no.name.getText();
-        const liberado =
-          ATRIBUTOS_ARIA_DE_TEXTO.has(nome) ||
-          (!ATRIBUTOS_BLOQUEADOS.has(nome) &&
-            !/^(data|aria)-/.test(nome) &&
-            !/^on[A-Z]/.test(nome));
+        const liberado = atributoDeTexto(no.name.getText());
         if (liberado && no.initializer) {
           if (ts.isStringLiteral(no.initializer))
             traduzLiteral(no.initializer, true);
@@ -566,14 +593,45 @@ export function transformar(
         }
       } else if (ts.isPropertyAssignment(no)) {
         const nome = nomeDaPropriedade(no.name);
+        // Chave conhecida de texto: qualquer valor. Outra chave (ex.: campo
+        // de formulário com mensagem de erro): só frase de verdade.
         if (nome && CHAVES_PERMITIDAS.has(nome)) visitaPosicao(no.initializer);
+        else visitaPosicao(no.initializer, { soFrase: true });
+      } else if (
+        (ts.isBindingElement(no) || ts.isParameter(no)) &&
+        no.initializer
+      ) {
+        const nome =
+          ts.isBindingElement(no) && no.propertyName
+            ? no.propertyName
+            : no.name;
+        if (
+          ts.isIdentifier(nome) &&
+          (CHAVES_PERMITIDAS.has(nome.text) || variavelDeTexto(nome.text))
+        ) {
+          visitaPosicao(no.initializer);
+        }
+      } else if (ts.isVariableDeclaration(no)) {
+        if (ts.isIdentifier(no.name) && variavelDeTexto(no.name.text)) {
+          visitaPosicao(no.initializer, { profundo: true });
+        }
+      } else if (ts.isReturnStatement(no)) {
+        visitaPosicao(no.expression, { soFrase: true });
       } else if (ts.isCallExpression(no)) {
         const alvo = no.expression;
-        if (
+        if (alvo.kind === ts.SyntaxKind.SuperKeyword) {
+          for (const argumento of no.arguments)
+            visitaPosicao(argumento, { soFrase: true });
+        } else if (
           ts.isIdentifier(alvo) &&
           (alvo.text === "toast" || FUNCOES_DE_AVISO.has(alvo.text))
         ) {
           visitaPosicao(no.arguments[0]);
+        } else if (
+          ts.isIdentifier(alvo) &&
+          FUNCOES_DE_MENSAGEM.has(alvo.text)
+        ) {
+          for (const argumento of no.arguments) visitaPosicao(argumento);
         } else if (ts.isPropertyAccessExpression(alvo)) {
           const metodo = alvo.name.text;
           const dono = alvo.expression;
@@ -595,6 +653,13 @@ export function transformar(
         if (ts.isIdentifier(alvo) && alvo.text === "AppError")
           visitaPosicao(no.arguments?.[1]);
         else if (
+          ts.isIdentifier(alvo) &&
+          alvo.text.endsWith("Error") &&
+          !ERROS_GENERICOS.has(alvo.text)
+        ) {
+          for (const argumento of no.arguments ?? [])
+            visitaPosicao(argumento, { soFrase: true });
+        } else if (
           ts.isPropertyAccessExpression(alvo) &&
           alvo.expression.getText() === "Intl" &&
           CONSTRUTORES_INTL.has(alvo.name.text)

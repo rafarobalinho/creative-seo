@@ -56,6 +56,28 @@ export const ATRIBUTOS_BLOQUEADOS = new Set([
   "params",
   "search",
   "hash",
+  // Atributos HTML de valor enumerado: "no" em translate="no" não é texto.
+  "translate",
+  "spellCheck",
+  "autoCapitalize",
+  "draggable",
+  "contentEditable",
+  "hidden",
+  "wrap",
+  "enterKeyHint",
+  "scope",
+  "shape",
+  "kind",
+  "preload",
+  // Gráficos (Recharts) e afins: nomes de campo e de série, não rótulos.
+  "dataKey",
+  "nameKey",
+  "stackId",
+  "metric",
+  "layout",
+  "interval",
+  "scale",
+  "domain",
 ]);
 
 // Atributos JSX liberados mesmo começando com prefixo de lógica.
@@ -101,7 +123,78 @@ export const CHAVES_PERMITIDAS = new Set([
   "shortLabel",
   "longLabel",
   "actionLabel",
+  "detail",
+  "headers",
+  "reason",
+  "copied",
+  "form",
+  "fallbackMessage",
+  "unavailableMessage",
+  "billingIssueMessage",
+  "subtext",
+  "hintText",
 ]);
+
+// Constantes que guardam rótulos e mensagens, reconhecidas pelo nome
+// (SEVERITY_LABEL, ISSUES_HEADERS, emptyMessage…): os valores dos mapas e das
+// listas viram posição de exibição; as chaves continuam intactas.
+const VARIAVEIS_DE_TEXTO = new Set([
+  "SKILLS",
+  "message",
+  "label",
+  "title",
+  "description",
+  "placeholder",
+  "hint",
+  "tooltip",
+  "heading",
+  "subtitle",
+  "limitation",
+  "headers",
+]);
+export function variavelDeTexto(nome: string): boolean {
+  return (
+    VARIAVEIS_DE_TEXTO.has(nome) ||
+    /^[A-Z][A-Z0-9_]*_(LABELS?|HEADERS|MESSAGES?|HINTS?|PLACEHOLDERS?|DESCRIPTIONS?|COPY|TITLES?|RULE)$/.test(
+      nome,
+    ) ||
+    /^[a-z][A-Za-z0-9]*(Message|Messages|Label|Labels|Title|Titles|Text|Description|Descriptions|Hint|Hints|Placeholder|Headers)$/.test(
+      nome,
+    )
+  );
+}
+
+// Funções que mostram as mensagens que recebem.
+export const FUNCOES_DE_MENSAGEM = new Set([
+  "getStandardErrorMessage",
+  "setValidationError",
+  "setError",
+  "textResponse",
+  "unavailable",
+  "getBacklinksErrorMessage",
+  "setActionError",
+  "pushSection",
+]);
+
+// Erros genéricos guardam mensagem de desenvolvedor; erros de domínio
+// (Ga4ReportError…) chegam à tela. AppError tem regra própria.
+export const ERROS_GENERICOS = new Set([
+  "Error",
+  "TypeError",
+  "RangeError",
+  "SyntaxError",
+  "AppError",
+]);
+
+// Duas palavras ou mais, começando com maiúscula ou terminando em pontuação:
+// o formato de uma frase para gente, e não de uma chave como "pending". É o
+// filtro das posições ambíguas (return, erros de domínio).
+export function ehFrase(texto: string): boolean {
+  return (
+    /\p{L}\S*\s+\S*\p{L}/u.test(texto) &&
+    (/^\s*\p{Lu}/u.test(texto) || /[.!?:…]\s*$/.test(texto))
+  );
+}
 
 // Métodos de validação (zod e afins) cujo último argumento é a mensagem.
 export const METODOS_VALIDACAO = new Set([
@@ -188,6 +281,16 @@ export const ELEMENTOS_EM_LINHA = new Set([
   "br",
   "Link",
 ]);
+
+// Atributo JSX cujo valor é texto para o usuário. Além da lista de bloqueio,
+// todo nome terminado em Key, Id ou Ids é lógica (dataKey, yAxisId,
+// layoutId…): traduzir o valor esvazia o gráfico ou quebra a ligação.
+export function atributoDeTexto(nome: string): boolean {
+  if (ATRIBUTOS_ARIA_DE_TEXTO.has(nome)) return true;
+  if (ATRIBUTOS_BLOQUEADOS.has(nome)) return false;
+  if (/^(data|aria)-/.test(nome) || /^on[A-Z]/.test(nome)) return false;
+  return !/(Key|Id|Ids)$/.test(nome);
+}
 
 export function caminhoTraduzivel(caminho: string): boolean {
   return !CAMINHOS_SEM_TRADUCAO.some((padrao) => padrao.test(caminho));

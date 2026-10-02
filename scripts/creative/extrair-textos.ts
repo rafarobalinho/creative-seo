@@ -41,7 +41,11 @@ const arquivos: ArquivoFonte[] = arquivosDe(join(RAIZ, "src")).map(
 );
 const dicionario = leJson<Dicionario>(join(PASTA_I18N, "pt-BR.json"), {});
 const ignorados = leJson<string[]>(join(PASTA_I18N, "ignorados.json"), []);
-const r = analisa(arquivos, dicionario, ignorados);
+const revisados = leJson<Record<string, string>>(
+  join(PASTA_I18N, "uso-duplo-revisado.json"),
+  {},
+);
+const r = analisa(arquivos, dicionario, ignorados, revisados);
 
 writeFileSync(
   join(PASTA_I18N, "textos-originais.json"),
@@ -72,6 +76,15 @@ linha(
   "Chave do dicionário também usada como lógica",
   r.usoDuplo.map((u) => `${u.chave} — ${u.onde.slice(0, 3).join(", ")}`),
 );
+
+console.log(
+  `Frases fora de posição de exibição (não traduzidas; revisar se são de tela): ${r.foraDePosicao.reduce((s, g) => s + g.total, 0)}`,
+);
+for (const grupo of r.foraDePosicao.slice(0, 40)) {
+  console.log(
+    `  ${grupo.contexto} (${grupo.total}): ${grupo.exemplos.join(" | ").slice(0, 160)}`,
+  );
+}
 
 const bloqueia = r.faltando.length + r.placeholders.length + r.usoDuplo.length;
 if (process.argv.includes("--verificar") && bloqueia > 0) {
