@@ -37,6 +37,7 @@ const opcoes: OpcoesTransformacao = {
     "Please enter a domain": "Informe um domínio",
     "Ahrefs DR": "DR da Ahrefs",
     "Failed to export payload": "Não foi possível exportar os dados",
+    "Keyword Research@src/client/navigation/items.ts": "Palavras-chave",
   },
   marca: [
     ["OpenSEO", "Creative SEO"],
@@ -273,7 +274,28 @@ describe("marca", () => {
   });
 });
 
+describe("tradução por arquivo", () => {
+  it("usa a tradução específica do arquivo quando existe, e a geral nos outros", () => {
+    const codigo = `const itens = [{ label: "Keyword Research" }];`;
+    expect(t(codigo, "src/client/navigation/items.ts")).toBe(
+      `const itens = [{ label: "Palavras-chave" }];`,
+    );
+    expect(t(codigo, "src/client/features/keywords/Page.tsx")).toBe(
+      `const itens = [{ label: "Pesquisa de palavras-chave" }];`,
+    );
+  });
+});
+
 describe("idioma de formatação", () => {
+  it("fixa pt-BR quando o código formata sem dizer o idioma", () => {
+    expect(t(`const s = n.toLocaleString();`)).toBe(
+      `const s = n.toLocaleString("pt-BR");`,
+    );
+    expect(
+      t(`const f = new Intl.NumberFormat(undefined, { style: "percent" });`),
+    ).toBe(`const f = new Intl.NumberFormat("pt-BR", { style: "percent" });`);
+  });
+
   it("troca en-US por pt-BR só onde o valor é exibido", () => {
     expect(t(`const s = n.toLocaleString("en-US");`)).toBe(
       `const s = n.toLocaleString("pt-BR");`,

@@ -1725,6 +1725,18 @@
     "chave": "Desktop + Mobile"
   },
   {
+    "chave": "Desktop Change"
+  },
+  {
+    "chave": "Desktop Position"
+  },
+  {
+    "chave": "Desktop SERP Features"
+  },
+  {
+    "chave": "Desktop URL"
+  },
+  {
     "chave": "Desktop only"
   },
   {
@@ -3310,6 +3322,9 @@
     "chave": "Local volume"
   },
   {
+    "chave": "Local volume ({0})"
+  },
+  {
     "chave": "Local volume adds ~${0} per search."
   },
   {
@@ -3558,6 +3573,18 @@
   },
   {
     "chave": "Mobile"
+  },
+  {
+    "chave": "Mobile Change"
+  },
+  {
+    "chave": "Mobile Position"
+  },
+  {
+    "chave": "Mobile SERP Features"
+  },
+  {
+    "chave": "Mobile URL"
   },
   {
     "chave": "Mobile only"

@@ -175,6 +175,7 @@ export function analisa(
       aoConsultar: ({ chave, principal, linha, plural, inicio }) => {
         consultados.add(inicio);
         vistas.add(chave);
+        vistas.add(`${chave}@${arquivo.caminho}`);
         if (!principal) return;
         const atual = textos.get(chave) ?? {
           onde: [],

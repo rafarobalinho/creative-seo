@@ -199,6 +199,11 @@ export function transformar(
     const inicio = inicioDe(no);
     const linha = arquivo.getLineAndCharacterOfPosition(inicio).line + 1;
     opcoes.aoConsultar?.({ chave, principal, linha, plural, inicio });
+    // "Texto@caminho" vale só naquele arquivo (ex.: rótulo curto no menu,
+    // onde o título longo da página não cabe); senão, a tradução geral.
+    const especifica = `${chave}@${caminho}`;
+    if (Object.hasOwn(opcoes.dicionario, especifica))
+      return opcoes.dicionario[especifica];
     return Object.hasOwn(opcoes.dicionario, chave)
       ? opcoes.dicionario[chave]
       : undefined;
@@ -547,10 +552,27 @@ export function transformar(
     else if (ts.isJsxText(no)) marcaNoTexto(no, no.pos, no.end);
   };
 
-  const trocaLocale = (arg: ts.Expression | undefined) => {
-    if (!arg || !ts.isStringLiteral(arg) || arg.text !== "en-US") return;
+  // "en-US" vira "pt-BR"; sem idioma (ou `undefined`) o formato dependeria do
+  // navegador, e a interface é toda em pt-BR, então ele é fixado.
+  const trocaLocale = (chamada: ts.CallExpression | ts.NewExpression) => {
     if (ARQUIVOS_COM_LOCALE_DE_LOGICA.has(caminho)) return;
-    registra(arg, () => arg.getText().replace("en-US", "pt-BR"));
+    const argumentos = chamada.arguments;
+    const arg = argumentos?.[0];
+    if (arg && ts.isStringLiteral(arg) && arg.text === "en-US") {
+      registra(arg, () => arg.getText().replace("en-US", "pt-BR"));
+    } else if (arg && ts.isIdentifier(arg) && arg.text === "undefined") {
+      registra(arg, () => `"pt-BR"`);
+    } else if (!arg && argumentos) {
+      edicoes.push({
+        inicio: argumentos.pos,
+        fim: argumentos.pos,
+        prioridade: PRIORIDADE_TRADUCAO,
+        gerar: () => {
+          trocas += 1;
+          return `"pt-BR"`;
+        },
+      });
+    }
   };
 
   const visitaLang = (tag: ts.JsxOpeningElement | ts.JsxSelfClosingElement) => {
@@ -645,8 +667,7 @@ export function transformar(
             visitaPosicao(no.arguments[0]);
           } else if (METODOS_VALIDACAO.has(metodo) && no.arguments.length > 0) {
             visitaPosicao(no.arguments[no.arguments.length - 1]);
-          } else if (METODOS_DE_LOCALE.has(metodo))
-            trocaLocale(no.arguments[0]);
+          } else if (METODOS_DE_LOCALE.has(metodo)) trocaLocale(no);
         }
       } else if (ts.isNewExpression(no)) {
         const alvo = no.expression;
@@ -668,7 +689,7 @@ export function transformar(
           const paraPartes =
             ts.isPropertyAccessExpression(pai) &&
             pai.name.text === "formatToParts";
-          if (!paraPartes) trocaLocale(no.arguments?.[0]);
+          if (!paraPartes) trocaLocale(no);
         }
       } else if (ts.isJsxOpeningElement(no) || ts.isJsxSelfClosingElement(no))
         visitaLang(no);
