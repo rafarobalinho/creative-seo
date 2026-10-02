@@ -26,6 +26,10 @@ export type OpcoesTransformacao = {
   dicionario: Dicionario;
   marca: ReadonlyArray<readonly [string, string]>;
   traduzir: boolean;
+  // Endereços do original que esperam um valor nosso (domínio, documentação).
+  // O elemento que aponta para eles sai da tela até o valor existir, em vez de
+  // levar o usuário ao site do original.
+  omitir?: ReadonlyArray<string>;
   // Usado pelo extrator: cada chave procurada, com a linha. "principal" é a
   // frase inteira; as secundárias são os pedaços tentados quando ela falta.
   aoConsultar?: (consulta: {
@@ -64,8 +68,13 @@ type Mensagem = {
   plural?: { teste: ts.Expression; singularSeVerdadeiro: boolean };
 };
 
+const PRIORIDADE_OMISSAO = 3;
 const PRIORIDADE_TRADUCAO = 2;
 const PRIORIDADE_MARCA = 1;
+
+// Ao tirar o endereço de um link que fica na tela, saem junto os atributos que
+// só fazem sentido com ele.
+const ATRIBUTOS_DE_LINK = new Set(["href", "target", "rel", "download"]);
 
 function desembrulha(expr: ts.Expression): ts.Expression {
   let atual = expr;
@@ -597,11 +606,133 @@ export function transformar(
     }
   };
 
+  // ---------- links para destinos pendentes ----------
+  const omitidos = opcoes.omitir ?? [];
+
+  // `const DISCORD_URL = "..."` no topo do arquivo: o href que cita a
+  // constante vale como o literal. Só o topo e só um nível: além disso o
+  // endereço já não é fixo, e o link fica como está.
+  const constantes = new Map<string, ts.Expression>();
+  for (const declaracao of arquivo.statements) {
+    if (!ts.isVariableStatement(declaracao)) continue;
+    if (!(declaracao.declarationList.flags & ts.NodeFlags.Const)) continue;
+    for (const d of declaracao.declarationList.declarations) {
+      if (ts.isIdentifier(d.name) && d.initializer)
+        constantes.set(d.name.text, d.initializer);
+    }
+  }
+
+  // Um literal, direto ou guardado numa constante do topo.
+  const textoFixo = (
+    expr: ts.Expression,
+    viaConstante = false,
+  ): string | undefined => {
+    const no = desembrulha(expr);
+    const literal = textoLiteral(no);
+    if (literal !== undefined) return literal;
+    if (ts.isIdentifier(no) && !viaConstante) {
+      const valor = constantes.get(no.text);
+      return valor && textoFixo(valor, true);
+    }
+    return undefined;
+  };
+
+  // O começo fixo do endereço. Num template, junta literais e constantes até
+  // o primeiro pedaço que não é fixo: `${DOCS_URL}#setup` também conta.
+  const enderecoFixo = (expr: ts.Expression): string | undefined => {
+    const no = desembrulha(expr);
+    if (!ts.isTemplateExpression(no)) return textoFixo(no);
+    let prefixo = no.head.text;
+    for (const span of no.templateSpans) {
+      const parte = textoFixo(span.expression);
+      if (parte === undefined) break;
+      prefixo += parte + span.literal.text;
+    }
+    return prefixo;
+  };
+
+  const temTextoVisivel = (filho: ts.JsxChild) =>
+    ts.isJsxText(filho)
+      ? normalizaTextoJsx(filho.text).trim() !== ""
+      : ts.isJsxExpression(filho) && filho.expression
+        ? (textoLiteral(filho.expression)?.trim() ?? "") !== ""
+        : false;
+
+  // Texto antes e depois, no mesmo pai: o link é parte da frase ("ask your
+  // agent to use SEO Coach to help you"), e tirá-lo deixaria um buraco nela.
+  const noMeioDaFrase = (no: ts.JsxElement) => {
+    const pai = no.parent;
+    if (!ts.isJsxElement(pai) && !ts.isJsxFragment(pai)) return false;
+    const irmaos = [...pai.children];
+    const posicao = irmaos.indexOf(no);
+    return (
+      irmaos.slice(0, posicao).some(temTextoVisivel) &&
+      irmaos.slice(posicao + 1).some(temTextoVisivel)
+    );
+  };
+
+  const visitaOmissao = (no: ts.Node) => {
+    if (!omitidos.length) return;
+    const abertura = ts.isJsxElement(no)
+      ? no.openingElement
+      : ts.isJsxSelfClosingElement(no)
+        ? no
+        : undefined;
+    if (!abertura) return;
+    const valor = abertura.attributes.properties.find(
+      (p): p is ts.JsxAttribute =>
+        ts.isJsxAttribute(p) && p.name.getText() === "href",
+    )?.initializer;
+    const endereco = !valor
+      ? undefined
+      : ts.isStringLiteral(valor)
+        ? valor.text
+        : ts.isJsxExpression(valor) && valor.expression
+          ? enderecoFixo(valor.expression)
+          : undefined;
+    if (!endereco || !omitidos.some((p) => endereco.startsWith(p))) return;
+
+    // Três desfechos, decididos pela forma do JSX:
+    // - conteúdo variável (o nome de cada skill) é informação: fica, com o
+    //   estilo e sem o endereço;
+    // - texto no meio da frase fica como texto corrido, sem cara de link;
+    // - o resto ("Setup guide", "Try OpenSEO") é só destino, e sai.
+    const link = ts.isJsxElement(no) && abertura.tagName.getText() === "a";
+    const conteudoVariavel =
+      link && no.children.some((f) => ts.isJsxExpression(f) && f.expression);
+    const meioDaFrase = link && noMeioDaFrase(no);
+    const filhoJsx = ts.isJsxElement(no.parent) || ts.isJsxFragment(no.parent);
+    registra(
+      no,
+      () => {
+        if (!ts.isJsxElement(no) || (!conteudoVariavel && !meioDaFrase))
+          return filhoJsx ? "" : "null";
+        const filhos = aplicaFaixa(
+          no.openingElement.end,
+          no.closingElement.getStart(arquivo),
+        );
+        if (!conteudoVariavel) return `<>${filhos}</>`;
+        const atributos = abertura.attributes.properties
+          .filter(
+            (p) =>
+              !(
+                ts.isJsxAttribute(p) && ATRIBUTOS_DE_LINK.has(p.name.getText())
+              ),
+          )
+          .map((p) => " " + aplicaFaixa(p.getStart(arquivo), p.end))
+          .join("");
+        return `<span${atributos}>${filhos}</span>`;
+      },
+      PRIORIDADE_OMISSAO,
+    );
+  };
+
   const nomeDaPropriedade = (nome: ts.PropertyName) =>
     ts.isIdentifier(nome) || ts.isStringLiteral(nome) ? nome.text : undefined;
 
   const visita = (no: ts.Node) => {
     visitaMarca(no);
+    visitaOmissao(no);
     if (opcoes.traduzir) {
       if (ts.isJsxElement(no) || ts.isJsxFragment(no))
         visitaFilhosJsx(no.children);

@@ -9,7 +9,7 @@ export const PASTA_CREATIVE = join(RAIZ, "creative");
 export const ARQUIVO_DICIONARIO = join(PASTA_CREATIVE, "i18n", "pt-BR.json");
 export const ARQUIVO_MARCA = join(PASTA_CREATIVE, "marca.json");
 
-type MarcaBruta = {
+export type MarcaBruta = {
   variaveis: Record<string, string | null>;
   termos: Array<[string, string]>;
 };
@@ -18,6 +18,9 @@ export type Marca = {
   termos: Array<readonly [string, string]>;
   // Termos que esperam um valor ainda não definido (domínio, e-mail de suporte).
   pendentes: string[];
+  // Os pendentes que são endereço: o link para eles sai da tela (ver `omitir`
+  // em transformar.ts) e volta sozinho quando a variável ganha valor.
+  omitir: string[];
 };
 
 function leJson<T>(caminho: string, padrao: T): T {
@@ -35,10 +38,12 @@ export function carregaDicionario(): Dicionario {
 // Um termo cujo destino cita variável sem valor fica de fora da troca e é
 // devolvido em `pendentes`: trocar por "https://{dominio}" quebraria o link.
 export function carregaMarca(): Marca {
-  const bruta = leJson<MarcaBruta>(ARQUIVO_MARCA, {
-    variaveis: {},
-    termos: [],
-  });
+  return resolveMarca(
+    leJson<MarcaBruta>(ARQUIVO_MARCA, { variaveis: {}, termos: [] }),
+  );
+}
+
+export function resolveMarca(bruta: MarcaBruta): Marca {
   const termos: Array<readonly [string, string]> = [];
   const pendentes: string[] = [];
   for (const [de, para] of bruta.termos) {
@@ -51,5 +56,6 @@ export function carregaMarca(): Marca {
     if (faltou) pendentes.push(de);
     else termos.push([de, resolvido]);
   }
-  return { termos, pendentes };
+  const omitir = pendentes.filter((de) => /^(https?:\/\/|mailto:)/.test(de));
+  return { termos, pendentes, omitir };
 }
