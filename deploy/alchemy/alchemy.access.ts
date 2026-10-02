@@ -64,6 +64,8 @@ export const emailAccessGate = (options: {
   policyName: string;
   applicationName: string;
   domain: string;
+  // Creative SEO: outros hostnames atrás da mesma aplicação (deploy/alchemy/creative.ts).
+  extraDomains?: string[];
   emails: string[];
 }) =>
   Effect.gen(function* () {
@@ -76,6 +78,13 @@ export const emailAccessGate = (options: {
       type: "self_hosted",
       name: options.applicationName,
       domain: options.domain,
+      ...(options.extraDomains?.length
+        ? {
+            destinations: [options.domain, ...options.extraDomains].map(
+              (uri) => ({ type: "public" as const, uri }),
+            ),
+          }
+        : {}),
       policies: [allow.policyId],
     });
   });
