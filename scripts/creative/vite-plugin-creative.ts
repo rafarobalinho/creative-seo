@@ -4,7 +4,7 @@
 //
 // CREATIVE_I18N=off desliga tudo (os testes Playwright do original procuram
 // texto em inglês).
-import { relative } from "node:path";
+import { relative, resolve } from "node:path";
 import type { Plugin } from "vite";
 import {
   ARQUIVO_DICIONARIO,
@@ -12,6 +12,7 @@ import {
   carregaDicionario,
   carregaMarca,
 } from "./configuracao";
+import { mesclaPublico, substitutoDePublico } from "./publico";
 import { caminhoTraduzivel } from "./traducao/regras";
 import { transformar, type Dicionario } from "./traducao/transformar";
 
@@ -48,8 +49,21 @@ export function creativeSeo(): Plugin {
   return {
     name: "creative-seo",
     enforce: "pre",
+    config(usuario) {
+      if (desligado) return;
+      const base = usuario.root ?? process.cwd();
+      const publico = mesclaPublico(
+        resolve(base, usuario.publicDir || "public"),
+        base,
+      );
+      return publico ? { publicDir: publico } : undefined;
+    },
     configResolved(config) {
       raiz = config.root;
+    },
+    resolveId(fonte, importador) {
+      if (desligado || !importador) return null;
+      return substitutoDePublico(fonte, importador, raiz) ?? null;
     },
     buildStart() {
       dicionario = carregaDicionario();
