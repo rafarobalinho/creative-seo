@@ -10,15 +10,16 @@ repositório do motor (`rafarobalinho/plataforma-auditoria-seo-aeo`), em
 
 ## O que mora aqui
 
-| Caminho                                 | O que é                                                                                                                                   |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `creative/i18n/pt-BR.json`              | Dicionário: texto exato em inglês → português. Plural vira `{ "um", "outros" }`. `"Texto@caminho/do/arquivo.tsx"` vale só naquele arquivo |
-| `creative/i18n/ignorados.json`          | Textos do original que de propósito não são traduzidos: códigos de país, identificadores, valores que o código compara                    |
-| `creative/i18n/uso-duplo-revisado.json` | Chaves que também aparecem como lógica no código, conferidas à mão, com o motivo                                                          |
-| `creative/i18n/textos-originais.json`   | Gerado: as chaves que a troca procura. O diff mostra o que o original acrescentou ou tirou                                                |
-| `creative/marca.json`                   | Termos da marca. Destinos com `{dominio}`, `{emailSuporte}` ou `{documentacao}` só entram quando a variável tiver valor                   |
-| `creative/public/`                      | Arquivos públicos que substituem os de `src/public` no build (manifesto; logo e ícones quando existirem)                                  |
-| `scripts/creative/`                     | A camada: regras, troca, análise, plugin do Vite, varredura de marca                                                                      |
+| Caminho                                 | O que é                                                                                                                                                     |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `creative/i18n/pt-BR.json`              | Dicionário: texto exato em inglês → português. Plural vira `{ "um", "outros" }`. `"Texto@caminho/do/arquivo.tsx"` vale só naquele arquivo                   |
+| `creative/i18n/ignorados.json`          | Textos do original que de propósito não são traduzidos: códigos de país, identificadores, valores que o código compara                                      |
+| `creative/i18n/uso-duplo-revisado.json` | Chaves que também aparecem como lógica no código, conferidas à mão, com o motivo                                                                            |
+| `creative/i18n/textos-originais.json`   | Gerado: as chaves que a troca procura. O diff mostra o que o original acrescentou ou tirou                                                                  |
+| `creative/marca.json`                   | Termos da marca. Destinos com `{dominio}`, `{documentacao}` ou `{comunidade}` só entram quando a variável tiver valor; até lá, o link para eles sai da tela |
+| `creative/public/`                      | Arquivos públicos que substituem os de `src/public` no build. Hoje logo e ícones são transparentes: o do original sai e o nosso ainda não existe            |
+| `creative/logo/`                        | O wordmark da creative.AI nas duas versões, guardado para a decisão de marca. Não é servido                                                                 |
+| `scripts/creative/`                     | A camada: regras, troca, análise, plugin do Vite, varredura de marca                                                                                        |
 
 ## Tarefas comuns
 
@@ -68,6 +69,14 @@ renomeie `WORKER_PREFIX`, os nomes `open-seo-*-${stage}` nem os ids lógicos do
 **Dar acesso a alguém:** acrescente o e-mail em `ACCESS_ALLOWED_EMAILS`
 (`.env.selfhost`) e implante de novo. Edição no painel do Zero Trust é
 sobrescrita no deploy seguinte.
+
+**Pôr outro endereço atrás do mesmo login:** `ACCESS_EXTRA_DOMAINS`
+(`.env.selfhost`, separado por vírgula) acrescenta hostnames à mesma aplicação
+do Access, com a mesma lista de e-mails. É assim que o portal do motor
+(`aeo-portal.<conta>.workers.dev`) fica protegido até a Auditoria AEO chegar à
+paridade. O `alchemy plan` tem de mostrar _update_ da aplicação, nunca
+_replace_. **Acrescente o endereço aqui e implante antes de publicar o Worker
+dele**, para ele nunca ficar exposto.
 
 **Atualizar com o original:** o workflow `creative-sincroniza-upstream.yml`
 faz isso toda semana e abre PR. À mão:

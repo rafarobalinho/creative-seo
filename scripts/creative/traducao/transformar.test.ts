@@ -330,6 +330,91 @@ describe("documento HTML", () => {
   });
 });
 
+describe("links para destinos pendentes", () => {
+  // Como no build: o endereço do original que espera domínio ou documentação
+  // própria não tem termo de marca, só entra na lista de omissão.
+  const omite = (codigo: string) =>
+    transformar(codigo, "src/client/X.tsx", {
+      ...opcoes,
+      dicionario: {
+        ...opcoes.dicionario,
+        "MCP clients cannot connect yet. {0}":
+          "Os clientes MCP ainda não conectam. {0}",
+      },
+      marca: [["OpenSEO", "Creative SEO"]],
+      omitir: ["https://openseo.so", "https://discord.gg/c9uGs3cFXr"],
+    }).codigo;
+
+  it("tira da tela o link que fecha a frase", () => {
+    expect(
+      omite(
+        `const A = () => <p>Antes <a href="https://openseo.so/docs/mcp" target="_blank">Setup guide</a></p>;`,
+      ),
+    ).toBe(`const A = () => <p>Antes </p>;`);
+  });
+
+  it("devolve null quando o link é o valor de uma expressão", () => {
+    expect(
+      omite(
+        `function B() {\n  return (\n    <a href="https://openseo.so/?utm_source=x">Try OpenSEO</a>\n  );\n}`,
+      ),
+    ).toBe(`function B() {\n  return (\n    null\n  );\n}`);
+  });
+
+  it("mantém o conteúdo variável e tira só o endereço", () => {
+    expect(
+      omite(
+        'const C = ({ name }) => <a href={`https://openseo.so/docs/skills/${name}`} target="_blank" rel="noreferrer" className="font-mono">/{name}</a>;',
+      ),
+    ).toBe(
+      'const C = ({ name }) => <span className="font-mono">/{name}</span>;',
+    );
+  });
+
+  it("resolve o endereço guardado numa constante do arquivo", () => {
+    const antes = `const DISCORD_URL = "https://discord.gg/c9uGs3cFXr";\nconst D = () => (\n  <div>\n    <Card title="Email" />\n    <SupportLinkCard href={DISCORD_URL} title="Discord" />\n  </div>\n);`;
+    expect(omite(antes)).toBe(
+      antes.replace(
+        `<SupportLinkCard href={DISCORD_URL} title="Discord" />`,
+        "",
+      ),
+    );
+  });
+
+  it("resolve a constante no começo de um template", () => {
+    expect(
+      omite(
+        'const DOCS = "https://openseo.so/docs/agent-setup";\nconst H = () => <div><Copiar /><a href={`${DOCS}#set-up`} className="m">Setup instructions<Seta /></a></div>;',
+      ),
+    ).toBe(
+      'const DOCS = "https://openseo.so/docs/agent-setup";\nconst H = () => <div><Copiar /></div>;',
+    );
+  });
+
+  it("deixa o texto, sem cara de link, quando o link está no meio da frase", () => {
+    expect(
+      omite(
+        'const COACH = "https://openseo.so/docs/skills/seo-coach";\nconst G = () => <p>Ask your agent to use{" "}<a href={COACH} className="link">SEO Coach</a>{" "}to help you.</p>;',
+      ),
+    ).toBe(
+      'const COACH = "https://openseo.so/docs/skills/seo-coach";\nconst G = () => <p>Ask your agent to use{" "}<>SEO Coach</>{" "}to help you.</p>;',
+    );
+  });
+
+  it("tira o link que fecha uma frase traduzida", () => {
+    expect(
+      omite(
+        `const F = () => <p>MCP clients cannot connect yet. <a href="https://openseo.so/docs">Setup guide</a></p>;`,
+      ),
+    ).toBe(`const F = () => <p>{"Os clientes MCP ainda não conectam. "}</p>;`);
+  });
+
+  it("não toca em link para destino com valor nem em endereço desconhecido", () => {
+    const codigo = `const E = ({ url }) => <><a href="https://github.com/rafarobalinho/creative-seo">GitHub</a><a href={url}>Docs</a></>;`;
+    expect(omite(codigo)).toBe(codigo);
+  });
+});
+
 it("conta as trocas feitas", () => {
   expect(
     transformar(`const A = () => <b>Save</b>;`, "src/x.tsx", opcoes).trocas,

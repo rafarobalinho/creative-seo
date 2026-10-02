@@ -43,7 +43,7 @@ export function caminhoParaTransformar(
 export function creativeSeo(): Plugin {
   let raiz = process.cwd();
   let dicionario: Dicionario = {};
-  let marca = carregaMarca().termos;
+  let marca = carregaMarca();
   const desligado = process.env.CREATIVE_I18N === "off";
 
   return {
@@ -67,7 +67,7 @@ export function creativeSeo(): Plugin {
     },
     buildStart() {
       dicionario = carregaDicionario();
-      marca = carregaMarca().termos;
+      marca = carregaMarca();
       this.addWatchFile(ARQUIVO_DICIONARIO);
       this.addWatchFile(ARQUIVO_MARCA);
     },
@@ -81,7 +81,8 @@ export function creativeSeo(): Plugin {
         : alvo.caminho;
       const resultado = transformar(codigo, caminhoDoParser, {
         dicionario,
-        marca,
+        marca: marca.termos,
+        omitir: marca.omitir,
         traduzir: alvo.traduzir,
       });
       if (!resultado.trocas) return null;

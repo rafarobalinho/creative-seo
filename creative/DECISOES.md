@@ -17,7 +17,10 @@ auditoria, vive no repositório do motor:
 2. **A tradução para pt-BR é feita no build** (`creative/i18n/pt-BR.json`), sem
    editar componentes. Só a interface é traduzida; os dados aparecem como vêm.
 3. **A marca é trocada pela mesma camada.** "OpenSEO" não aparece para o
-   usuário; o `LICENSE` fica intacto e a atribuição está em `NOTICE.md`.
+   usuário; o `LICENSE` fica intacto e a atribuição está em `NOTICE.md`. Link
+   para destino que ainda não temos (documentação, domínio, comunidade) **sai
+   da tela** em vez de levar ao site do original. Ele volta sozinho quando a
+   variável em `marca.json` ganha valor.
 4. **Os nomes internos de infraestrutura não mudam.** Os nomes do Alchemy,
    `WORKER_PREFIX` e os ids lógicos ficam como estão: renomeá-los recria
    recursos e apaga dados. O endereço público vem de um domínio próprio.
@@ -32,3 +35,12 @@ auditoria, vive no repositório do motor:
 8. **Telemetria do original desligada** (`OPENSEO_TELEMETRY_DISABLED=1`). Os
    workflows `sourcemaps.yml` e `pr-preview.yml` ficam desativados quando o
    Actions for habilitado neste fork.
+
+## Adiado até virar produto (decidido em 2026-10-02)
+
+Para os sócios testarem já, domínio próprio, logo e ícone ficam para quando o
+Creative SEO for oferecido a clientes. Enquanto isso, a interface **omite**
+o que depende deles: os links pendentes saem da tela (regra 3), e logo e
+favicons são transparentes (`creative/public/`). O e-mail de suporte é
+`robalinho@creativeai.one`, provisório. O que já se sabe para decidir depois
+está no desenho, no repositório do motor (§6).

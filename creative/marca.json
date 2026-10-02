@@ -1,8 +1,9 @@
 {
   "variaveis": {
     "dominio": null,
-    "emailSuporte": null,
-    "documentacao": null
+    "emailSuporte": "robalinho@creativeai.one",
+    "documentacao": null,
+    "comunidade": null
   },
   "termos": [
     ["OpenSEO-Audit", "CreativeSEO-Audit"],
@@ -25,7 +26,7 @@
     ["https://openseo.so", "https://{dominio}"],
     ["ben@openseo.so", "{emailSuporte}"],
     ["@openseo.so", "@{dominio}"],
-    ["https://discord.gg/c9uGs3cFXr", "mailto:{emailSuporte}"],
+    ["https://discord.gg/c9uGs3cFXr", "{comunidade}"],
     ["openseo.so", "{dominio}"]
   ]
 }
