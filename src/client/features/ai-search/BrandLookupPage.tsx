@@ -11,6 +11,7 @@ import { RecentSearches } from "@/client/components/RecentSearches";
 import { BackLink } from "@/client/components/PageHeader";
 import { Badge } from "@/client/components/ui/badge";
 import { useBrandLookupSearchHistory } from "@/client/hooks/useBrandLookupSearchHistory";
+import { LOCAL_CONSULTA_MARCA } from "@/client/features/creative/consultaDeMarca";
 import {
   BRAND_LOOKUP_MAX_INPUT_LENGTH,
   parseCompetitorList,
@@ -115,8 +116,7 @@ export function BrandLookupPage({
           query: trimmedInitialQuery,
           competitors: initialCompetitors,
           scope: initialScope,
-          locationCode: 2840,
-          languageCode: "en",
+          ...LOCAL_CONSULTA_MARCA,
         },
       }),
     // Client-side gate is a UX optimization only; the paywall is enforced
