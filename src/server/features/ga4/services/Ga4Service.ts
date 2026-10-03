@@ -5,6 +5,7 @@ import { AppError } from "@/server/lib/errors";
 import { createGa4AdminClient } from "@/server/lib/ga4Client";
 import { Ga4AdminApiError, Ga4TokenError } from "@/server/lib/ga4Errors";
 import { GA4_OAUTH_PROVIDER_ID } from "@/shared/ga4";
+import { daConexaoDoProjeto } from "@/shared/creative/googlePorProjeto";
 import {
   Ga4ConnectionRepository,
   type Ga4Connection,
@@ -14,8 +15,9 @@ async function getConnection(projectId: string): Promise<Ga4Connection | null> {
   return Ga4ConnectionRepository.getByProjectId(projectId);
 }
 
-async function listGrantsForUser(userId: string) {
-  return db
+// Creative SEO: only the grants made in this project (googlePorProjeto.ts).
+async function listGrantsForUser(userId: string, projectId: string) {
+  const grants = await db
     .select({ id: account.id, accountId: account.accountId })
     .from(account)
     .where(
@@ -24,10 +26,16 @@ async function listGrantsForUser(userId: string) {
         eq(account.providerId, GA4_OAUTH_PROVIDER_ID),
       ),
     );
+  return grants.filter((grant) =>
+    daConexaoDoProjeto(grant.accountId, projectId),
+  );
 }
 
-async function userHasGrant(userId: string): Promise<boolean> {
-  const grants = await listGrantsForUser(userId);
+async function userHasGrant(
+  userId: string,
+  projectId: string,
+): Promise<boolean> {
+  const grants = await listGrantsForUser(userId, projectId);
   return grants.length > 0;
 }
 
@@ -38,8 +46,11 @@ function requiresReconnect(error: unknown): boolean {
   );
 }
 
-async function listPropertiesForUserWithGrantStatus(userId: string) {
-  const grants = await listGrantsForUser(userId);
+async function listPropertiesForUserWithGrantStatus(
+  userId: string,
+  projectId: string,
+) {
+  const grants = await listGrantsForUser(userId, projectId);
   const accounts = await Promise.all(
     grants.map(async (grant) => {
       const client = createGa4AdminClient({
@@ -90,7 +101,7 @@ async function setProperty(input: {
   accountId: string;
   userId: string;
 }): Promise<Ga4Connection> {
-  const grants = await listGrantsForUser(input.userId);
+  const grants = await listGrantsForUser(input.userId, input.projectId);
   if (!grants.some((grant) => grant.accountId === input.accountId)) {
     throw new AppError(
       "NOT_FOUND",

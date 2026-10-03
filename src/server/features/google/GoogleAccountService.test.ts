@@ -180,10 +180,12 @@ for (const provider of ["gsc", "ga4"] as const) {
   });
 }
 
-it("includes legacy GSC mappings in removal without touching another user's legacy mappings", async () => {
+// Creative SEO: removing one client's account never touches another project's
+// connection — not even a legacy one with no account (googlePorProjeto.ts).
+it("remover a conta de um cliente não apaga conexão antiga, sem conta, de outro projeto", async () => {
   await grant("google-search-console");
-  await mapping("gsc", "p1", null);
-  await mapping("gsc", "p2", null, "u2");
+  await mapping("gsc", "p1", "google-a");
+  await mapping("gsc", "p2", null);
   const input = {
     provider: "gsc" as const,
     accountId: "google-a",

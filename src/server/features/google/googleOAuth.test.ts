@@ -87,11 +87,13 @@ const idToken = "google-id-token";
 async function authorizationUrl(
   integration: OAuthModule.GoogleOAuthIntegration,
   url = callbackURL,
+  projectId = "project",
 ) {
   return new URL(
     await oauth.createGoogleAuthorizationUrl({
       integration,
       userId,
+      projectId,
       callbackURL: url,
       publicOrigin,
     }),
@@ -101,8 +103,11 @@ async function authorizationUrl(
 async function authorizationState(
   integration: OAuthModule.GoogleOAuthIntegration,
   url = callbackURL,
+  projectId = "project",
 ) {
-  return (await authorizationUrl(integration, url)).searchParams.get("state")!;
+  return (await authorizationUrl(integration, url, projectId)).searchParams.get(
+    "state",
+  )!;
 }
 
 function callbackRequest(
@@ -222,9 +227,50 @@ describe("Google OAuth grants", () => {
       {
         user_id: "user-1",
         provider_id: "google-analytics",
-        account_id: "google-account-1",
+        account_id: "google-account-1@projeto:project",
         access_token: "access-token",
         refresh_token: "refresh-token",
+      },
+    ]);
+  });
+
+  // Creative SEO: cada cliente tem a própria autorização, mesmo quando a
+  // agência usa a mesma conta Google para dois clientes.
+  it("guarda uma autorização por projeto, cada uma com o próprio token", async () => {
+    mocks.getGoogleAccountId.mockResolvedValue("conta-da-agencia");
+    for (const [projeto, token] of [
+      ["cliente-a", "token-a"],
+      ["cliente-b", "token-b"],
+    ]) {
+      const state = await authorizationState(
+        oauth.GSC_INTEGRATION,
+        callbackURL,
+        projeto,
+      );
+      mocks.fetch.mockResolvedValueOnce(
+        tokenResponse({
+          access_token: token,
+          refresh_token: `refresh-${projeto}`,
+          id_token: idToken,
+        }),
+      );
+      await callback(oauth.GSC_INTEGRATION, state, { code: projeto });
+    }
+
+    expect(await grants()).toEqual([
+      {
+        user_id: "user-1",
+        provider_id: "google-search-console",
+        account_id: "conta-da-agencia@projeto:cliente-a",
+        access_token: "token-a",
+        refresh_token: "refresh-cliente-a",
+      },
+      {
+        user_id: "user-1",
+        provider_id: "google-search-console",
+        account_id: "conta-da-agencia@projeto:cliente-b",
+        access_token: "token-b",
+        refresh_token: "refresh-cliente-b",
       },
     ]);
   });
@@ -258,6 +304,7 @@ describe("Google OAuth grants", () => {
       await oauth.createGoogleAuthorizationUrl({
         integration: oauth.GSC_INTEGRATION,
         userId: "user-2",
+        projectId: "project",
         callbackURL,
         publicOrigin,
       }),
@@ -273,14 +320,14 @@ describe("Google OAuth grants", () => {
       {
         user_id: "user-1",
         provider_id: "google-search-console",
-        account_id: "shared-google-account",
+        account_id: "shared-google-account@projeto:project",
         access_token: "second",
         refresh_token: "refresh-1",
       },
       {
         user_id: "user-2",
         provider_id: "google-search-console",
-        account_id: "shared-google-account",
+        account_id: "shared-google-account@projeto:project",
         access_token: "second",
         refresh_token: null,
       },

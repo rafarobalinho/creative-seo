@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { Check, ChevronDown, Plus, Search } from "lucide-react";
+import { contaGoogleDe } from "@/shared/creative/googlePorProjeto";
 
 export type GooglePickerSelection = { accountId: string; propertyId: string };
 type Property = {
@@ -34,7 +35,12 @@ type SecondaryAction = {
 };
 
 function accountLabel(account: GooglePickerAccount) {
-  return account.email ?? `Google account · ${account.accountId.slice(-6)}`;
+  // Creative SEO: the accountId ends with the project, so the Google part is
+  // what tells two email-less accounts apart (googlePorProjeto.ts).
+  return (
+    account.email ??
+    `Google account · ${contaGoogleDe(account.accountId).slice(-6)}`
+  );
 }
 
 export function GooglePropertyPicker({

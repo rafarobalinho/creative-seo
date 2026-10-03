@@ -18,6 +18,8 @@ const STATE_IDENTIFIER_PREFIX = "google-link:";
 const oauthStateSchema = z.object({
   userId: z.string().min(1),
   callbackPath: z.string().min(1),
+  // Creative SEO: o projeto em que a conexão nasce (src/shared/creative/googlePorProjeto.ts).
+  projectId: z.string().min(1),
 });
 
 function bytesToBase64Url(bytes: Uint8Array) {
@@ -68,6 +70,7 @@ export async function createState(input: {
   provider: GoogleLinkProvider;
   userId: string;
   callbackPath: string;
+  projectId: string;
 }) {
   const state = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(32)));
   const now = new Date();
@@ -87,6 +90,7 @@ export async function createState(input: {
     value: JSON.stringify({
       userId: input.userId,
       callbackPath: input.callbackPath,
+      projectId: input.projectId,
     }),
     expiresAt: new Date(now.getTime() + STATE_TTL_MS),
   });

@@ -1,4 +1,4 @@
-import { and, count, eq, isNull, or } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { runBatch } from "@/db/runBatch";
 import { account, ga4Connections, gscConnections } from "@/db/schema";
@@ -26,12 +26,11 @@ function scope(input: AccountInput) {
     ),
     usage: and(
       eq(connections.connectedByUserId, input.userId),
+      // Creative SEO: only the mappings of exactly this grant. A legacy GSC
+      // mapping with no account no longer uses any grant (getGoogleAccessToken
+      // refuses it), so removing one client's account must not take it along.
       gsc
-        ? // Legacy GSC mappings can use any of this user's grants.
-          or(
-            eq(gscConnections.gscAccountId, input.accountId),
-            isNull(gscConnections.gscAccountId),
-          )
+        ? eq(gscConnections.gscAccountId, input.accountId)
         : eq(ga4Connections.ga4AccountId, input.accountId),
     ),
   };

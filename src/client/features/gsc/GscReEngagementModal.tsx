@@ -43,10 +43,12 @@ export function GscReEngagementModal({
     ...onboardingAnswersQueryOptions(),
     enabled: hosted,
   });
+  // Creative SEO: the grant is per project, so without one there is nothing
+  // to check or connect (googlePorProjeto.ts).
   const grantQuery = useQuery({
-    queryKey: ["gscGrantStatus"],
-    queryFn: () => getGscGrantStatus(),
-    enabled: hosted,
+    queryKey: ["gscGrantStatus", projectId],
+    queryFn: () => getGscGrantStatus({ data: { projectId: projectId ?? "" } }),
+    enabled: hosted && projectId !== null,
   });
 
   const dismissMutation = useMutation({
@@ -97,10 +99,12 @@ export function GscReEngagementModal({
     persistDismiss();
     // Land them on the project's integrations page so they can pick a property
     // right after granting access (the grant alone has no property bound yet).
-    const callbackURL = projectId
-      ? `${window.location.origin}/p/${projectId}/settings/integrations`
-      : window.location.href;
-    void startGoogleLink("gsc", callbackURL);
+    if (!projectId) return;
+    void startGoogleLink(
+      "gsc",
+      `${window.location.origin}/p/${projectId}/settings/integrations`,
+      projectId,
+    );
   }
 
   return (

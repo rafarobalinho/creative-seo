@@ -57,13 +57,13 @@ vi.mock("@/server/features/gsc/repositories/GscConnectionRepository", () => ({
 const baseInput = {
   projectId: "p1",
   organizationId: "org1",
-  accountId: "sub-a",
+  accountId: "sub-a@projeto:p1",
   userId: "u1",
 };
 
 describe("GscService.setSite", () => {
   beforeEach(() => {
-    mocks.state.selectRows = [{ id: "grant-a", accountId: "sub-a" }];
+    mocks.state.selectRows = [{ id: "grant-a", accountId: "sub-a@projeto:p1" }];
   });
 
   it("upserts a verified property with the selected grant and userinfo email", async () => {
@@ -77,14 +77,14 @@ describe("GscService.setSite", () => {
 
     expect(mocks.createGscClient).toHaveBeenCalledWith({
       userId: "u1",
-      gscAccountId: "sub-a",
+      gscAccountId: "sub-a@projeto:p1",
     });
     expect(mocks.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         projectId: "p1",
         siteUrl: "https://x/",
         connectedByUserId: "u1",
-        gscAccountId: "sub-a",
+        gscAccountId: "sub-a@projeto:p1",
         connectedAccountEmail: "client@example.com",
       }),
     );
@@ -135,8 +135,8 @@ describe("GscService.setSite", () => {
 describe("GscService.listSitesForUserWithGrantStatus", () => {
   beforeEach(() => {
     mocks.state.selectRows = [
-      { id: "grant-a", accountId: "sub-a" },
-      { id: "grant-b", accountId: "sub-b" },
+      { id: "grant-a", accountId: "sub-a@projeto:p1" },
+      { id: "grant-b", accountId: "sub-b@projeto:p1" },
     ];
   });
 
@@ -152,24 +152,24 @@ describe("GscService.listSitesForUserWithGrantStatus", () => {
       );
       mocks.listSites.mockImplementation(
         async ({ gscAccountId }: { gscAccountId?: string }) => {
-          if (gscAccountId === "sub-b") throw failure;
+          if (gscAccountId === "sub-b@projeto:p1") throw failure;
           return [{ siteUrl: "https://x/", permissionLevel: "siteOwner" }];
         },
       );
 
       await expect(
-        GscService.listSitesForUserWithGrantStatus("u1"),
+        GscService.listSitesForUserWithGrantStatus("u1", "p1"),
       ).resolves.toEqual({
         accounts: [
           {
-            accountId: "sub-a",
-            email: "sub-a@example.com",
+            accountId: "sub-a@projeto:p1",
+            email: "sub-a@projeto:p1@example.com",
             requiresReconnect: false,
             propertiesUnavailable: false,
             sites: [{ siteUrl: "https://x/", permissionLevel: "siteOwner" }],
           },
           {
-            accountId: "sub-b",
+            accountId: "sub-b@projeto:p1",
             email: null,
             requiresReconnect: true,
             propertiesUnavailable: false,
@@ -179,24 +179,24 @@ describe("GscService.listSitesForUserWithGrantStatus", () => {
       });
       expect(mocks.createGscClient).toHaveBeenCalledTimes(2);
       expect(mocks.getUserInfoEmail).not.toHaveBeenCalledWith(
-        expect.objectContaining({ gscAccountId: "sub-b" }),
+        expect.objectContaining({ gscAccountId: "sub-b@projeto:p1" }),
       );
     },
   );
 
   it("keeps userinfo failures non-fatal", async () => {
-    mocks.state.selectRows = [{ id: "grant-a", accountId: "sub-a" }];
+    mocks.state.selectRows = [{ id: "grant-a", accountId: "sub-a@projeto:p1" }];
     mocks.getUserInfoEmail.mockRejectedValue(new Error("userinfo unavailable"));
     mocks.listSites.mockResolvedValue([
       { siteUrl: "https://x/", permissionLevel: "siteOwner" },
     ]);
 
     await expect(
-      GscService.listSitesForUserWithGrantStatus("u1"),
+      GscService.listSitesForUserWithGrantStatus("u1", "p1"),
     ).resolves.toEqual({
       accounts: [
         {
-          accountId: "sub-a",
+          accountId: "sub-a@projeto:p1",
           email: null,
           requiresReconnect: false,
           propertiesUnavailable: false,
@@ -214,7 +214,7 @@ describe("GscService.listSitesForUserWithGrantStatus", () => {
     const rateLimit = new GscApiError(429, "slow down");
     mocks.listSites.mockImplementation(
       async ({ gscAccountId }: { gscAccountId?: string }) => {
-        if (gscAccountId === "sub-b") throw rateLimit;
+        if (gscAccountId === "sub-b@projeto:p1") throw rateLimit;
         return [{ siteUrl: "https://x/", permissionLevel: "siteOwner" }];
       },
     );
@@ -223,18 +223,18 @@ describe("GscService.listSitesForUserWithGrantStatus", () => {
       .mockImplementation(() => undefined);
 
     await expect(
-      GscService.listSitesForUserWithGrantStatus("u1"),
+      GscService.listSitesForUserWithGrantStatus("u1", "p1"),
     ).resolves.toEqual({
       accounts: [
         {
-          accountId: "sub-a",
-          email: "sub-a@example.com",
+          accountId: "sub-a@projeto:p1",
+          email: "sub-a@projeto:p1@example.com",
           requiresReconnect: false,
           propertiesUnavailable: false,
           sites: [{ siteUrl: "https://x/", permissionLevel: "siteOwner" }],
         },
         {
-          accountId: "sub-b",
+          accountId: "sub-b@projeto:p1",
           email: null,
           requiresReconnect: false,
           propertiesUnavailable: true,
@@ -244,10 +244,51 @@ describe("GscService.listSitesForUserWithGrantStatus", () => {
     });
     expect(consoleError).toHaveBeenCalledWith(
       "Failed to list Search Console sites for account",
-      "sub-b",
+      "sub-b@projeto:p1",
       rateLimit,
     );
     consoleError.mockRestore();
+  });
+});
+
+// Creative SEO: cada cliente vê e usa só a conexão feita no próprio projeto.
+describe("GscService: conexão exclusiva do projeto", () => {
+  beforeEach(() => {
+    mocks.state.selectRows = [
+      { id: "grant-a", accountId: "sub-a@projeto:p1" },
+      { id: "grant-c", accountId: "sub-c@projeto:p2" },
+      { id: "grant-d", accountId: "sub-d" },
+    ];
+    mocks.listSites.mockResolvedValue([
+      { siteUrl: "https://x/", permissionLevel: "siteOwner" },
+    ]);
+    mocks.getUserInfoEmail.mockResolvedValue("cliente@example.com");
+  });
+
+  it("lista só as contas conectadas neste projeto", async () => {
+    const { accounts } = await GscService.listSitesForUserWithGrantStatus(
+      "u1",
+      "p1",
+    );
+    expect(accounts.map((conta) => conta.accountId)).toEqual([
+      "sub-a@projeto:p1",
+    ]);
+  });
+
+  it("diz que o projeto ainda não tem conexão quando só outro projeto tem", async () => {
+    await expect(GscService.userHasGrant("u1", "p1")).resolves.toBe(true);
+    await expect(GscService.userHasGrant("u1", "p3")).resolves.toBe(false);
+  });
+
+  it("recusa usar no projeto a conta conectada em outro projeto", async () => {
+    await expect(
+      GscService.setSite({
+        ...baseInput,
+        accountId: "sub-c@projeto:p2",
+        siteUrl: "https://x/",
+      }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    expect(mocks.upsert).not.toHaveBeenCalled();
   });
 });
 
@@ -257,7 +298,7 @@ describe("GscService.getPerformance", () => {
   });
 
   it.each([
-    ["sub-a", "sub-a"],
+    ["sub-a@projeto:p1", "sub-a@projeto:p1"],
     [null, undefined],
   ])(
     "uses the grant stored on the project connection (%s)",

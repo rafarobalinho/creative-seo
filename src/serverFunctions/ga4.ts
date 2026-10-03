@@ -16,17 +16,14 @@ import { hasOrgPermission } from "@/lib/org-permissions";
 import { requireOrgPermission } from "@/server/auth/org-gate";
 import { captureServerEvent } from "@/server/lib/posthog";
 import { getPublicOrigin } from "@/server/mcp/public-origin";
-import {
-  requireAuthenticatedContext,
-  requireProjectContext,
-} from "@/serverFunctions/middleware";
+import { requireProjectContext } from "@/serverFunctions/middleware";
 
 const projectScopedSchema = z.object({ projectId: z.string().min(1) });
 const setPropertySchema = projectScopedSchema.extend({
   accountId: z.string().min(1),
   propertyId: z.string().regex(/^properties\/\d+$/),
 });
-const startLinkSchema = z.object({
+const startLinkSchema = projectScopedSchema.extend({
   callbackURL: z.string().min(1),
 });
 
@@ -37,7 +34,7 @@ export const getGa4Connection = createServerFn({ method: "POST" })
     const [connection, currentUserHasGrant, googleOAuthConfigured] =
       await Promise.all([
         Ga4Service.getConnection(context.projectId),
-        Ga4Service.userHasGrant(context.userId),
+        Ga4Service.userHasGrant(context.userId, context.projectId),
         hasGoogleOAuthConfig(),
       ]);
     return {
@@ -143,7 +140,10 @@ export const listGa4Properties = createServerFn({ method: "POST" })
   .validator(projectScopedSchema)
   .handler(async ({ context }) => {
     const [propertyList, connection] = await Promise.all([
-      Ga4Service.listPropertiesForUserWithGrantStatus(context.userId),
+      Ga4Service.listPropertiesForUserWithGrantStatus(
+        context.userId,
+        context.projectId,
+      ),
       Ga4Service.getConnection(context.projectId),
     ]);
     return {
@@ -208,12 +208,13 @@ export const disconnectGa4 = createServerFn({ method: "POST" })
   });
 
 export const startGa4Link = createServerFn({ method: "POST" })
-  .middleware(requireAuthenticatedContext)
+  .middleware(requireProjectContext)
   .validator(startLinkSchema)
   .handler(async ({ data, context }) => ({
     url: await createGoogleAuthorizationUrl({
       integration: GA4_INTEGRATION,
       userId: context.userId,
+      projectId: context.projectId,
       callbackURL: data.callbackURL,
       publicOrigin: getPublicOrigin(getRequest()),
     }),

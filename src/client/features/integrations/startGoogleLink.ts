@@ -47,12 +47,16 @@ export function useGoogleLinkPending() {
 export async function startGoogleLink(
   provider: GoogleLinkProvider,
   callbackURL: string,
+  // Creative SEO: the grant is made for this project (googlePorProjeto.ts).
+  projectId: string,
 ): Promise<boolean> {
   if (linkRedirectPending) return false;
   setLinkPending(true);
   let redirecting = false;
   try {
-    const { url } = await startLink[provider]({ data: { callbackURL } });
+    const { url } = await startLink[provider]({
+      data: { callbackURL, projectId },
+    });
     redirecting = true;
     window.location.href = url;
     // The page is about to unload, so the guard normally never needs to

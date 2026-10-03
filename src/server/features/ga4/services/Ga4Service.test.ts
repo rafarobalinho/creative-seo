@@ -48,7 +48,7 @@ vi.mock("@/server/features/ga4/repositories/Ga4ConnectionRepository", () => ({
 
 describe("Ga4Service", () => {
   beforeEach(() => {
-    mocks.state.grants = [{ id: "grant-a", accountId: "sub-a" }];
+    mocks.state.grants = [{ id: "grant-a", accountId: "sub-a@projeto:p1" }];
   });
 
   it("verifies a freshly discovered property before persisting metadata", async () => {
@@ -71,7 +71,7 @@ describe("Ga4Service", () => {
       projectId: "p1",
       organizationId: "org1",
       propertyId: "properties/11",
-      accountId: "sub-a",
+      accountId: "sub-a@projeto:p1",
       userId: "u1",
     };
 
@@ -85,7 +85,7 @@ describe("Ga4Service", () => {
       propertyTimeZone: "America/New_York",
       propertyCurrencyCode: "USD",
       connectedByUserId: "u1",
-      ga4AccountId: "sub-a",
+      ga4AccountId: "sub-a@projeto:p1",
       connectedAccountEmail: "client@example.com",
     });
 
@@ -114,7 +114,7 @@ describe("Ga4Service", () => {
         projectId: "p1",
         organizationId: "org1",
         propertyId: "properties/11",
-        accountId: "sub-a",
+        accountId: "sub-a@projeto:p1",
         userId: "u1",
       }),
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
@@ -123,8 +123,8 @@ describe("Ga4Service", () => {
 
   it("distinguishes expired grants from inaccessible property discovery", async () => {
     mocks.state.grants = [
-      { id: "grant-a", accountId: "sub-a" },
-      { id: "grant-b", accountId: "sub-b" },
+      { id: "grant-a", accountId: "sub-a@projeto:p1" },
+      { id: "grant-b", accountId: "sub-b@projeto:p1" },
     ];
     mocks.listProperties
       .mockRejectedValueOnce(new Ga4TokenError("revoked"))
@@ -134,18 +134,18 @@ describe("Ga4Service", () => {
       .mockImplementation(() => undefined);
 
     await expect(
-      Ga4Service.listPropertiesForUserWithGrantStatus("u1"),
+      Ga4Service.listPropertiesForUserWithGrantStatus("u1", "p1"),
     ).resolves.toEqual({
       accounts: [
         {
-          accountId: "sub-a",
+          accountId: "sub-a@projeto:p1",
           email: null,
           requiresReconnect: true,
           propertiesUnavailable: false,
           properties: [],
         },
         {
-          accountId: "sub-b",
+          accountId: "sub-b@projeto:p1",
           email: null,
           requiresReconnect: false,
           propertiesUnavailable: true,
@@ -159,5 +159,60 @@ describe("Ga4Service", () => {
       status: 403,
     });
     consoleError.mockRestore();
+  });
+});
+
+// Creative SEO: cada cliente vê e usa só a conexão feita no próprio projeto.
+describe("Ga4Service: conexão exclusiva do projeto", () => {
+  beforeEach(() => {
+    mocks.state.grants = [
+      { id: "grant-a", accountId: "sub-a@projeto:p1" },
+      { id: "grant-c", accountId: "sub-c@projeto:p2" },
+      { id: "grant-d", accountId: "sub-d" },
+    ];
+    mocks.listProperties.mockResolvedValue([]);
+    mocks.getUserInfoEmail.mockResolvedValue("cliente@example.com");
+  });
+
+  it("lista só as contas conectadas neste projeto", async () => {
+    const { accounts } = await Ga4Service.listPropertiesForUserWithGrantStatus(
+      "u1",
+      "p1",
+    );
+    expect(accounts.map((conta) => conta.accountId)).toEqual([
+      "sub-a@projeto:p1",
+    ]);
+  });
+
+  it("diz que o projeto ainda não tem conexão quando só outro projeto tem", async () => {
+    await expect(Ga4Service.userHasGrant("u1", "p1")).resolves.toBe(true);
+    await expect(Ga4Service.userHasGrant("u1", "p3")).resolves.toBe(false);
+  });
+
+  it("recusa usar no projeto a conta conectada em outro projeto", async () => {
+    // A propriedade existe e é acessível: a única razão para recusar é a conta.
+    mocks.listProperties.mockResolvedValue([
+      {
+        propertyId: "properties/11",
+        displayName: "Site A",
+        accountDisplayName: "Agency",
+      },
+    ]);
+    mocks.getProperty.mockResolvedValue({
+      name: "properties/11",
+      displayName: "Site A",
+      timeZone: "America/Sao_Paulo",
+      currencyCode: "BRL",
+    });
+    await expect(
+      Ga4Service.setProperty({
+        projectId: "p1",
+        organizationId: "org1",
+        propertyId: "properties/11",
+        accountId: "sub-c@projeto:p2",
+        userId: "u1",
+      }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    expect(mocks.upsert).not.toHaveBeenCalled();
   });
 });
