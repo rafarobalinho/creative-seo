@@ -1,14 +1,16 @@
 import { AlertTriangle } from "lucide-react";
-import { SafeExternalLink } from "@/client/components/SafeExternalLink";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/client/components/ui/alert";
 
+// Creative SEO: whoever sees this is a user, not the operator, so it explains
+// the situation and never sends them to the self-hosting guide (the wording
+// comes from creative/i18n/pt-BR.json). `docsUrl` stays in the props so the
+// original call site compiles unchanged.
 export function GoogleOAuthSetupWarning({
   integrationName,
-  docsUrl,
 }: {
   integrationName: string;
   docsUrl: string;
@@ -22,11 +24,6 @@ export function GoogleOAuthSetupWarning({
           Add your Google client ID and secret to this OpenSEO deployment before
           connecting {integrationName}.
         </p>
-        <SafeExternalLink
-          url={docsUrl}
-          label="Open setup guide"
-          className="inline-flex items-center gap-1 font-medium underline underline-offset-2"
-        />
       </AlertDescription>
     </Alert>
   );
