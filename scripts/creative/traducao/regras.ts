@@ -245,8 +245,14 @@ export const ARQUIVOS_COM_LOCALE_DE_LOGICA = new Set([
 // Fora da tradução, mas não da troca de marca:
 // - textos para agentes de IA (MCP e o agente embutido), que ficam em inglês;
 // - telas que só existem no SaaS deles (cobrança, assinatura, indicações, LGPD)
-//   e nunca aparecem no Creative SEO, que não cobra pelo produto.
+//   e nunca aparecem no Creative SEO, que não cobra pelo produto;
+// - o código do próprio Creative SEO (Auditoria AEO e afins), que já é escrito
+//   em português e não tem o que traduzir.
 const CAMINHOS_SEM_TRADUCAO = [
+  /^src\/(client|server|shared)\/(features\/)?auditorias\//,
+  /^src\/serverFunctions\/auditorias\.ts$/,
+  /^src\/routes\/_app\/p\/\$projectId\/auditorias\//,
+  /^src\/client\/features\/creative\//,
   /^src\/server\/mcp\//,
   /^src\/server\/features\/sam\//,
   /^src\/server\/billing\//,
