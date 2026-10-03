@@ -20,6 +20,26 @@ describe("quais módulos a camada creative transforma", () => {
     });
   });
 
+  it("não traduz o que é do Creative SEO, que já nasce em português", () => {
+    for (const caminho of [
+      "src/routes/_app/p/$projectId/auditorias/index.tsx",
+      "src/client/features/auditorias/PonteAuditoria.tsx",
+      "src/server/features/auditorias/LeitorCiclos.ts",
+      "src/shared/auditorias/evidencia.ts",
+      "src/serverFunctions/auditorias.ts",
+      "src/client/features/creative/consultaDeMarca.ts",
+    ]) {
+      expect(caminhoParaTransformar(`/repo/${caminho}`, raiz)).toEqual({
+        caminho,
+        traduzir: false,
+      });
+    }
+    // Um nome parecido no código do original continua traduzido.
+    expect(
+      caminhoParaTransformar("/repo/src/client/features/audit/A.tsx", raiz),
+    ).toEqual({ caminho: "src/client/features/audit/A.tsx", traduzir: true });
+  });
+
   it("transforma os pedaços que o TanStack separa (rotas e server functions)", () => {
     for (const consulta of [
       "tsr-split=component",
