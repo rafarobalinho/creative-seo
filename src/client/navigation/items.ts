@@ -4,6 +4,7 @@ import {
   Brain,
   ClipboardCheck,
   FileText,
+  Gauge,
   Globe,
   LayoutDashboard,
   Link2,
@@ -23,6 +24,12 @@ const projectNavItems = [
     // Without exact matching, the index path is a prefix of every project
     // route and the Dashboard item would render active everywhere.
     activeOptions: { exact: true, includeSearch: false },
+  },
+  // Creative SEO: a auditoria do motor (src/client/features/auditorias/).
+  {
+    to: "/p/$projectId/auditorias" as const,
+    label: "AEO Audit",
+    icon: Gauge,
   },
   {
     to: "/p/$projectId/keywords" as const,
@@ -116,7 +123,7 @@ export function getProjectNavGroups(projectId: string) {
   return [
     {
       label: "Overview",
-      items: [byPath("/p/$projectId")],
+      items: [byPath("/p/$projectId"), byPath("/p/$projectId/auditorias")],
     },
     {
       label: "Research",
@@ -124,8 +131,6 @@ export function getProjectNavGroups(projectId: string) {
         byPath("/p/$projectId/keywords"),
         byPath("/p/$projectId/domain"),
         byPath("/p/$projectId/backlinks"),
-        byPath("/p/$projectId/brand-lookup"),
-        byPath("/p/$projectId/prompt-explorer"),
       ],
     },
     {
@@ -135,6 +140,15 @@ export function getProjectNavGroups(projectId: string) {
         byPath("/p/$projectId/rank-tracking"),
         byPath("/p/$projectId/saved"),
         byPath("/p/$projectId/audit"),
+      ],
+    },
+    // Creative SEO: taxas de uma pergunta só, ou de base de terceiros, sem
+    // margem de erro. Ficam à parte da Auditoria AEO, que mede com intervalo.
+    {
+      label: "Exploration",
+      items: [
+        byPath("/p/$projectId/brand-lookup"),
+        byPath("/p/$projectId/prompt-explorer"),
       ],
     },
     {
