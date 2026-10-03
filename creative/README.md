@@ -78,6 +78,17 @@ paridade. O `alchemy plan` tem de mostrar _update_ da aplicação, nunca
 _replace_. **Acrescente o endereço aqui e implante antes de publicar o Worker
 dele**, para ele nunca ficar exposto.
 
+**Habilitar Search Console e GA4 (operador, uma vez):** um cliente OAuth
+"Aplicativo da Web" no Google Cloud, com as APIs Search Console, Analytics
+Admin e Analytics Data ativas, o app em "Em produção" e dois URIs de
+redirecionamento: `https://<endereço>/api/gsc/oauth/callback` e
+`https://<endereço>/api/ga4/oauth/callback`. No `.env.selfhost`:
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `BETTER_AUTH_SECRET` (pelo menos
+32 caracteres, `openssl rand -base64 32`). **Nunca troque o
+`BETTER_AUTH_SECRET` depois**: ele criptografa os tokens guardados, e trocá-lo
+obriga todo cliente a conectar de novo. Daí em diante, cada projeto conecta
+a própria conta pela tela, sem guia (`DECISOES.md`, regras 9 e 10).
+
 **Atualizar com o original:** o workflow `creative-sincroniza-upstream.yml`
 faz isso toda semana e abre PR. À mão:
 `git fetch upstream && git merge upstream/main`, regenerar os arquivos gerados,

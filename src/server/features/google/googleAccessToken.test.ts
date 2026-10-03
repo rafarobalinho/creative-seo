@@ -56,6 +56,9 @@ describe("getGoogleAccessToken", () => {
     vi.stubGlobal("fetch", mocks.fetch);
   });
 
+  // Creative SEO: every usable grant was made in a project (googlePorProjeto.ts).
+  const accountId = "google-account-1@projeto:p1";
+
   it("returns the stored token while it is fresh", async () => {
     mocks.selectLimit.mockResolvedValue([grant]);
 
@@ -63,11 +66,28 @@ describe("getGoogleAccessToken", () => {
       getGoogleAccessToken({
         userId,
         providerId: "google-search-console",
-        accountId: "google-account-1",
+        accountId,
       }),
     ).resolves.toBe("stored-access");
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
+
+  it.each([
+    ["sem conta (o fallback antigo para a primeira autorização)", undefined],
+    ["com a conta Google crua, sem projeto", "google-account-1"],
+  ])(
+    "recusa usar autorização %s, sem ir ao banco",
+    async (_rotulo, contaSemProjeto) => {
+      await expect(
+        getGoogleAccessToken({
+          userId,
+          providerId: "google-search-console",
+          accountId: contaSemProjeto,
+        }),
+      ).rejects.toThrow(/project/);
+      expect(mocks.selectLimit).not.toHaveBeenCalled();
+    },
+  );
 
   it("refreshes an expiring token against Google and persists it", async () => {
     mocks.selectLimit.mockResolvedValue([
@@ -81,7 +101,11 @@ describe("getGoogleAccessToken", () => {
     );
 
     await expect(
-      getGoogleAccessToken({ userId, providerId: "google-analytics" }),
+      getGoogleAccessToken({
+        userId,
+        providerId: "google-analytics",
+        accountId,
+      }),
     ).resolves.toBe("new-access");
     const body = mocks.fetch.mock.calls[0][1]?.body;
     if (!(body instanceof URLSearchParams)) throw new Error("form body");
@@ -102,7 +126,11 @@ describe("getGoogleAccessToken", () => {
     ]);
 
     await expect(
-      getGoogleAccessToken({ userId, providerId: "google-search-console" }),
+      getGoogleAccessToken({
+        userId,
+        providerId: "google-search-console",
+        accountId,
+      }),
     ).rejects.toThrow(/cannot be refreshed/);
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
@@ -114,7 +142,11 @@ describe("getGoogleAccessToken", () => {
     mocks.fetch.mockResolvedValue(new Response("", { status: 400 }));
 
     await expect(
-      getGoogleAccessToken({ userId, providerId: "google-analytics" }),
+      getGoogleAccessToken({
+        userId,
+        providerId: "google-analytics",
+        accountId,
+      }),
     ).rejects.toThrow(/refused to refresh/);
     expect(mocks.updateSet).not.toHaveBeenCalled();
   });

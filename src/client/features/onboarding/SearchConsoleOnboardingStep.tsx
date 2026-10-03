@@ -135,7 +135,7 @@ function GscConnect({
     captureClientEvent("onboarding:gsc_connect_clicked");
     // Google sends the user back to this URL, and the step lives in the URL,
     // so they land on this screen again with the grant in place.
-    void startGoogleLink("gsc", window.location.href);
+    void startGoogleLink("gsc", window.location.href, projectId);
   };
 
   const busy = linking || setSiteMutation.isPending;

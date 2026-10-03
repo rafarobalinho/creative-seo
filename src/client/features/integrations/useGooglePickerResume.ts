@@ -32,7 +32,7 @@ export function useGooglePickerResume(
     } catch {
       /* Google authorization does not require browser storage. */
     }
-    const redirecting = await startGoogleLink(provider, callbackURL);
+    const redirecting = await startGoogleLink(provider, callbackURL, projectId);
     if (!redirecting) {
       try {
         sessionStorage.removeItem(key);

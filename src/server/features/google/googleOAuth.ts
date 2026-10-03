@@ -18,6 +18,7 @@ import {
   getGoogleOAuthClientConfig,
   hasGoogleOAuthConfig,
 } from "./oauth-config";
+import { contaNoProjeto, temProjeto } from "@/shared/creative/googlePorProjeto";
 import { getGoogleAccountId } from "./googleIdToken";
 import {
   consumeState,
@@ -33,7 +34,9 @@ import {
  * to a second user, which blocked agencies and multi-member orgs from each
  * connecting the same client Google account. Grants live in the Better Auth
  * `account` table, encrypted with its secret, but are keyed per user so the
- * same Google identity may back several users. This module owns the whole
+ * same Google identity may back several users. Creative SEO: and per project
+ * too — the accountId carries the project the grant was made in, so each
+ * client has its own token (creative/googlePorProjeto.ts). This module owns the whole
  * lifecycle: consent redirect, callback, and access-token refresh. The state
  * is a single-use nonce bound to the session user and provider, stored in
  * Better Auth's verification table and deleted by the first callback that
@@ -177,6 +180,7 @@ async function fetchTokens(params: Record<string, string>) {
 export async function createGoogleAuthorizationUrl(input: {
   integration: GoogleOAuthIntegration;
   userId: string;
+  projectId: string;
   callbackURL: string;
   publicOrigin: string;
 }) {
@@ -190,6 +194,7 @@ export async function createGoogleAuthorizationUrl(input: {
   const state = await createState({
     provider: input.integration.provider,
     userId: input.userId,
+    projectId: input.projectId,
     callbackPath: getSafeCallbackPath(input.callbackURL, input.publicOrigin),
   });
   const url = new URL(GOOGLE_AUTH_URL);
@@ -292,7 +297,7 @@ async function handleGoogleOAuthCallback(input: {
     await upsertGrant({
       integration: input.integration,
       userId: input.userId,
-      googleAccountId,
+      googleAccountId: contaNoProjeto(googleAccountId, state.projectId),
       tokens,
     });
   } catch (error) {
@@ -316,6 +321,14 @@ export async function getGoogleAccessToken(input: {
   providerId: string;
   accountId?: string;
 }): Promise<string> {
+  // Creative SEO: only a grant made in a project is ever used — never the
+  // user's "first grant", which could belong to another client. This is the
+  // single choke point for every GSC/GA4 read (googlePorProjeto.ts).
+  if (!input.accountId || !temProjeto(input.accountId)) {
+    throw new Error(
+      `The ${input.providerId} connection is not tied to a project; reconnect it.`,
+    );
+  }
   const [grant] = await db
     .select({
       id: account.id,

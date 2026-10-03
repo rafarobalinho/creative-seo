@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { account } from "@/db/schema";
 import { GSC_OAUTH_PROVIDER_ID } from "@/shared/gsc";
+import { daConexaoDoProjeto } from "@/shared/creative/googlePorProjeto";
 import { AppError } from "@/server/lib/errors";
 import {
   createGscClient,
@@ -51,24 +52,20 @@ async function getConnection(projectId: string): Promise<GscConnection | null> {
   return GscConnectionRepository.getByProjectId(projectId);
 }
 
-/** Whether this user has linked a google-search-console grant (regardless of
- *  whether they've picked a property yet). Drives the connect-vs-pick UI. */
-async function userHasGrant(userId: string): Promise<boolean> {
-  const rows = await db
-    .select({ id: account.id })
-    .from(account)
-    .where(
-      and(
-        eq(account.userId, userId),
-        eq(account.providerId, GSC_OAUTH_PROVIDER_ID),
-      ),
-    )
-    .limit(1);
-  return rows.length > 0;
+/** Whether this user has linked a google-search-console grant in this project
+ *  (regardless of whether they've picked a property yet). Drives the
+ *  connect-vs-pick UI. */
+async function userHasGrant(
+  userId: string,
+  projectId: string,
+): Promise<boolean> {
+  const grants = await listGrantsForUser(userId, projectId);
+  return grants.length > 0;
 }
 
-async function listGrantsForUser(userId: string) {
-  return db
+// Creative SEO: only the grants made in this project (googlePorProjeto.ts).
+async function listGrantsForUser(userId: string, projectId: string) {
+  const grants = await db
     .select({ id: account.id, accountId: account.accountId })
     .from(account)
     .where(
@@ -77,6 +74,9 @@ async function listGrantsForUser(userId: string) {
         eq(account.providerId, GSC_OAUTH_PROVIDER_ID),
       ),
     );
+  return grants.filter((grant) =>
+    daConexaoDoProjeto(grant.accountId, projectId),
+  );
 }
 
 /** Expected ways a stored grant fails to reach Search Console: no token could be
@@ -92,8 +92,9 @@ export function isExpectedGrantFailure(error: unknown): boolean {
 
 async function listSitesForUserWithGrantStatus(
   userId: string,
+  projectId: string,
 ): Promise<GscSiteListResult> {
-  const grants = await listGrantsForUser(userId);
+  const grants = await listGrantsForUser(userId, projectId);
   const accounts = await Promise.all(
     grants.map(async (grant) => {
       const client = createGscClient({
@@ -146,7 +147,7 @@ async function setSite(input: {
   accountId: string;
   userId: string;
 }): Promise<GscConnection> {
-  const grants = await listGrantsForUser(input.userId);
+  const grants = await listGrantsForUser(input.userId, input.projectId);
   if (!grants.some((grant) => grant.accountId === input.accountId)) {
     throw new AppError(
       "NOT_FOUND",

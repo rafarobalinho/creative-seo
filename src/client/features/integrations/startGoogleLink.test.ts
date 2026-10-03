@@ -36,11 +36,11 @@ describe("Google authorization loading", () => {
           finish = resolve;
         }),
     );
-    const request = startGoogleLink("gsc", "/p/1");
+    const request = startGoogleLink("gsc", "/p/1", "1");
     expect(useGoogleLinkPending()).toBe(true);
     await vi.advanceTimersByTimeAsync(30_000);
     expect(useGoogleLinkPending()).toBe(true);
-    expect(await startGoogleLink("ga4", "/p/1")).toBe(false);
+    expect(await startGoogleLink("ga4", "/p/1", "1")).toBe(false);
     expect(startLink).toHaveBeenCalledTimes(1);
     finish({ url: "https://accounts.google.com/authorize" });
     expect(await request).toBe(true);
@@ -55,12 +55,21 @@ describe("Google authorization loading", () => {
 
   it("clears loading after a failed request and allows retry", async () => {
     startLink.mockRejectedValueOnce(new Error("Network unavailable"));
-    expect(await startGoogleLink("gsc", "/p/1")).toBe(false);
+    expect(await startGoogleLink("gsc", "/p/1", "1")).toBe(false);
     expect(useGoogleLinkPending()).toBe(false);
     startLink.mockResolvedValueOnce({
       url: "https://accounts.google.com/authorize",
     });
-    expect(await startGoogleLink("gsc", "/p/1")).toBe(true);
+    expect(await startGoogleLink("gsc", "/p/1", "1")).toBe(true);
     expect(useGoogleLinkPending()).toBe(true);
+  });
+});
+
+// Creative SEO: a conexão nasce no projeto, então o projeto vai junto ao servidor.
+it("envia o projeto junto com o endereço de volta", async () => {
+  startLink.mockResolvedValueOnce({ url: "https://accounts.google.com/a" });
+  await startGoogleLink("ga4", "/p/cliente-a", "cliente-a");
+  expect(startLink).toHaveBeenLastCalledWith({
+    data: { callbackURL: "/p/cliente-a", projectId: "cliente-a" },
   });
 });

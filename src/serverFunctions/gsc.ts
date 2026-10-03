@@ -12,27 +12,29 @@ import { hasOrgPermission } from "@/lib/org-permissions";
 import { requireOrgPermission } from "@/server/auth/org-gate";
 import { captureServerEvent } from "@/server/lib/posthog";
 import { getPublicOrigin } from "@/server/mcp/public-origin";
-import {
-  requireAuthenticatedContext,
-  requireProjectContext,
-} from "@/serverFunctions/middleware";
+import { requireProjectContext } from "@/serverFunctions/middleware";
 
 const projectScopedSchema = z.object({ projectId: z.string().min(1) });
 const setSiteSchema = projectScopedSchema.extend({
   accountId: z.string().min(1),
   siteUrl: z.string().min(1),
 });
-const startLinkSchema = z.object({
+const startLinkSchema = projectScopedSchema.extend({
   callbackURL: z.string().min(1),
 });
 
-// Account-level grant check (no project needed) for surfaces like onboarding
-// where the user hasn't picked a project yet. The OAuth grant is per-account;
-// binding a property to a project happens later in Integrations.
-export const getGscGrantStatus = createServerFn({ method: "GET" })
-  .middleware(requireAuthenticatedContext)
+// Creative SEO: the grant is per project (googlePorProjeto.ts), so the check
+// needs one. Surfaces without a project do not offer to connect.
+export const getGscGrantStatus = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(projectScopedSchema)
   .handler(async ({ context }) => {
-    return { connected: await GscService.userHasGrant(context.userId) };
+    return {
+      connected: await GscService.userHasGrant(
+        context.userId,
+        context.projectId,
+      ),
+    };
   });
 
 export const getGscConnection = createServerFn({ method: "POST" })
@@ -42,7 +44,7 @@ export const getGscConnection = createServerFn({ method: "POST" })
     const [connection, currentUserHasGrant, googleOAuthConfigured] =
       await Promise.all([
         GscService.getConnection(context.projectId),
-        GscService.userHasGrant(context.userId),
+        GscService.userHasGrant(context.userId, context.projectId),
         hasGoogleOAuthConfig(),
       ]);
     return {
@@ -61,7 +63,10 @@ export const listGscSites = createServerFn({ method: "POST" })
   .validator(projectScopedSchema)
   .handler(async ({ context }) => {
     const [siteList, connection] = await Promise.all([
-      GscService.listSitesForUserWithGrantStatus(context.userId),
+      GscService.listSitesForUserWithGrantStatus(
+        context.userId,
+        context.projectId,
+      ),
       GscService.getConnection(context.projectId),
     ]);
     const legacyAccounts = !connection?.gscAccountId
@@ -140,12 +145,13 @@ export const disconnectGsc = createServerFn({ method: "POST" })
   });
 
 export const startGscLink = createServerFn({ method: "POST" })
-  .middleware(requireAuthenticatedContext)
+  .middleware(requireProjectContext)
   .validator(startLinkSchema)
   .handler(async ({ data, context }) => ({
     url: await createGoogleAuthorizationUrl({
       integration: GSC_INTEGRATION,
       userId: context.userId,
+      projectId: context.projectId,
       callbackURL: data.callbackURL,
       publicOrigin: getPublicOrigin(getRequest()),
     }),

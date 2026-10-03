@@ -35,6 +35,19 @@ auditoria, vive no repositório do motor:
 8. **Telemetria do original desligada** (`OPENSEO_TELEMETRY_DISABLED=1`). Os
    workflows `sourcemaps.yml` e `pr-preview.yml` ficam desativados quando o
    Actions for habilitado neste fork.
+9. **Search Console e GA4 são exclusivos de cada projeto** (decidido em
+   2026-10-03). No original, a autorização do Google pertence ao usuário, e o
+   seletor de qualquer projeto lista todas as contas dele: numa agência, o
+   cliente B veria a conta do cliente A. Aqui a conexão nasce dentro de um
+   projeto, e a autorização é gravada com ele (`accountId` =
+   `<conta Google>@projeto:<id>`, em
+   `src/shared/creative/googlePorProjeto.ts`). Cada cliente tem token
+   próprio, o projeto só enxerga a própria conexão, um projeto novo sempre pede
+   conexão nova, e remover a conta de um cliente não toca nos outros. Sem
+   tabela nova: a tabela própria vem com o banco do Creative SEO (Fase 4).
+10. **Usuário nunca é mandado ao guia de self-hosting.** Configurar o Google é
+    tarefa do operador, uma vez (ver `README.md`). Se faltar, o aviso diz que a
+    conexão não está habilitada e pede para falar com quem administra.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
