@@ -158,19 +158,20 @@ async function trocarModelo(params: {
   userId: string;
   modelo: string | null;
 }): Promise<ResumoDaChave> {
-  const atual = await ChaveLlmRepository.obter(params.organizationId);
-  if (!atual) throw new AppError("NOT_FOUND", MENSAGENS.semChave);
+  // Conferir antes evita esperar o OpenRouter por um workspace sem chave; a
+  // gravação confere de novo, porque a chave pode sumir durante a validação.
+  if (!(await ChaveLlmRepository.obter(params.organizationId))) {
+    throw new AppError("NOT_FOUND", MENSAGENS.semChave);
+  }
   const modelo = normalizarModelo(params.modelo);
   await validarModelo(modelo);
 
-  const linha = await ChaveLlmRepository.gravar({
-    organizationId: atual.organizationId,
-    provider: atual.provider,
-    encryptedKey: atual.encryptedKey,
-    keySuffix: atual.keySuffix,
-    model: modelo,
-    updatedByUserId: params.userId,
-  });
+  const linha = await ChaveLlmRepository.trocarModelo(
+    params.organizationId,
+    modelo,
+    params.userId,
+  );
+  if (!linha) throw new AppError("NOT_FOUND", MENSAGENS.semChave);
   return montarResumo(linha, await consultarLinha(linha));
 }
 

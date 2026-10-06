@@ -45,10 +45,32 @@ async function gravar(linha: LinhaParaGravar) {
   return gravada;
 }
 
+// Só atualiza, nunca insere, e não toca na chave: quem troca o modelo leu a
+// linha antes de esperar o OpenRouter, e regravar a chave lida ali traria de
+// volta uma chave removida ou trocada nesse meio-tempo. Null quando não há
+// linha.
+async function trocarModelo(
+  organizationId: string,
+  model: string | null,
+  updatedByUserId: string,
+) {
+  const [atualizada] = await db
+    .update(workspaceLlmKey)
+    .set({ model, updatedByUserId, updatedAt: new Date().toISOString() })
+    .where(eq(workspaceLlmKey.organizationId, organizationId))
+    .returning();
+  return atualizada ?? null;
+}
+
 async function apagar(organizationId: string) {
   await db
     .delete(workspaceLlmKey)
     .where(eq(workspaceLlmKey.organizationId, organizationId));
 }
 
-export const ChaveLlmRepository = { obter, gravar, apagar } as const;
+export const ChaveLlmRepository = {
+  obter,
+  gravar,
+  trocarModelo,
+  apagar,
+} as const;

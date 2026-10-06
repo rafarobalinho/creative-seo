@@ -286,6 +286,56 @@ describe("ChaveLlmService.remover e trocarModelo", () => {
     });
   });
 
+  // A validação de um modelo digitado espera o OpenRouter. O que acontecer com
+  // a chave nesse meio-tempo tem de valer: trocar o modelo não regrava a chave.
+  function trocarModeloComValidacaoPendente() {
+    let responder: (existe: boolean) => void;
+    simulados.modeloExiste.mockReturnValueOnce(
+      new Promise<boolean>((resolver) => {
+        responder = resolver;
+      }),
+    );
+    const troca = ChaveLlmService.trocarModelo({
+      organizationId: ORG,
+      userId: "user_2",
+      modelo: "x/y",
+    });
+    return { troca, responder: (existe: boolean) => responder(existe) };
+  }
+
+  it("remover durante a validação do modelo não ressuscita a chave", async () => {
+    await salvar(CHAVE_A);
+    const { troca, responder } = trocarModeloComValidacaoPendente();
+    await vi.waitFor(() => expect(simulados.modeloExiste).toHaveBeenCalled());
+
+    await ChaveLlmService.remover(ORG);
+    responder(true);
+
+    await expect(troca).rejects.toMatchObject({
+      code: "NOT_FOUND",
+      message: "Não há chave de LLM salva neste workspace.",
+    });
+    expect(await ChaveLlmService.abrirParaUso(ORG)).toEqual({
+      tipo: "sem_chave",
+    });
+  });
+
+  it("salvar outra chave durante a validação do modelo mantém a nova", async () => {
+    await salvar(CHAVE_A);
+    const { troca, responder } = trocarModeloComValidacaoPendente();
+    await vi.waitFor(() => expect(simulados.modeloExiste).toHaveBeenCalled());
+
+    await salvar(CHAVE_B);
+    responder(true);
+    await troca;
+
+    expect(await ChaveLlmService.abrirParaUso(ORG)).toEqual({
+      tipo: "pronta",
+      chave: CHAVE_B,
+      modelo: "x/y",
+    });
+  });
+
   it("trocar o modelo sem chave salva dá NOT_FOUND", async () => {
     await expect(
       ChaveLlmService.trocarModelo({
