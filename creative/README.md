@@ -86,7 +86,9 @@ redirecionamento: `https://<endereço>/api/gsc/oauth/callback` e
 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` e `BETTER_AUTH_SECRET` (pelo menos
 32 caracteres, `openssl rand -base64 32`). **Nunca troque o
 `BETTER_AUTH_SECRET` depois**: ele criptografa os tokens guardados, e trocá-lo
-obriga todo cliente a conectar de novo. Daí em diante, cada projeto conecta
+obriga todo cliente a conectar de novo. O mesmo vale para as chaves de LLM
+(OpenRouter) que cada workspace guarda: trocar o segredo as invalida, e cada
+workspace precisa colar a chave de novo em Configurações. Daí em diante, cada projeto conecta
 a própria conta pela tela, sem guia (`DECISOES.md`, regras 9 e 10).
 
 **Atualizar com o original:** o workflow `creative-sincroniza-upstream.yml`

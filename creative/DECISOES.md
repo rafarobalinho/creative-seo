@@ -57,6 +57,20 @@ auditoria, vive no repositório do motor:
     enviada; o retrato fica como registro do que o prospect recebeu. O gancho é
     `src/routes/_app/p/$projectId/route.tsx`, que renderiza o botão ao lado da
     página; o código fica em `src/client/features/creative/`.
+12. **A chave de LLM pertence ao workspace, e o agente não funciona sem ela**
+    (decidido em 2026-10-06). Cada organização guarda a própria chave do
+    OpenRouter, criptografada com o segredo do Better Auth; qualquer dono ou
+    administrador pode trocá-la (no self-host, todo usuário do Access é dono
+    implícito). Sem chave, o agente fica bloqueado, e a checagem de
+    disponibilidade do SAM (`samAccess.ts`) segue a chave do workspace, não o
+    ambiente do servidor. A `OPENROUTER_API_KEY` do servidor nunca é usada pelo
+    agente: não há volta para ela, para que o custo de um cliente nunca caia na
+    conta de outro nem na do operador. O código fica em
+    `src/server/features/creative/chaveLlm/`,
+    `src/serverFunctions/creativeChaveLlm.ts` e
+    `src/client/features/creative/AgenteDeIa.tsx`. Arquivos do original
+    tocados: os três barris de schema, `SamChatAgent.ts`,
+    `samTurnTelemetry.ts`, `samAccess.ts` e `settings/index.tsx`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
