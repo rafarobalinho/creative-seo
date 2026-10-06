@@ -10,6 +10,7 @@ data, or sensitive paths.
 
 ## Open
 
+- [ ] `2026-10-06T18:15:00Z` — `claude` — On the WSL clone, a non-interactive `bash -lc` does not load nvm, so `node` is missing or resolves to Windows `npx`; after `source ~/.nvm/nvm.sh`, nvm's default Node 20 fails to load `vite.config.ts`. `nvm use 24` works. Add an `.nvmrc` (or `engines.node`) so the right version is picked without guessing.
 - [ ] `2026-09-30T23:24:29Z` — `claude` — An `ENV_PREVIEW` secret without `AUTH_MODE=local_noauth` makes the PR preview deploy fall back to `cloudflare_access`, which provisions a self-host Access app. The deploy then fails with "Could not read the Zero Trust organization: Unauthorized", because the CI token has no Access permissions. The error suggests `pnpm alchemy login --configure`, which cannot fix CI. Check `AUTH_MODE` in the workflow's "Derive preview URL" step, beside the existing `WORKERS_SUBDOMAIN` check.
 - [ ] `2026-09-30T22:10:17Z` — `claude` — Since #784 moved `@tanstack/react-start` to 1.168.60, `pnpm vite build` rewrites the committed `src/routeTree.gen.ts` with a new import order (about 1,000 changed lines, identical routes), which leaves every local build with a dirty tree. Commit the regenerated file on main once.
 - [ ] `2026-09-30T19:03:30Z` — `codex` — The `no-array-sort` lint diagnostic recommends `toSorted()`, but the configured TypeScript library rejects it. Use the existing Remeda `sortBy` helper; align the lint guidance with the supported library target.

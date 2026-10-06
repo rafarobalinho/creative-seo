@@ -48,6 +48,15 @@ auditoria, vive no repositório do motor:
 10. **Usuário nunca é mandado ao guia de self-hosting.** Configurar o Google é
     tarefa do operador, uma vez (ver `README.md`). Se faltar, o aviso diz que a
     conexão não está habilitada e pede para falar com quem administra.
+11. **"Salvar como relatório" grava um retrato, não um link para a página viva**
+    (decidido em 2026-10-06). Nas páginas de domínio, backlinks,
+    palavras-chave, auditoria e monitor de posições, o botão grava o que está
+    na tela pelo mesmo `ReportService.saveReport` do `save_report` do MCP.
+    PDF e link público saem da página do relatório, que já existia. A página
+    viva pediria login, gastaria DataForSEO a cada visita e mudaria depois de
+    enviada; o retrato fica como registro do que o prospect recebeu. O gancho é
+    `src/routes/_app/p/$projectId/route.tsx`, que renderiza o botão ao lado da
+    página; o código fica em `src/client/features/creative/`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
