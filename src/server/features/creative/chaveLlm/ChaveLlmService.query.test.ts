@@ -232,6 +232,33 @@ describe("ChaveLlmService.abrirParaUso", () => {
   });
 });
 
+describe("ChaveLlmService.temChave", () => {
+  it("é falso sem linha, verdadeiro depois de salvar e falso depois de remover", async () => {
+    expect(await ChaveLlmService.temChave(ORG)).toBe(false);
+
+    await salvar(CHAVE_A);
+    expect(await ChaveLlmService.temChave(ORG)).toBe(true);
+
+    await ChaveLlmService.remover(ORG);
+    expect(await ChaveLlmService.temChave(ORG)).toBe(false);
+  });
+
+  it("só olha o banco: não abre a chave nem chama o OpenRouter", async () => {
+    await salvar(CHAVE_A);
+    simulados.consultarChave.mockClear();
+
+    await ChaveLlmService.temChave(ORG);
+
+    expect(simulados.consultarChave).not.toHaveBeenCalled();
+  });
+
+  it("não enxerga a chave de outra organização", async () => {
+    await salvar(CHAVE_A);
+
+    expect(await ChaveLlmService.temChave("org_2")).toBe(false);
+  });
+});
+
 describe("ChaveLlmService.remover e trocarModelo", () => {
   it("depois de remover não há chave", async () => {
     await salvar(CHAVE_A);

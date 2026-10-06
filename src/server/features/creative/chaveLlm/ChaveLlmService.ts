@@ -178,6 +178,13 @@ async function remover(organizationId: string): Promise<void> {
   await ChaveLlmRepository.apagar(organizationId);
 }
 
+// Só diz se o workspace tem chave, para a tela decidir se mostra o SAM. Lê a
+// linha e mais nada: não abre a chave e não chama o OpenRouter, porque roda a
+// cada carga de tela.
+async function temChave(organizationId: string): Promise<boolean> {
+  return (await ChaveLlmRepository.obter(organizationId)) !== null;
+}
+
 async function abrirParaUso(organizationId: string): Promise<ChaveParaUso> {
   const linha = await ChaveLlmRepository.obter(organizationId);
   if (!linha) return { tipo: "sem_chave" };
@@ -203,5 +210,6 @@ export const ChaveLlmService = {
   salvar,
   trocarModelo,
   remover,
+  temChave,
   abrirParaUso,
 } as const;
