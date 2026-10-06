@@ -30,7 +30,8 @@ export function SamSetupGate({
             Step-by-step instructions for every deployment are in the{" "}
             <Link
               className="underline underline-offset-2 hover:text-foreground"
-              to="/help/openrouter-api-key"
+              // Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+              to="/settings"
             >
               OpenRouter API key setup guide
             </Link>

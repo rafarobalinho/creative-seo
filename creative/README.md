@@ -94,4 +94,8 @@ a própria conta pela tela, sem guia (`DECISOES.md`, regras 9 e 10).
 **Atualizar com o original:** o workflow `creative-sincroniza-upstream.yml`
 faz isso toda semana e abre PR. À mão:
 `git fetch upstream && git merge upstream/main`, regenerar os arquivos gerados,
-traduzir o que entrou e rodar as checagens acima.
+traduzir o que entrou e rodar as checagens acima. Migração do fork (como
+`drizzle/sqlite/0051_*` e `drizzle/pg/0029_*`) nunca é renomeada: se o original
+trouxer uma migração com o mesmo número, re-encadeie o `_journal.json` e os
+snapshots, porque renomear faria o D1 aplicá-la de novo e falhar no
+`CREATE TABLE`.

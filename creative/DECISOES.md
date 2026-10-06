@@ -70,7 +70,9 @@ auditoria, vive no repositório do motor:
     `src/serverFunctions/creativeChaveLlm.ts` e
     `src/client/features/creative/AgenteDeIa.tsx`. Arquivos do original
     tocados: os três barris de schema, `SamChatAgent.ts`,
-    `samTurnTelemetry.ts`, `samAccess.ts` e `settings/index.tsx`.
+    `samTurnTelemetry.ts`, `samAccess.ts`, `settings/index.tsx`,
+    `SamSetupGate.tsx` (o link de ajuda leva às Configurações) e o comentário
+    de `useSamAccess.ts`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 

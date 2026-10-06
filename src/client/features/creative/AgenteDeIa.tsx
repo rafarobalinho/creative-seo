@@ -23,11 +23,17 @@ import {
 
 const CHAVE_DO_RESUMO = ["creative", "chave-llm"] as const;
 
+// O SAM (useSamAccess) só enxerga a troca de chave se o cache dele cair.
+function invalidarChave(queryClient: ReturnType<typeof useQueryClient>) {
+  void queryClient.invalidateQueries({ queryKey: CHAVE_DO_RESUMO });
+  void queryClient.invalidateQueries({ queryKey: ["samAccessStatus"] });
+}
+
 const PADRAO = "padrao";
 const OUTRO = "outro";
 
 const ROTULOS: Record<(typeof MODELOS_SUGERIDOS)[number], string> = {
-  "openai/gpt-5.6-luna": "GPT-5.6 Luna (padrão do agente)",
+  "openai/gpt-5.6-luna": "GPT-5.6 Luna",
   "anthropic/claude-sonnet-5.5": "Claude Sonnet 5.5",
   "anthropic/claude-opus-5.5": "Claude Opus 5.5",
   "google/gemini-3.8-flash": "Gemini 3.8 Flash",
@@ -127,7 +133,8 @@ function Formulario({
       }
       setChave("");
       setErro(null);
-      void queryClient.invalidateQueries({ queryKey: CHAVE_DO_RESUMO });
+      salvar.reset();
+      invalidarChave(queryClient);
       toast.success("Chave salva.");
       aoConcluir();
     },
@@ -177,7 +184,14 @@ function Formulario({
           Salvar
         </Button>
         {comChave && aoCancelar ? (
-          <Button type="button" variant="ghost" onClick={aoCancelar}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              salvar.reset();
+              aoCancelar();
+            }}
+          >
             Cancelar
           </Button>
         ) : null}
@@ -209,7 +223,7 @@ function FormularioDoModelo({
         setErro(resultado.mensagem);
         return;
       }
-      void queryClient.invalidateQueries({ queryKey: CHAVE_DO_RESUMO });
+      invalidarChave(queryClient);
       toast.success("Modelo atualizado.");
       aoConcluir();
     },
@@ -284,7 +298,7 @@ export function AgenteDeIa() {
       setRemovendo(false);
       setEdicao(null);
       toast.success("Chave removida. O agente está desligado.");
-      void queryClient.invalidateQueries({ queryKey: CHAVE_DO_RESUMO });
+      invalidarChave(queryClient);
     },
     onError: (e) => toast.error(getStandardErrorMessage(e)),
   });
@@ -330,7 +344,8 @@ export function AgenteDeIa() {
                   {resumo.modelo ?? "padrão do agente"}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  colada por {resumo.atualizadoPor ?? "alguém do workspace"} em{" "}
+                  atualizada por {resumo.atualizadoPor ?? "alguém do workspace"}{" "}
+                  em{" "}
                   {new Date(resumo.atualizadoEm).toLocaleString("pt-BR", {
                     dateStyle: "short",
                     timeStyle: "short",
