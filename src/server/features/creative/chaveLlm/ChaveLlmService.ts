@@ -32,7 +32,7 @@ const MENSAGENS = {
   semChave: "Não há chave de LLM salva neste workspace.",
 };
 
-type ResumoDaChave = {
+export type ResumoDaChave = {
   provedor: "openrouter";
   final: string;
   modelo: string | null;
