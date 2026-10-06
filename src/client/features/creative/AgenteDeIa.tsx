@@ -89,19 +89,32 @@ function modeloEscolhido(escolha: string, outro: string): string | null {
   return escolha;
 }
 
+// Estado inicial dos campos de modelo a partir do modelo gravado, para que
+// trocar a chave ou o modelo nunca zere a escolha anterior sem o usuario ver.
+function estadoInicialDoModelo(modeloAtual: string | null) {
+  const sugerido = MODELOS_SUGERIDOS.find((id) => id === modeloAtual);
+  return {
+    escolha: modeloAtual === null ? PADRAO : (sugerido ?? OUTRO),
+    outro: sugerido ? "" : (modeloAtual ?? ""),
+  };
+}
+
 function Formulario({
   comChave,
+  modeloAtual,
   aoConcluir,
   aoCancelar,
 }: {
   comChave: boolean;
+  modeloAtual: string | null;
   aoConcluir: () => void;
   aoCancelar?: () => void;
 }) {
   const queryClient = useQueryClient();
   const [chave, setChave] = useState("");
-  const [escolha, setEscolha] = useState(PADRAO);
-  const [outro, setOutro] = useState("");
+  const inicial = estadoInicialDoModelo(modeloAtual);
+  const [escolha, setEscolha] = useState(inicial.escolha);
+  const [outro, setOutro] = useState(inicial.outro);
   const [erro, setErro] = useState<string | null>(null);
 
   const salvar = useMutation({
@@ -183,11 +196,9 @@ function FormularioDoModelo({
   aoCancelar: () => void;
 }) {
   const queryClient = useQueryClient();
-  const sugerido = MODELOS_SUGERIDOS.find((id) => id === modeloAtual);
-  const [escolha, setEscolha] = useState(
-    modeloAtual === null ? PADRAO : (sugerido ?? OUTRO),
-  );
-  const [outro, setOutro] = useState(sugerido ? "" : (modeloAtual ?? ""));
+  const inicial = estadoInicialDoModelo(modeloAtual);
+  const [escolha, setEscolha] = useState(inicial.escolha);
+  const [outro, setOutro] = useState(inicial.outro);
   const [erro, setErro] = useState<string | null>(null);
 
   const trocar = useMutation({
@@ -302,6 +313,7 @@ export function AgenteDeIa() {
               {podeGerenciar ? (
                 <Formulario
                   comChave={false}
+                  modeloAtual={null}
                   aoConcluir={() => setEdicao(null)}
                 />
               ) : (
@@ -345,6 +357,7 @@ export function AgenteDeIa() {
                     </p>
                     <Formulario
                       comChave
+                      modeloAtual={resumo.modelo}
                       aoConcluir={() => setEdicao(null)}
                       aoCancelar={() => setEdicao(null)}
                     />
