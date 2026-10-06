@@ -358,6 +358,13 @@
       "when": 1790316400182,
       "tag": "0050_famous_crystal",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "6",
+      "when": 1791318411453,
+      "tag": "0051_conscious_mantis",
+      "breakpoints": true
     }
   ]
 }

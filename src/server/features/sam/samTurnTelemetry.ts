@@ -13,7 +13,8 @@ type SamTurnStatus =
   | "refused"
   | "interrupted";
 
-type SamRefusalReason = "no_session" | "credits" | "no_access";
+// Creative SEO: "llm_key" é a recusa por falta da chave de LLM do workspace.
+type SamRefusalReason = "no_session" | "credits" | "no_access" | "llm_key";
 
 // Tool failures reach the model as a `{ error }` output rather than a thrown
 // error (samChatTools adaptMcpTool / scrapeTools), so Think reports them as

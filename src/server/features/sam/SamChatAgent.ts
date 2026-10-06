@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Creative SEO: o original está no limite de 400 linhas, e a chave de LLM do workspace (creative/DECISOES.md, regra 12) acrescenta as chamadas que o turno precisa */
 import { Think } from "@cloudflare/think";
 import type {
   ChatErrorContext,
@@ -33,7 +34,14 @@ import {
   SamTelemetry,
   type SamTurnStats,
 } from "@/server/features/sam/samTurnTelemetry";
-import { buildChatAgentModel } from "@/server/lib/openrouter";
+// Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+import { ChaveLlmService } from "@/server/features/creative/chaveLlm/ChaveLlmService";
+import {
+  chaveParaCompactacao,
+  configuracaoDoTurno,
+  MENSAGEM_SEM_CHAVE,
+  modeloDoWorkspace,
+} from "@/server/features/creative/chaveLlm/turnoDoAgente";
 import {
   getEnvValueSync,
   isHostedServerAuthMode,
@@ -136,6 +144,11 @@ export class SamChatAgent extends Think {
   // registry row is gone, which beforeTurn turns into a polite refusal.
   private samContext: SamContext | null = null;
 
+  // Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+  // Aberta no beforeTurn e guardada só em memória, para a compactação usar a
+  // mesma chave; nunca vai para o this.ctx.storage nem para log.
+  private chaveDoTurno: { chave: string; modelo: string | null } | null = null;
+
   // Per-turn billing state: beforeTurn arms it (non-null = hosted mode, meter
   // this turn), onStepFinish accumulates OpenRouter cost and meters it in
   // chunks as the turn runs, onChatResponse/onChatError flush the remainder.
@@ -190,18 +203,20 @@ export class SamChatAgent extends Think {
     return super.fetch(request);
   }
 
+  // Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+  // Think chama getModel() em todo turno antes do beforeTurn, então ele não
+  // pode lançar erro; o modelo de verdade vem sempre do beforeTurn.
   getModel() {
-    return this.buildModel("max");
+    return staticAssistantModel(MENSAGEM_SEM_CHAVE);
   }
 
   private buildModel(reasoningEffort: "max" | "low") {
-    const apiKey = getEnvValueSync(this.env, "OPENROUTER_API_KEY");
-    if (!apiKey) {
-      throw new Error("OPENROUTER_API_KEY is required for the SAM agent");
+    if (!this.chaveDoTurno) {
+      throw new Error("A chave de LLM do workspace não foi aberta");
     }
-    return buildChatAgentModel(
-      apiKey,
-      getEnvValueSync(this.env, "OPENROUTER_MODEL"),
+    return modeloDoWorkspace(
+      this.chaveDoTurno.chave,
+      this.chaveDoTurno.modelo ?? getEnvValueSync(this.env, "OPENROUTER_MODEL"),
       reasoningEffort,
     );
   }
@@ -235,6 +250,11 @@ export class SamChatAgent extends Think {
   // Compaction summaries run outside the step loop (so outside onStepFinish),
   // on the same model at low reasoning; their cost joins the turn's total.
   private async summarizeForCompaction(prompt: string): Promise<string> {
+    // Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+    // Entre turnos o DO pode ter hibernado e perdido a chave da memória.
+    this.chaveDoTurno ??= await withPgClient(async () =>
+      chaveParaCompactacao((await this.loadSamContext())?.project),
+    );
     const result = await generateText({
       model: this.buildModel("low"),
       prompt,
@@ -314,6 +334,7 @@ export class SamChatAgent extends Think {
     // summary can land after the previous flush, and it is the same org's
     // spend either way.
     this.turnMonthlyRemaining = null;
+    this.chaveDoTurno = null; // Creative SEO: a chave é reaberta a cada turno.
     const turn = this.telemetry.beginTurn(turnCtx.continuation);
     return withPgClient(async (): Promise<TurnConfig> => {
       const ctx = await this.loadSamContext();
@@ -366,6 +387,15 @@ export class SamChatAgent extends Think {
           "You no longer have access to this organization, so I can't continue this chat.",
         );
       }
+      // Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+      const configuracao = configuracaoDoTurno(
+        await ChaveLlmService.abrirParaUso(organizationId),
+      );
+      if (configuracao.tipo === "recusa") {
+        turn.refusal = "llm_key";
+        return this.refusalTurn(configuracao.texto);
+      }
+      this.chaveDoTurno = configuracao;
       const authContext: ToolAuthContext = {
         userId: ctx.row.userId,
         userEmail: ctx.userEmail,
@@ -380,6 +410,7 @@ export class SamChatAgent extends Think {
       };
 
       return {
+        model: this.buildModel("max"), // Creative SEO: chave do workspace.
         tools: buildSamMcpTools(authContext, ctx.project, turn.turnId),
         // SAM runs complex multi-step work in one turn (site-read intake plus
         // a full research chain, multi-competitor sweeps), so the step budget

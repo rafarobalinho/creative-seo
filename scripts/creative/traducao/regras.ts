@@ -253,6 +253,8 @@ const CAMINHOS_SEM_TRADUCAO = [
   /^src\/serverFunctions\/auditorias\.ts$/,
   /^src\/routes\/_app\/p\/\$projectId\/auditorias\//,
   /^src\/client\/features\/creative\//,
+  /^src\/server\/features\/creative\//,
+  /^src\/shared\/creative\//,
   /^src\/serverFunctions\/creative[A-Z]\w*\.ts$/,
   /^src\/server\/mcp\//,
   /^src\/server\/features\/sam\//,

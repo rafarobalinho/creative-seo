@@ -1,13 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import {
-  getOptionalEnvValue,
-  isHostedServerAuthMode,
-} from "@/server/lib/runtime-env";
+// Creative SEO: chave de LLM do workspace (creative/DECISOES.md, regra 12).
+import { ChaveLlmService } from "@/server/features/creative/chaveLlm/ChaveLlmService";
+import { MENSAGEM_SEM_CHAVE } from "@/server/features/creative/chaveLlm/turnoDoAgente";
+import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
 import { requireProjectContext } from "@/serverFunctions/middleware";
-
-const OPENROUTER_KEY_MISSING_MESSAGE =
-  "OPENROUTER_API_KEY is not set for this deployment yet. Add it to your environment, restart OpenSEO, then confirm here.";
 
 const projectScopedSchema = z.object({ projectId: z.string().min(1) });
 
@@ -22,14 +19,15 @@ type SamAccessStatus = {
 export const getSamAccessSetupStatus = createServerFn({ method: "GET" })
   .middleware(requireProjectContext)
   .validator(projectScopedSchema)
-  .handler(async (): Promise<SamAccessStatus> => {
+  .handler(async ({ context }): Promise<SamAccessStatus> => {
     if (await isHostedServerAuthMode()) {
       return { enabled: true, errorMessage: null };
     }
 
-    const enabled = Boolean(await getOptionalEnvValue("OPENROUTER_API_KEY"));
+    // Creative SEO: só a chave do workspace liga o agente, nunca a do servidor.
+    const enabled = await ChaveLlmService.temChave(context.organizationId);
     return {
       enabled,
-      errorMessage: enabled ? null : OPENROUTER_KEY_MISSING_MESSAGE,
+      errorMessage: enabled ? null : MENSAGEM_SEM_CHAVE,
     };
   });
