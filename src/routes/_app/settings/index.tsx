@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AgenteDeIa } from "@/client/features/creative/AgenteDeIa";
 import { ApiKeySettings } from "@/client/features/settings/ApiKeySettings";
 import { SectionHeader } from "@/client/components/PageHeader";
 import { ThemePreferenceRadio } from "@/client/components/ThemePreferenceMenuItems";
@@ -47,6 +48,8 @@ function PersonalSettings() {
           <ThemePreferenceRadio />
         </div>
       </section>
+
+      <AgenteDeIa />
 
       {isHosted ? (
         <>
