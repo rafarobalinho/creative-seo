@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { SalvarComoRelatorio } from "@/client/features/creative/SalvarComoRelatorio";
 import { setLastProjectId } from "@/client/lib/active-project";
 import { getErrorCode } from "@/client/lib/error-messages";
 import {
@@ -74,5 +75,11 @@ function ProjectLayout() {
     setLastProjectId(projectId);
   }, [projectId, isSettingsPage]);
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      {/* Creative SEO: "Salvar como relatório" (creative/DECISOES.md). */}
+      <SalvarComoRelatorio projectId={projectId} />
+    </>
+  );
 }
