@@ -42,7 +42,7 @@ export type ResumoDaChave = {
   usado: number | null;
 };
 
-type ChaveParaUso =
+export type ChaveParaUso =
   | { tipo: "sem_chave" }
   | { tipo: "ilegivel" }
   | { tipo: "limite_esgotado" }
