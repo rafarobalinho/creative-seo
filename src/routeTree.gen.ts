@@ -68,6 +68,8 @@ import { Route as AppPProjectIdSettingsIndexRouteImport } from './routes/_app/p/
 import { Route as AppPProjectIdSettingsContextRouteImport } from './routes/_app/p/$projectId/settings/context'
 import { Route as AppPProjectIdSettingsIntegrationsRouteImport } from './routes/_app/p/$projectId/settings/integrations'
 import { Route as AppPProjectIdAuditIssuesResultIdRouteImport } from './routes/_app/p/$projectId/audit/issues/$resultId'
+import { Route as AppPProjectIdAuditoriasCicloIndexRouteImport } from './routes/_app/p/$projectId/auditorias/$ciclo/index'
+import { Route as AppPProjectIdAuditoriasCicloEntregavelRouteImport } from './routes/_app/p/$projectId/auditorias/$ciclo/$entregavel'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
@@ -378,6 +380,18 @@ const AppPProjectIdAuditIssuesResultIdRoute =
     path: '/audit/issues/$resultId',
     getParentRoute: () => AppPProjectIdRouteRoute,
   } as any)
+const AppPProjectIdAuditoriasCicloIndexRoute =
+  AppPProjectIdAuditoriasCicloIndexRouteImport.update({
+    id: '/auditorias/$ciclo/',
+    path: '/auditorias/$ciclo/',
+    getParentRoute: () => AppPProjectIdRouteRoute,
+  } as any)
+const AppPProjectIdAuditoriasCicloEntregavelRoute =
+  AppPProjectIdAuditoriasCicloEntregavelRouteImport.update({
+    id: '/auditorias/$ciclo/$entregavel',
+    path: '/auditorias/$ciclo/$entregavel',
+    getParentRoute: () => AppPProjectIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -436,6 +450,8 @@ export interface FileRoutesByFullPath {
   '/p/$projectId/reports/': typeof AppPProjectIdReportsIndexRoute
   '/p/$projectId/settings/': typeof AppPProjectIdSettingsIndexRoute
   '/p/$projectId/audit/issues/$resultId': typeof AppPProjectIdAuditIssuesResultIdRoute
+  '/p/$projectId/auditorias/$ciclo/$entregavel': typeof AppPProjectIdAuditoriasCicloEntregavelRoute
+  '/p/$projectId/auditorias/$ciclo/': typeof AppPProjectIdAuditoriasCicloIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
@@ -490,6 +506,8 @@ export interface FileRoutesByTo {
   '/p/$projectId/reports': typeof AppPProjectIdReportsIndexRoute
   '/p/$projectId/settings': typeof AppPProjectIdSettingsIndexRoute
   '/p/$projectId/audit/issues/$resultId': typeof AppPProjectIdAuditIssuesResultIdRoute
+  '/p/$projectId/auditorias/$ciclo/$entregavel': typeof AppPProjectIdAuditoriasCicloEntregavelRoute
+  '/p/$projectId/auditorias/$ciclo': typeof AppPProjectIdAuditoriasCicloIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -552,6 +570,8 @@ export interface FileRoutesById {
   '/_app/p/$projectId/reports/': typeof AppPProjectIdReportsIndexRoute
   '/_app/p/$projectId/settings/': typeof AppPProjectIdSettingsIndexRoute
   '/_app/p/$projectId/audit/issues/$resultId': typeof AppPProjectIdAuditIssuesResultIdRoute
+  '/_app/p/$projectId/auditorias/$ciclo/$entregavel': typeof AppPProjectIdAuditoriasCicloEntregavelRoute
+  '/_app/p/$projectId/auditorias/$ciclo/': typeof AppPProjectIdAuditoriasCicloIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -612,6 +632,8 @@ export interface FileRouteTypes {
     | '/p/$projectId/reports/'
     | '/p/$projectId/settings/'
     | '/p/$projectId/audit/issues/$resultId'
+    | '/p/$projectId/auditorias/$ciclo/$entregavel'
+    | '/p/$projectId/auditorias/$ciclo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -666,6 +688,8 @@ export interface FileRouteTypes {
     | '/p/$projectId/reports'
     | '/p/$projectId/settings'
     | '/p/$projectId/audit/issues/$resultId'
+    | '/p/$projectId/auditorias/$ciclo/$entregavel'
+    | '/p/$projectId/auditorias/$ciclo'
   id:
     | '__root__'
     | '/_app'
@@ -727,6 +751,8 @@ export interface FileRouteTypes {
     | '/_app/p/$projectId/reports/'
     | '/_app/p/$projectId/settings/'
     | '/_app/p/$projectId/audit/issues/$resultId'
+    | '/_app/p/$projectId/auditorias/$ciclo/$entregavel'
+    | '/_app/p/$projectId/auditorias/$ciclo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1165,6 +1191,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPProjectIdAuditIssuesResultIdRouteImport
       parentRoute: typeof AppPProjectIdRouteRoute
     }
+    '/_app/p/$projectId/auditorias/$ciclo/': {
+      id: '/_app/p/$projectId/auditorias/$ciclo/'
+      path: '/auditorias/$ciclo'
+      fullPath: '/p/$projectId/auditorias/$ciclo/'
+      preLoaderRoute: typeof AppPProjectIdAuditoriasCicloIndexRouteImport
+      parentRoute: typeof AppPProjectIdRouteRoute
+    }
+    '/_app/p/$projectId/auditorias/$ciclo/$entregavel': {
+      id: '/_app/p/$projectId/auditorias/$ciclo/$entregavel'
+      path: '/auditorias/$ciclo/$entregavel'
+      fullPath: '/p/$projectId/auditorias/$ciclo/$entregavel'
+      preLoaderRoute: typeof AppPProjectIdAuditoriasCicloEntregavelRouteImport
+      parentRoute: typeof AppPProjectIdRouteRoute
+    }
   }
 }
 
@@ -1236,6 +1276,8 @@ interface AppPProjectIdRouteRouteChildren {
   AppPProjectIdAuditoriasIndexRoute: typeof AppPProjectIdAuditoriasIndexRoute
   AppPProjectIdReportsIndexRoute: typeof AppPProjectIdReportsIndexRoute
   AppPProjectIdAuditIssuesResultIdRoute: typeof AppPProjectIdAuditIssuesResultIdRoute
+  AppPProjectIdAuditoriasCicloEntregavelRoute: typeof AppPProjectIdAuditoriasCicloEntregavelRoute
+  AppPProjectIdAuditoriasCicloIndexRoute: typeof AppPProjectIdAuditoriasCicloIndexRoute
 }
 
 const AppPProjectIdRouteRouteChildren: AppPProjectIdRouteRouteChildren = {
@@ -1257,6 +1299,10 @@ const AppPProjectIdRouteRouteChildren: AppPProjectIdRouteRouteChildren = {
   AppPProjectIdAuditoriasIndexRoute: AppPProjectIdAuditoriasIndexRoute,
   AppPProjectIdReportsIndexRoute: AppPProjectIdReportsIndexRoute,
   AppPProjectIdAuditIssuesResultIdRoute: AppPProjectIdAuditIssuesResultIdRoute,
+  AppPProjectIdAuditoriasCicloEntregavelRoute:
+    AppPProjectIdAuditoriasCicloEntregavelRoute,
+  AppPProjectIdAuditoriasCicloIndexRoute:
+    AppPProjectIdAuditoriasCicloIndexRoute,
 }
 
 const AppPProjectIdRouteRouteWithChildren =
