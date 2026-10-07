@@ -73,6 +73,30 @@ auditoria, vive no repositório do motor:
     `samTurnTelemetry.ts`, `samAccess.ts`, `settings/index.tsx`,
     `SamSetupGate.tsx` (o link de ajuda leva às Configurações) e o comentário
     de `useSamAccess.ts`.
+13. **O agente do app escreve relatórios em português do Brasil, com a skill
+    `seo-report`, e nunca apaga nada** (decidido em 2026-10-06). Ele grava com
+    `save_report` sob o rótulo "Agente Creative SEO", lê relatórios e modelos
+    (`list_reports`, `get_report`, `list_report_templates`), mas não apaga
+    relatórios nem cria ou apaga modelos: o que ele escreve é rascunho que um
+    humano revisa antes de chegar ao cliente. O aviso de beta e o lembrete do
+    MCP na barra lateral saíram, porque o agente é a interface e não há mais
+    outra a que apontar. O botão "Gerar relatório" leva o pedido no estado de
+    navegação do roteador, não na URL; a página do agente cria uma conversa
+    nova e o envia uma única vez. Limitação: recarregar durante a criação da
+    conversa, ou depois de uma criação que falhou, cria a conversa de novo e
+    reenvia o pedido. **Risco latente:** a nota do agente
+    (`src/server/features/creative/agente/notaDoAgente.ts`) proíbe links para
+    `openseo.so`, e a camada de marca só deixa esse domínio intocado enquanto
+    `dominio` é nulo em `creative/marca.json`. No dia em que `dominio` ganhar
+    valor, a camada passará a reescrevê-lo para o nosso domínio e a nota
+    proibiria o nosso próprio; reescreva essa frase da nota nesse momento. O
+    código fica em `src/server/features/creative/agente/`,
+    `src/client/features/creative/pedidoDeRelatorio.ts`, `GerarRelatorio.tsx`,
+    `VoltarAoMenu.tsx` e `AvisoDoEstadoDaChave.tsx`. Arquivos do original
+    tocados: `samChatTools.ts`, `SamChatAgent.ts`, `samSkills.ts`,
+    `openseo-fact-sheet.md`, `samBetaOptIn.ts`, `SamChat.tsx`,
+    `SamConversation.tsx`, `SamSidebarPanel.tsx`, `reports/index.tsx` e
+    `items.ts` (o item "Agent" no menu).
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
