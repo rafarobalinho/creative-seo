@@ -16,7 +16,7 @@ export type PedidoS3 = {
   regiao: string;
 };
 
-export type CredenciaisS3 = { chaveAcesso: string; segredo: string };
+type CredenciaisS3 = { chaveAcesso: string; segredo: string };
 
 const ALGORITMO = "AWS4-HMAC-SHA256";
 const SERVICO = "s3";
