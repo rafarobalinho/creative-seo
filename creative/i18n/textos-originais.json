@@ -334,9 +334,6 @@
     "chave": "Add up to 5 competitor brands or domains to see your Share of Voice."
   },
   {
-    "chave": "Add your DataForSEO API key to start using OpenSEO."
-  },
-  {
     "chave": "Add your Google client ID and secret to this OpenSEO deployment before connecting {0}."
   },
   {
@@ -446,12 +443,6 @@
   },
   {
     "chave": "An active project named \"Default\" with no domain already exists. Rename it first, then restore this one."
-  },
-  {
-    "chave": "An unexpected error occurred. Please check server logs and try again."
-  },
-  {
-    "chave": "An unexpected error occurred. Please check server logs."
   },
   {
     "chave": "Analytics"
@@ -666,12 +657,6 @@
   },
   {
     "chave": "BE"
-  },
-  {
-    "chave": "BETTER_AUTH_SECRET"
-  },
-  {
-    "chave": "BETTER_AUTH_URL"
   },
   {
     "chave": "BETTER_AUTH_URL must use https or localhost"
@@ -1149,9 +1134,6 @@
     "chave": "Close {0} tab"
   },
   {
-    "chave": "Cloudflare Access mode requires{0} (a full https URL) and{1} set on the deployment, with an Access application protecting this hostname."
-  },
-  {
     "chave": "Cloudflare Access token rejected: audience mismatch. POLICY_AUD does not match your Access application's AUD tag — copy it from Zero Trust -> Access controls -> Applications -> Configure -> Additional settings."
   },
   {
@@ -1618,9 +1600,6 @@
   },
   {
     "chave": "DataForSEO llm_responses returned an invalid response shape"
-  },
-  {
-    "chave": "DataForSEO rejected the API key. Check that DATAFORSEO_API_KEY is the base64 of your DataForSEO login:password."
   },
   {
     "chave": "DataForSEO rejected this tracker: {0}"
@@ -2572,6 +2551,9 @@
     "chave": "Google's permission screen was closed or declined. Try again whenever you're ready."
   },
   {
+    "chave": "Got it"
+  },
+  {
     "chave": "Greece"
   },
   {
@@ -2672,9 +2654,6 @@
   },
   {
     "chave": "Hong Kong"
-  },
-  {
-    "chave": "Hosted mode requires{0}{1}(32+ characters), {2}, and Google OAuth credentials on the deployment."
   },
   {
     "chave": "How To Fix"
@@ -4133,9 +4112,6 @@
     "chave": "One per domain"
   },
   {
-    "chave": "One quick setup step"
-  },
-  {
     "chave": "One-page site audit built around a single do-this-week action."
   },
   {
@@ -4154,9 +4130,6 @@
     "chave": "Open OpenRouter Keys"
   },
   {
-    "chave": "Open Setup Guide"
-  },
-  {
     "chave": "Open a new Google Sheet and paste to fill it."
   },
   {
@@ -4173,9 +4146,6 @@
   },
   {
     "chave": "Open new Google Sheet"
-  },
-  {
-    "chave": "Open setup guide"
   },
   {
     "chave": "Open {0}"
@@ -4281,9 +4251,6 @@
   },
   {
     "chave": "PL"
-  },
-  {
-    "chave": "POLICY_AUD"
   },
   {
     "chave": "PS"
@@ -5191,6 +5158,15 @@
     "chave": "Search countries"
   },
   {
+    "chave": "Search data is not available in this installation yet. Talk to whoever administers the tool."
+  },
+  {
+    "chave": "Search data is unavailable right now: the data account limit was reached. Talk to whoever administers the tool."
+  },
+  {
+    "chave": "Search data unavailable"
+  },
+  {
     "chave": "Search for any keyword to see volume, difficulty, CPC, and related keyword ideas."
   },
   {
@@ -5360,9 +5336,6 @@
   },
   {
     "chave": "Setup instructions"
-  },
-  {
-    "chave": "Setup needed: add your DataForSEO API key to use OpenSEO features. See the quick steps on the {0}."
   },
   {
     "chave": "Setup prompt copied"
@@ -5554,6 +5527,9 @@
     "chave": "Something went wrong. Please try again."
   },
   {
+    "chave": "Something went wrong. Try again; if it keeps happening, talk to whoever administers the tool."
+  },
+  {
     "chave": "Sort by {0}"
   },
   {
@@ -5725,9 +5701,6 @@
     "chave": "TBT"
   },
   {
-    "chave": "TEAM_DOMAIN"
-  },
-  {
     "chave": "TH"
   },
   {
@@ -5897,9 +5870,6 @@
     "chave": "The connected DataForSEO account has a billing or balance issue"
   },
   {
-    "chave": "The connected DataForSEO account has a billing or balance issue."
-  },
-  {
     "chave": "The connected Google account can no longer access this property."
   },
   {
@@ -6009,6 +5979,9 @@
   },
   {
     "chave": "The scheduled check within the hour covers these keywords"
+  },
+  {
+    "chave": "The search data connection was refused. Talk to whoever administers the tool."
   },
   {
     "chave": "The search term being tracked in Google"
@@ -6704,13 +6677,13 @@
     "chave": "We choose a sample of 20 pages to audit, removing pages from duplicate templates."
   },
   {
+    "chave": "We could not confirm the search data connection. If tools stop responding, talk to whoever administers the tool."
+  },
+  {
     "chave": "We could not find keyword opportunities for{0}in{1}."
   },
   {
     "chave": "We could not load this audit. It may have been deleted."
-  },
-  {
-    "chave": "We could not verify your DataForSEO setup. If features are not working, check the setup steps on the {0}."
   },
   {
     "chave": "We couldn't accept the invitation."
@@ -7146,9 +7119,6 @@
   },
   {
     "chave": "h-16"
-  },
-  {
-    "chave": "help page"
   },
   {
     "chave": "help with this step"

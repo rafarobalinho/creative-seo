@@ -1,5 +1,6 @@
 import { AppError } from "@/server/lib/errors";
 import { getRequiredEnvValue } from "@/server/lib/runtime-env";
+import { classifyGenericDataforseoBilling } from "@/server/lib/dataforseoBillingClassification";
 import type { ErrorCode } from "@/shared/error-codes";
 // Type-only: erased at compile, so no runtime cycle with envelope.ts (which
 // imports DataforseoErrorClassifier from here the same way).
@@ -115,7 +116,9 @@ function createAuthenticatedFetch(
 
       const rawText = await response.text();
       const path = formatDataforseoRequestPath(url);
-      const classified = classify?.(response.status, rawText, path);
+      const classified =
+        classify?.(response.status, rawText, path) ??
+        classifyGenericDataforseoBilling(response.status);
       if (classified) throw classified;
 
       const code: ErrorCode =

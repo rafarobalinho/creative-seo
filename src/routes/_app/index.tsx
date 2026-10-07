@@ -6,7 +6,10 @@ import {
   clearLastProjectId,
   getLastProjectId,
 } from "@/client/lib/active-project";
-import { getErrorCode } from "@/client/lib/error-messages";
+import {
+  getErrorCode,
+  getStandardErrorMessage,
+} from "@/client/lib/error-messages";
 import { AuthErrorCard } from "@/client/components/AuthErrorCard";
 import { QueryError } from "@/client/components/QueryState";
 import { SkeletonPage } from "@/client/components/SkeletonPresets";
@@ -72,7 +75,7 @@ function IndexRedirect() {
           <StatusScreen>
             <QueryError
               error={error}
-              fallback="An unexpected error occurred. Please check server logs."
+              fallback={getStandardErrorMessage(undefined)}
               onRetry={() => void refetch()}
               isRetrying={isFetching}
             />

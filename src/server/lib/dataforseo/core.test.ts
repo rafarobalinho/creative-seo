@@ -52,3 +52,29 @@ describe("DataForSEO transport", () => {
     },
   );
 });
+
+describe("DataForSEO transport: depleted balance", () => {
+  it("maps an HTTP 402 with no section classifier to DATAFORSEO_BILLING_ISSUE", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response("Payment Required", { status: 402 })),
+    );
+    await expect(
+      dataforseoPost("/v3/dataforseo_labs/google/keyword_ideas/live", []),
+    ).rejects.toMatchObject({ code: "DATAFORSEO_BILLING_ISSUE" });
+  });
+
+  it("leaves other 4xx failures as INTERNAL_ERROR", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response("bad", { status: 400 })),
+    );
+    await expect(
+      dataforseoPost("/v3/dataforseo_labs/google/keyword_ideas/live", []),
+    ).rejects.toMatchObject({ code: "INTERNAL_ERROR" });
+  });
+});
