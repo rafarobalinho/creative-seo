@@ -31,7 +31,14 @@ auditoria, vive no repositório do motor:
    skills vive num repositório próprio.
 7. **O produto nunca escreve no motor.** O bucket `aeo-audit` é lido com um
    token S3 só de leitura e nunca por binding do Alchemy, que assume e pode
-   esvaziar o bucket.
+   esvaziar o bucket. As credenciais e o vínculo chegam ao Worker de app por
+   cinco variáveis, passadas pelo `alchemy.run.ts` (gancho permitido pela
+   regra 1): `AEO_R2_ACCOUNT_ID`, `AEO_R2_ACCESS_KEY_ID`,
+   `AEO_R2_SECRET_ACCESS_KEY`, `AEO_R2_BUCKET` e `AEO_VINCULOS`. As duas
+   chaves são segredos; o Worker de auditoria do original não as recebe. O
+   vínculo entre domínio e cliente vem de `AEO_VINCULOS`, no formato
+   `dominio=slug,dominio=slug`, porque o repositório é público e nenhum nome
+   de cliente pode morar nele. Na Fase 4 o vínculo passa para o banco.
 8. **Telemetria do original desligada** (`OPENSEO_TELEMETRY_DISABLED=1`). Os
    workflows `sourcemaps.yml` e `pr-preview.yml` ficam desativados quando o
    Actions for habilitado neste fork.

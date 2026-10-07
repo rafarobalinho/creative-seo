@@ -15,7 +15,7 @@ import {
   requireAllowedEmails,
   workerName,
 } from "./alchemy.access.ts";
-import { leDominiosExtras } from "./creative.ts";
+import { creativeEnv, leDominiosExtras } from "./creative.ts";
 
 // Preview hostnames are `open-seo-<stage>.<WORKERS_SUBDOMAIN>` — the naming
 // lives in alchemy.access.ts, shared with the Access wildcard the security
@@ -462,6 +462,7 @@ export default Alchemy.Stack(
       env: {
         ...resources,
         ...dataEnv,
+        ...creativeEnv,
         AUTH_MODE: authMode,
         DATABASE_PROVIDER: databaseProvider || "d1",
         BETTER_AUTH_URL: authUrl,
