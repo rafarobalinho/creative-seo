@@ -137,4 +137,15 @@ describe("buildSamMcpTools", () => {
       expect(Object.keys(forma)).not.toContain("projectId");
     }
   });
+
+  // Com reportId o save_report substitui o HTML sem desfazer; o agente só cria.
+  it("não deixa o agente substituir relatórios", () => {
+    const esquema = ferramentas.save_report?.inputSchema;
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- o adaptador sempre monta um ZodObject
+    const forma = (esquema as unknown as { shape: Record<string, unknown> })
+      .shape;
+    expect(Object.keys(forma)).toContain("html");
+    expect(Object.keys(forma)).not.toContain("reportId");
+    expect(ferramentas.save_report?.description).not.toContain("reportId");
+  });
 });

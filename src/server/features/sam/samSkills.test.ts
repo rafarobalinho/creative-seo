@@ -72,4 +72,28 @@ describe("NOTA_DO_AGENTE", () => {
     expect(NOTA_DO_AGENTE).toMatch(/too large/);
     expect(NOTA_DO_AGENTE).toMatch(/regenerate[^.]*shorter/i);
   });
+
+  // A nota é um blockquote; em linha corrida, as frases ficam legíveis.
+  const corrida = NOTA_DO_AGENTE.replace(/\n>\s*/g, " ");
+
+  // O corte mais provável é a saída acabar no meio da chamada: a ferramenta
+  // recusa a entrada como inválida antes de o servidor ver o documento.
+  it("trata qualquer falha no argumento html como pedido de versão mais curta", () => {
+    expect(corrida).toContain(
+      "If save_report fails because of the html argument for any reason (invalid or unparseable input, stopped early, too large), regenerate the whole report shorter and save again.",
+    );
+  });
+
+  it("diz que os 15 a 25 KB valem mais que os 80 KB da skill e da ferramenta", () => {
+    expect(corrida).toContain(
+      "This 15–25 KB target overrides the skill's and the tool's 80 KB guidance.",
+    );
+  });
+
+  it("sempre cria relatório novo e muda o título no conflito", () => {
+    expect(corrida).toContain(
+      "Always create a new report; never replace an existing one.",
+    );
+    expect(corrida).toMatch(/title already exists[^.]*change the title/);
+  });
 });
