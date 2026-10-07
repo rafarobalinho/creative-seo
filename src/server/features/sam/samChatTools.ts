@@ -22,6 +22,13 @@ import {
   getAuditStatusTool,
   runSiteAuditTool,
 } from "@/server/mcp/tools/site-audit-tools";
+// Creative SEO: o agente salva e lê relatórios (creative/DECISOES.md, regra 13).
+import {
+  getReportTool,
+  listReportsTool,
+  saveReportTool,
+} from "@/server/mcp/tools/report-tools";
+import { listReportTemplatesTool } from "@/server/mcp/tools/report-template-tools";
 import { listSavedKeywordsTool } from "@/server/mcp/tools/list-saved-keywords";
 import { removeSavedKeywordsTool } from "@/server/mcp/tools/remove-saved-keywords";
 import { buildUpdateProjectContextTool } from "@/server/mcp/tools/project-context";
@@ -364,6 +371,11 @@ export function buildSamMcpTools(
     // a read-only context block, so get_project_context would just re-fetch it.
     update_project_context: adaptTool(buildUpdateProjectContextTool("sam")),
     list_saved_keywords: adaptTool(listSavedKeywordsTool),
+    // Creative SEO: relatórios sem apagar nem mexer em modelos (creative/DECISOES.md, regra 13).
+    save_report: adaptTool(saveReportTool),
+    list_reports: adaptTool(listReportsTool),
+    get_report: adaptTool(getReportTool),
+    list_report_templates: adaptTool(listReportTemplatesTool),
     remove_saved_keywords: adaptTool(removeSavedKeywordsTool),
     research_keywords: adaptTool(researchKeywordsTool),
     save_keywords: adaptTool(saveKeywordsTool),

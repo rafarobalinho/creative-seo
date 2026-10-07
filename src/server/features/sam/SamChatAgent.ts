@@ -54,6 +54,11 @@ import { getPublicOrigin } from "@/server/mcp/public-origin";
 import { MCP_SCOPE } from "@/lib/oauth-resource";
 import { AuthRepository } from "@/server/auth/repositories/AuthRepository";
 import type { ToolAuthContext } from "@/server/mcp/context";
+// Creative SEO: autoria e limite de saída do agente (creative/DECISOES.md, regra 13).
+import {
+  LIMITE_DE_SAIDA_DO_AGENTE,
+  ROTULO_DO_AGENTE,
+} from "@/server/features/creative/agente/agente";
 
 // SAM's read-only view of the project's shared memory. The block has no `set`
 // provider, so Think exposes no set_context tool for it; writes go through the
@@ -406,6 +411,7 @@ export class SamChatAgent extends Think {
         orgScope: "pinned",
         baseUrl,
         clientId: null,
+        clientLabel: ROTULO_DO_AGENTE, // Creative SEO: autoria do agente (creative/DECISOES.md, regra 13).
         scopes: [MCP_SCOPE],
       };
 
@@ -421,7 +427,7 @@ export class SamChatAgent extends Think {
         // the reply, issue #161) but below the 32k that, with 48 steps, let a
         // single turn outgrow the Durable Object memory limit.
         maxSteps: 40,
-        maxOutputTokens: 16_000,
+        maxOutputTokens: LIMITE_DE_SAIDA_DO_AGENTE, // Creative SEO: era 16_000 (creative/DECISOES.md, regra 13).
       };
     });
   }

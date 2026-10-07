@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Tool } from "ai";
-import { toModelOutput, waitingAuditStatusTool } from "./samChatTools";
+import type { ToolAuthContext } from "@/server/mcp/context";
+import {
+  buildSamMcpTools,
+  toModelOutput,
+  waitingAuditStatusTool,
+} from "./samChatTools";
 
 vi.mock("cloudflare:workers", () => ({
   env: {},
@@ -83,5 +88,53 @@ describe("toModelOutput", () => {
       summary: text,
       data: { meta: { url: "https://example.com" } },
     });
+  });
+});
+
+describe("buildSamMcpTools", () => {
+  const contextoFalso: ToolAuthContext = {
+    userId: "u1",
+    userEmail: "u@exemplo.com.br",
+    organizationId: "o1",
+    role: "owner",
+    orgScope: "pinned",
+    baseUrl: "https://exemplo.com.br",
+    clientId: null,
+    scopes: [],
+  };
+  const ferramentas = buildSamMcpTools(contextoFalso, {
+    id: "p1",
+    domain: "exemplo.com.br",
+  });
+  const novas = [
+    "save_report",
+    "list_reports",
+    "get_report",
+    "list_report_templates",
+  ];
+
+  it("inclui as ferramentas de relatório", () => {
+    for (const nome of novas) expect(Object.keys(ferramentas)).toContain(nome);
+  });
+
+  it("não inclui as que apagam ou mudam modelos", () => {
+    for (const nome of [
+      "delete_report",
+      "save_report_template",
+      "delete_report_template",
+    ]) {
+      expect(Object.keys(ferramentas)).not.toContain(nome);
+    }
+  });
+
+  it("esconde o projectId do modelo nas ferramentas de relatório", () => {
+    for (const nome of novas) {
+      const esquema = ferramentas[nome]?.inputSchema;
+      expect(esquema).toBeDefined();
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- o adaptador sempre monta um ZodObject
+      const forma = (esquema as unknown as { shape: Record<string, unknown> })
+        .shape;
+      expect(Object.keys(forma)).not.toContain("projectId");
+    }
   });
 });
