@@ -2,6 +2,8 @@ import { sort } from "remeda";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 import type { SkillSource } from "agents/skills";
+// Creative SEO: nota do agente com relatórios em português (creative/DECISOES.md, regra 13).
+import { NOTA_DO_AGENTE } from "@/server/features/creative/agente/notaDoAgente";
 
 // Bundle the repo's public-facing skills (.agents/skills) into SAM at build
 // time. Skills marked `metadata.internal: true` are repo-dev tooling and stay
@@ -19,18 +21,9 @@ const skillFiles = import.meta.glob<string>("/.agents/skills/*/SKILL.md", {
 
 // The skill bodies are written for external MCP clients (Claude Code); this
 // note reframes the surface so SAM skips the steps that don't apply in-app.
-const SAM_SURFACE_NOTE = `> Surface note: you are SAM, running inside the OpenSEO app. You are already
-> authenticated and scoped to the user's current project — skip any "verify the
-> MCP connection", "choose a project", or skill-install steps. You have no
-> local filesystem: skip local-folder and file steps.
->
-> Your project context is already in your system prompt — read it there; there
-> is no get_project_context tool here. Write durable facts about the business
-> back with update_project_context. You have no report tools: skip any step
-> that says to deliver through the seo-report skill or to save a report, and
-> give the findings in chat, short and scannable.
-> If a skill step needs a tool you don't have (e.g. project creation), say so
-> and point the user at the app page rather than improvising.`;
+// Creative SEO: a nota mora num arquivo nosso e manda o SAM salvar relatórios
+// em português (creative/DECISOES.md, regra 13).
+const SAM_SURFACE_NOTE = NOTA_DO_AGENTE;
 
 type SamSkill = { name: string; description: string; body: string };
 
@@ -52,8 +45,8 @@ function parseSkill(path: string, raw: string): SamSkill | null {
   // Public for `npx skills add` users but not an in-app workflow: it drafts
   // GitHub issues for contributors, which SAM has no surface for.
   if (frontmatter.name === "simple-issue-description") return null;
-  // SAM has no report tools, so the report-writing skill has nothing to drive.
-  if (frontmatter.name === "seo-report") return null;
+  // Creative SEO: o SAM tem save_report, então a seo-report entra; é ela que
+  // define o formato do relatório (creative/DECISOES.md, regra 13).
   return {
     name: frontmatter.name,
     description: frontmatter.description,
