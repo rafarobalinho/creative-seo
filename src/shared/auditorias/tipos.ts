@@ -61,6 +61,8 @@ export type ResultadoCiclo =
       cliente: string;
       ciclo: string;
       resumo: ResumoScores | null;
+      /** `scores.json` existe, mas não pôde ser lido; falso se ausente. */
+      scoresIlegivel: boolean;
       temProbe: boolean;
       temBenchmark: boolean;
       entregaveis: Entregavel[];

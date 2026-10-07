@@ -16,14 +16,24 @@ import { EixosDoCiclo } from "./EixosDoCiclo";
 import { EntregaveisDoCiclo } from "./EntregaveisDoCiclo";
 import { EstadoAuditoria } from "./EstadoAuditoria";
 
-function Agregado({ resumo }: { resumo: ResumoScores | null }) {
+function Agregado({
+  resumo,
+  scoresIlegivel,
+}: {
+  resumo: ResumoScores | null;
+  scoresIlegivel: boolean;
+}) {
   if (resumo === null) {
     // Ciclo só de benchmark ou de entrega: dizer que não há score, nunca
     // desenhar eixos em zero.
     return (
       <Card>
         <CardContent>
-          <p className="text-sm">Este ciclo não tem score.</p>
+          <p className="text-sm">
+            {scoresIlegivel
+              ? "O score deste ciclo não pôde ser lido."
+              : "Este ciclo não tem score."}
+          </p>
         </CardContent>
       </Card>
     );
@@ -44,7 +54,9 @@ function Agregado({ resumo }: { resumo: ResumoScores | null }) {
         <p className="text-sm text-muted-foreground">
           {base === null
             ? "O motor não declarou a base deste agregado."
-            : `Calculado sobre ${base.eixosUsados.length} ${base.eixosUsados.length === 1 ? "eixo" : "eixos"} (${base.eixosUsados.join(", ")}), que somam ${percentual(base.pesoCoberto * 100)} do peso.`}
+            : base.eixosUsados.length === 0
+              ? "Nenhum eixo foi medido neste ciclo."
+              : `Calculado sobre ${base.eixosUsados.length} ${base.eixosUsados.length === 1 ? "eixo" : "eixos"} (${base.eixosUsados.join(", ")}), que somam ${percentual(base.pesoCoberto * 100)} do peso.`}
         </p>
       </CardContent>
     </Card>
@@ -104,7 +116,10 @@ export function PaginaCiclo({
           />
         ) : (
           <>
-            <Agregado resumo={consulta.data.resumo} />
+            <Agregado
+              resumo={consulta.data.resumo}
+              scoresIlegivel={consulta.data.scoresIlegivel}
+            />
             {consulta.data.resumo ? (
               <EixosDoCiclo resumo={consulta.data.resumo} />
             ) : null}

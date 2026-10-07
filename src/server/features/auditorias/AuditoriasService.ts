@@ -7,6 +7,7 @@ import type {
   ResultadoEntregavel,
   ResumoScores,
 } from "@/shared/auditorias/tipos";
+import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import {
   chaveDoEntregavel,
@@ -20,10 +21,6 @@ export type DependenciasAuditoria = {
   leitor: LeitorCiclos | null;
   vinculos: string | undefined;
 };
-
-// A data é o único formato de pasta de ciclo; as demais pastas do cliente
-// (estabilidade, descoberta de marca) não são ciclos de auditoria.
-const PADRAO_CICLO = /^\d{4}-\d{2}-\d{2}$/;
 
 type Contexto = { cliente: string; leitor: LeitorCiclos };
 
@@ -113,13 +110,19 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
         objetos.some((o) => o.chave === `${raiz}/${arquivo}`);
 
       let resumo: ResumoScores | null = null;
+      let scoresIlegivel = false;
       if (tem("scores.json")) {
         const texto = await leitor.lerTexto(`${raiz}/scores.json`);
-        try {
-          resumo = texto === null ? null : resumirScores(JSON.parse(texto));
-        } catch {
-          // JSON quebrado é ausência de resumo, nunca zero nem exceção.
-          resumo = null;
+        if (texto !== null) {
+          try {
+            resumo = resumirScores(JSON.parse(texto));
+          } catch {
+            // JSON quebrado nunca vira zero nem exceção.
+            resumo = null;
+          }
+          // O arquivo existe e não deu resumo: é defeito do ciclo, e a tela
+          // precisa dizer isso em vez de "não tem score".
+          scoresIlegivel = resumo === null;
         }
       }
       return {
@@ -127,6 +130,7 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
         cliente,
         ciclo,
         resumo,
+        scoresIlegivel,
         temProbe: tem("probe.jsonl"),
         temBenchmark: tem("benchmark.json"),
         entregaveis: entregaveisDoInventario(objetos, raiz),

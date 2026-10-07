@@ -16,7 +16,8 @@ const bruto = {
           applicable: true,
           passed: false,
           weight: 1,
-          evidence: "taxa (piso 10.0%): 6.0% (9/150 execuções, IC95 3.2%–11.0%)",
+          evidence:
+            "taxa (piso 10.0%): 6.0% (9/150 execuções, IC95 3.2%–11.0%)",
         },
         { id: "a2", applicable: true, passed: true, weight: 2 },
         { id: "a3", applicable: false, passed: false, weight: 1 },

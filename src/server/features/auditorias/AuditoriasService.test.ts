@@ -146,17 +146,22 @@ describe("AuditoriasService", () => {
       cliente: "exemplo",
       ciclo: "2026-01-01",
       resumo: null,
+      scoresIlegivel: false,
       temBenchmark: true,
       temProbe: false,
     });
   });
 
-  it("scores.json inválido vira resumo null, não exceção", async () => {
+  it("scores.json inválido vira resumo null e scoresIlegivel, não exceção", async () => {
     const { leitor } = leitorEmMemoria({
       "exemplo/2026-01-01/scores.json": "{quebrado",
     });
     const r = await servico(leitor).lerCiclo(DOMINIO, "2026-01-01");
-    expect(r).toMatchObject({ estado: "ok", resumo: null });
+    expect(r).toMatchObject({
+      estado: "ok",
+      resumo: null,
+      scoresIlegivel: true,
+    });
   });
 
   it("ciclo com scores.json traz o resumo e os entregáveis", async () => {

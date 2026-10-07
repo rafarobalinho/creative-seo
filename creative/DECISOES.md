@@ -38,7 +38,10 @@ auditoria, vive no repositório do motor:
    chaves são segredos; o Worker de auditoria do original não as recebe. O
    vínculo entre domínio e cliente vem de `AEO_VINCULOS`, no formato
    `dominio=slug,dominio=slug`, porque o repositório é público e nenhum nome
-   de cliente pode morar nele. Na Fase 4 o vínculo passa para o banco.
+   de cliente pode morar nele. `AEO_VINCULOS` só deve ser definida num stage de
+   workspace único (self-host atrás do Access): num modo hosted com várias
+   organizações, qualquer org que criasse projeto com um domínio vinculado
+   veria a auditoria daquele cliente. Na Fase 4 o vínculo passa para o banco.
 8. **Telemetria do original desligada** (`OPENSEO_TELEMETRY_DISABLED=1`). Os
    workflows `sourcemaps.yml` e `pr-preview.yml` ficam desativados quando o
    Actions for habilitado neste fork.
