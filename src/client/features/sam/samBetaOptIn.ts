@@ -21,7 +21,7 @@ export function optInToSamBeta() {
   try {
     localStorage.setItem(STORAGE_KEY, "1");
   } catch {
-    // Kept in memory above.
+    // Creative SEO: falhar aqui não importa, a leitura já devolve true (creative/DECISOES.md, regra 13).
   }
   captureClientEvent("sam:beta_opt_in");
   listeners.forEach((listener) => listener());

@@ -1,14 +1,13 @@
-import { Link, useLocation } from "@tanstack/react-router";
+// Creative SEO: imports do lembrete do MCP removidos com ele (creative/DECISOES.md, regra 13).
+import { useLocation } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Archive, Plus, X } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 import { archiveSamSession } from "@/serverFunctions/sam";
 import {
   invalidateSamSessions,
   samSessionsQueryOptions,
 } from "@/client/features/sam/samQueries";
 import { QueryState } from "@/client/components/QueryState";
-import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
 import {
   SidebarMenu,
@@ -16,50 +15,6 @@ import {
 } from "@/client/components/ui/sidebar";
 import { useSamBetaOptIn } from "./samBetaOptIn";
 import { useSamSessions } from "./useSamSessions";
-
-const BETA_NOTICE_DISMISSED_KEY = "sam-beta-notice-dismissed";
-
-// The MCP nudge for users who already opted into SAM: SamBetaGate carries it
-// before opt-in, and this card keeps it in view afterwards. Dismissible per
-// browser; localStorage is read in an effect so SSR and the first client
-// render stay identical.
-function BetaNotice() {
-  const [dismissed, setDismissed] = useState(true);
-  useEffect(() => {
-    setDismissed(localStorage.getItem(BETA_NOTICE_DISMISSED_KEY) === "1");
-  }, []);
-  if (dismissed) return null;
-
-  return (
-    <div className="mx-2 mb-2 rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center justify-between">
-        <Badge>Beta</Badge>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label="Dismiss"
-          className="text-muted-foreground"
-          onClick={() => {
-            localStorage.setItem(BETA_NOTICE_DISMISSED_KEY, "1");
-            setDismissed(true);
-          }}
-        >
-          <X />
-        </Button>
-      </div>
-      <p className="mt-1.5 text-xs text-muted-foreground">
-        For more powerful AI workflows, use the OpenSEO MCP with your own agent
-        like Claude Code or Hermes.
-      </p>
-      <Link
-        to="/ai"
-        className="mt-1.5 inline-block text-xs text-primary underline-offset-4 hover:underline"
-      >
-        Set up the MCP →
-      </Link>
-    </div>
-  );
-}
 
 // Compact age label for the session list (PostHog-style "3h" / "12d").
 // Timestamps come back as UTC from both backends: D1 as "YYYY-MM-DD HH:MM:SS"
@@ -203,8 +158,7 @@ export function SamSidebarPanel({
           }
         </QueryState>
       </div>
-
-      <BetaNotice />
+      {/* Creative SEO: sem o lembrete do MCP; o agente saiu do beta (creative/DECISOES.md, regra 13). */}
     </div>
   );
 }
