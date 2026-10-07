@@ -43,8 +43,25 @@ describe("NOTA_DO_AGENTE", () => {
 
   it("pede português do Brasil e relatório de 15 a 25 KB", () => {
     expect(NOTA_DO_AGENTE).toContain("Brazilian Portuguese");
-    expect(NOTA_DO_AGENTE).toContain("15");
-    expect(NOTA_DO_AGENTE).toContain("25 KB");
+    expect(NOTA_DO_AGENTE).toContain("15 to 25 KB");
+  });
+
+  it("escreve a linha do link da resposta em português", () => {
+    expect(NOTA_DO_AGENTE).toContain("Leia o relatório completo: <url>");
+  });
+
+  // A skill seo-report manda linkar a documentação do original, e o domínio dele
+  // não é trocado pela camada de marca (creative/DECISOES.md, regra 3).
+  it("proíbe link para o domínio do original no relatório", () => {
+    // A nota é um blockquote: cada quebra de linha vem seguida de "> ".
+    expect(NOTA_DO_AGENTE).toMatch(/never link to[\s>]+openseo\.so/);
+    expect(NOTA_DO_AGENTE).toMatch(
+      /name[\s>]+the skill in plain text, with no link/,
+    );
+  });
+
+  it("proíbe apagar relatórios", () => {
+    expect(NOTA_DO_AGENTE).toContain("Never delete reports.");
   });
 
   // O relatório cortado é o risco principal: o servidor recusa o HTML sem
