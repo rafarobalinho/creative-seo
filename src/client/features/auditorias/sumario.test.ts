@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ancora, criarAncorador, sumarioDoMarkdown } from "./sumario";
+import { ancora, rehypeAncoras, sumarioDoMarkdown } from "./sumario";
 
 describe("ancora", () => {
   it("vira minúsculas separadas por hífen", () => {
@@ -77,19 +77,63 @@ describe("sumarioDoMarkdown", () => {
   });
 });
 
-describe("criarAncorador", () => {
-  it("repete a deduplicação do sumário para o título renderizado", () => {
-    const proxima = criarAncorador();
-    expect([proxima("Notas"), proxima("Outra"), proxima("Notas")]).toEqual([
-      "notas",
-      "outra",
-      "notas-2",
-    ]);
+type No = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: No[];
+};
+
+function h2(...children: No[]): No {
+  return { type: "element", tagName: "h2", properties: {}, children };
+}
+
+function texto(value: string): No {
+  return { type: "text", value };
+}
+
+function idsDosH2(arvore: No): unknown[] {
+  return (arvore.children ?? [])
+    .filter((n) => n.tagName === "h2")
+    .map((n) => n.properties?.id);
+}
+
+describe("rehypeAncoras", () => {
+  it("dá id aos h2 com a mesma deduplicação do sumário", () => {
+    const arvore: No = {
+      type: "root",
+      children: [
+        h2(texto("Notas")),
+        { type: "element", tagName: "h3", properties: {}, children: [] },
+        h2(texto("Outra")),
+        h2({
+          type: "element",
+          tagName: "strong",
+          properties: {},
+          children: [texto("Notas")],
+        }),
+      ],
+    };
+    rehypeAncoras()(arvore);
+    expect(idsDosH2(arvore)).toEqual(["notas", "outra", "notas-2"]);
+  });
+
+  it("cada documento recomeça a contagem, como num render repetido", () => {
+    const transformar = rehypeAncoras();
+    const primeira: No = { type: "root", children: [h2(texto("Notas"))] };
+    const segunda: No = { type: "root", children: [h2(texto("Notas"))] };
+    transformar(primeira);
+    transformar(segunda);
+    expect(idsDosH2(segunda)).toEqual(["notas"]);
   });
 
   it("título sem letra nem número ganha âncora não vazia", () => {
-    const proxima = criarAncorador();
-    expect(proxima("—")).toBe("secao");
-    expect(proxima("?")).toBe("secao-2");
+    const arvore: No = {
+      type: "root",
+      children: [h2(texto("—")), h2(texto("?"))],
+    };
+    rehypeAncoras()(arvore);
+    expect(idsDosH2(arvore)).toEqual(["secao", "secao-2"]);
   });
 });

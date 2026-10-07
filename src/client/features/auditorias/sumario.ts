@@ -12,10 +12,10 @@ export function ancora(titulo: string): string {
 }
 
 /**
- * Uma instância por documento: o sumário e o `<h2>` renderizado passam pelos
+ * Uma instância por documento: o sumário e o `rehypeAncoras` passam pelos
  * mesmos títulos na mesma ordem, então o mesmo contador dá o mesmo `-2`, `-3`.
  */
-export function criarAncorador(): (titulo: string) => string {
+function criarAncorador(): (titulo: string) => string {
   const vistos = new Map<string, number>();
   return (titulo) => {
     const base = ancora(titulo) || "secao";
@@ -63,4 +63,45 @@ export function sumarioDoMarkdown(
     if (titulo) itens.push({ titulo, ancora: proxima(titulo) });
   }
   return itens;
+}
+
+/** O pedaço da árvore hast que importa aqui; evita depender de `@types/hast`. */
+type NoHast = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: NoHast[];
+};
+
+/** O texto como o leitor o vê: imagem não é renderizada, então não conta. */
+function textoDoNo(no: NoHast): string {
+  if (no.type === "text") return no.value ?? "";
+  if (no.tagName === "img") return "";
+  return (no.children ?? []).map(textoDoNo).join("");
+}
+
+function anotarH2(no: NoHast, proxima: (titulo: string) => string): void {
+  for (const filho of no.children ?? []) {
+    if (filho.type === "element" && filho.tagName === "h2") {
+      filho.properties = {
+        ...filho.properties,
+        id: proxima(textoDoNo(filho)),
+      };
+    } else {
+      anotarH2(filho, proxima);
+    }
+  }
+}
+
+/**
+ * Plugin rehype: o `id` de cada `<h2>` sai numa passada só sobre a árvore,
+ * com um ancorador novo por documento. Contar dentro do render do componente
+ * deixava o `StrictMode`, que renderiza duas vezes, levar o primeiro "Notas"
+ * a `notas-2` enquanto o sumário apontava para `#notas`.
+ */
+export function rehypeAncoras() {
+  return (arvore: NoHast): void => {
+    anotarH2(arvore, criarAncorador());
+  };
 }

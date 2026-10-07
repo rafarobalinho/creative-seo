@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/client/components/ui/card";
 import { dataLonga, decimal, percentual } from "@/shared/auditorias/formatos";
 import type { ResumoScores } from "@/shared/auditorias/tipos";
 import { consultaCiclo } from "./consultas";
+import { ausenciaPorParametro } from "./parametros";
 import { EixosDoCiclo } from "./EixosDoCiclo";
 import { EntregaveisDoCiclo } from "./EntregaveisDoCiclo";
 import { EstadoAuditoria } from "./EstadoAuditoria";
@@ -57,7 +58,11 @@ export function PaginaCiclo({
   projectId: string;
   ciclo: string;
 }) {
-  const consulta = useQuery(consultaCiclo(projectId, ciclo));
+  const ausencia = ausenciaPorParametro(ciclo);
+  const consulta = useQuery({
+    ...consultaCiclo(projectId, ciclo),
+    enabled: ausencia === null,
+  });
   const dados = consulta.data;
 
   return (
@@ -81,7 +86,9 @@ export function PaginaCiclo({
             ) : undefined
           }
         />
-        {consulta.isPending ? (
+        {ausencia ? (
+          <EstadoAuditoria estado={ausencia} />
+        ) : consulta.isPending ? (
           <SkeletonPage />
         ) : consulta.isError ? (
           <QueryError

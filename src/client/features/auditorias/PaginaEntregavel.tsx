@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/client/components/ui/card";
 import { dataLonga } from "@/shared/auditorias/formatos";
 import type { Entregavel } from "@/shared/auditorias/tipos";
 import { consultaEntregavel } from "./consultas";
+import { ausenciaPorParametro } from "./parametros";
 import { EstadoAuditoria } from "./EstadoAuditoria";
 import { MarkdownAuditoria } from "./MarkdownAuditoria";
 import { sumarioDoMarkdown } from "./sumario";
@@ -105,7 +106,11 @@ export function PaginaEntregavel({
   ciclo: string;
   id: string;
 }) {
-  const consulta = useQuery(consultaEntregavel(projectId, ciclo, id));
+  const ausencia = ausenciaPorParametro(ciclo, id);
+  const consulta = useQuery({
+    ...consultaEntregavel(projectId, ciclo, id),
+    enabled: ausencia === null,
+  });
   const dados = consulta.data?.estado === "ok" ? consulta.data : null;
 
   return (
@@ -133,7 +138,9 @@ export function PaginaEntregavel({
             ) : undefined
           }
         />
-        {consulta.isPending ? (
+        {ausencia ? (
+          <EstadoAuditoria estado={ausencia} />
+        ) : consulta.isPending ? (
           <SkeletonPage />
         ) : consulta.isError ? (
           <QueryError

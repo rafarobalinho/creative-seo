@@ -6,14 +6,18 @@ import {
   lerConfigS3,
 } from "@/server/features/auditorias/LeitorCiclos";
 import { getOptionalEnvValue } from "@/server/lib/runtime-env";
+import {
+  PADRAO_CICLO,
+  PADRAO_ID_ENTREGAVEL,
+} from "@/shared/auditorias/padroes";
 import { requireProjectContext } from "@/serverFunctions/middleware";
 
 // Auditoria AEO nativa: leitura dos ciclos gravados no bucket. O domínio vem
 // sempre do projeto autorizado pelo middleware, nunca do navegador; o
 // `projectId` no validador é o que dispara a autorização do projeto.
 
-const cicloSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const idSchema = z.string().regex(/^[A-Za-z0-9:_-]{1,160}$/);
+const cicloSchema = z.string().regex(PADRAO_CICLO);
+const idSchema = z.string().regex(PADRAO_ID_ENTREGAVEL);
 
 const porProjetoSchema = z.object({ projectId: z.string().min(1) });
 const porCicloSchema = porProjetoSchema.extend({ ciclo: cicloSchema });
