@@ -91,6 +91,11 @@ obriga todo cliente a conectar de novo. O mesmo vale para as chaves de LLM
 workspace precisa colar a chave de novo em Configurações. Daí em diante, cada projeto conecta
 a própria conta pela tela, sem guia (`DECISOES.md`, regras 9 e 10).
 
+**Antes de mudar um comportamento herdado**, procure o porquê em
+`docs/maintainers/specs/`: o original registra ali cada funcionalidade e as
+alternativas que recusou. Exemplo: a spec 0014 explica por que o link público
+de relatório só existe no modo hosted.
+
 **Atualizar com o original:** o workflow `creative-sincroniza-upstream.yml`
 faz isso toda semana e abre PR. À mão:
 `git fetch upstream && git merge upstream/main`, regenerar os arquivos gerados,
