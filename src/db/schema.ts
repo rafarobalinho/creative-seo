@@ -3,6 +3,7 @@ import * as sqliteApp from "./app.schema";
 import * as sqliteProjectContext from "./project-context.schema";
 import * as sqliteReports from "./reports.schema";
 import * as sqliteWorkspaceLlmKey from "./workspace-llm-key.schema";
+import * as sqliteAeoAuditoria from "./aeo-auditoria.schema";
 import * as sqliteReportTemplates from "./report-templates.schema";
 import * as sqliteAudit from "./audit.schema";
 import * as sqliteSam from "./sam.schema";
@@ -15,6 +16,7 @@ import * as pgApp from "./pg/app.schema";
 import * as pgProjectContext from "./pg/project-context.schema";
 import * as pgReports from "./pg/reports.schema";
 import * as pgWorkspaceLlmKey from "./pg/workspace-llm-key.schema";
+import * as pgAeoAuditoria from "./pg/aeo-auditoria.schema";
 import * as pgReportTemplates from "./pg/report-templates.schema";
 import * as pgAudit from "./pg/audit.schema";
 import * as pgSam from "./pg/sam.schema";
@@ -38,6 +40,7 @@ type AppSchema = typeof sqliteApp &
   typeof sqliteProjectContext &
   typeof sqliteReports &
   typeof sqliteWorkspaceLlmKey &
+  typeof sqliteAeoAuditoria &
   typeof sqliteReportTemplates &
   typeof sqliteAudit &
   typeof sqliteSam &
@@ -54,6 +57,7 @@ const runtimeSchema =
         ...pgProjectContext,
         ...pgReports,
         ...pgWorkspaceLlmKey,
+        ...pgAeoAuditoria,
         ...pgReportTemplates,
         ...pgAudit,
         ...pgSam,
@@ -68,6 +72,7 @@ const runtimeSchema =
         ...sqliteProjectContext,
         ...sqliteReports,
         ...sqliteWorkspaceLlmKey,
+        ...sqliteAeoAuditoria,
         ...sqliteReportTemplates,
         ...sqliteAudit,
         ...sqliteSam,
@@ -103,6 +108,8 @@ export const {
   projectResearchLog,
   reports,
   workspaceLlmKey,
+  aeoCliente,
+  aeoRodada,
   reportTemplates,
   audits,
   auditPages,
