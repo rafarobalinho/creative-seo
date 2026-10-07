@@ -1,6 +1,11 @@
 import { FREE_MAX_AUDIT_PAGES } from "@/shared/audit-limits";
 import { isErrorCode, type ErrorCode } from "@/shared/error-codes";
 
+// A depleted DataForSEO balance reads the same in every section: the user cannot
+// fix it, only whoever administers the tool can.
+const SEARCH_DATA_LIMIT_MESSAGE =
+  "Search data is unavailable right now: the data account limit was reached. Talk to whoever administers the tool.";
+
 const STANDARD_MESSAGES: Record<ErrorCode, string> = {
   UNAUTHENTICATED: "Please sign in and try again.",
   AUTH_CONFIG_MISSING:
@@ -20,18 +25,17 @@ const STANDARD_MESSAGES: Record<ErrorCode, string> = {
   UNKNOWN_LOCATION:
     "We couldn't find that city, county, or region. Pick a location from the list, or clear the field to search the whole country.",
   CRAWL_TARGET_BLOCKED: "This crawl target is blocked by security policy.",
-  BACKLINKS_BILLING_ISSUE:
-    "The connected DataForSEO account has a billing or balance issue.",
-  AI_SEARCH_BILLING_ISSUE:
-    "The connected DataForSEO account has a billing or balance issue.",
+  BACKLINKS_BILLING_ISSUE: SEARCH_DATA_LIMIT_MESSAGE,
+  AI_SEARCH_BILLING_ISSUE: SEARCH_DATA_LIMIT_MESSAGE,
+  DATAFORSEO_BILLING_ISSUE: SEARCH_DATA_LIMIT_MESSAGE,
   DATAFORSEO_AUTH_FAILED:
-    "DataForSEO rejected the API key. Check that DATAFORSEO_API_KEY is the base64 of your DataForSEO login:password.",
+    "The search data connection was refused. Talk to whoever administers the tool.",
   RATE_LIMITED: "Too many requests. Please wait and try again.",
   UPSTREAM_UNAVAILABLE:
     "The data provider is temporarily unavailable. Please retry in a moment.",
   CONFLICT: "This request conflicts with existing data.",
   INTERNAL_ERROR:
-    "An unexpected error occurred. Please check server logs and try again.",
+    "Something went wrong. Try again; if it keeps happening, talk to whoever administers the tool.",
 };
 
 export function getStandardErrorMessage(

@@ -13,6 +13,23 @@ const BILLING_SIGNALS = [
 
 const BILLING_STATUS_CODES = new Set([40200, 40210, 402]);
 
+/**
+ * Fallback for the sections that have no billing classifier of their own
+ * (keywords, domain, SERP...). Only the status codes count here, never the
+ * message text: "Error While Checking the Balance" (50001) mentions the balance
+ * and is not a depleted one. Section classifiers run first and keep their own
+ * codes.
+ */
+export function classifyGenericDataforseoBilling(
+  status: number | undefined,
+): AppError | null {
+  if (status == null || !BILLING_STATUS_CODES.has(status)) return null;
+  return new AppError(
+    "DATAFORSEO_BILLING_ISSUE",
+    "The connected DataForSEO account has a billing or balance issue",
+  );
+}
+
 type DataforseoBillingClassifier = (
   status: number | undefined,
   details: string,

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { AppError } from "@/server/lib/errors";
 import type { DataforseoErrorClassifier } from "@/server/lib/dataforseo/core";
+import { classifyGenericDataforseoBilling } from "@/server/lib/dataforseoBillingClassification";
 import type { ErrorCode } from "@/shared/error-codes";
 
 // ---------------------------------------------------------------------------
@@ -229,6 +230,7 @@ export function assertOk<T extends DataforseoTaskLike>(
     const message = response.status_message || "DataForSEO request failed";
     throw (
       classify?.(response.status_code, message, classifyPath ?? "") ??
+      classifyGenericDataforseoBilling(response.status_code) ??
       new AppError("INTERNAL_ERROR", message)
     );
   }
@@ -243,7 +245,9 @@ export function assertOk<T extends DataforseoTaskLike>(
 
     const message = task.status_message || "DataForSEO task failed";
     const path = classifyPath ?? (task.path ? `/${task.path.join("/")}` : "");
-    const classified = classify?.(task.status_code, message, path);
+    const classified =
+      classify?.(task.status_code, message, path) ??
+      classifyGenericDataforseoBilling(task.status_code);
     if (classified) throw classified;
 
     const detailedMessage = describeInvalidField(message, task);

@@ -16,3 +16,9 @@ describe("shouldCaptureAppErrorCode", () => {
     expect(shouldCaptureAppErrorCode("AI_SEARCH_BILLING_ISSUE")).toBe(true);
   });
 });
+
+describe("DATAFORSEO_BILLING_ISSUE", () => {
+  it("stays reportable like the other billing codes", () => {
+    expect(shouldCaptureAppErrorCode("DATAFORSEO_BILLING_ISSUE")).toBe(true);
+  });
+});

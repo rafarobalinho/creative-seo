@@ -57,7 +57,19 @@ auditoria, vive no repositório do motor:
    tabela nova: a tabela própria vem com o banco do Creative SEO (Fase 4).
 10. **Usuário nunca é mandado ao guia de self-hosting.** Configurar o Google é
     tarefa do operador, uma vez (ver `README.md`). Se faltar, o aviso diz que a
-    conexão não está habilitada e pede para falar com quem administra.
+    conexão não está habilitada e pede para falar com quem administra. A regra
+    vale também para o DataForSEO, o provedor dos dados de pesquisa: o aviso de
+    chave ausente, o aviso de conexão não confirmada, a janela "Dados de
+    pesquisa indisponíveis" (um botão, "Entendi", sem link), as mensagens de
+    erro (chave recusada, erro interno) e o saldo zerado dizem o efeito e pedem
+    para falar com quem administra a ferramenta; nenhum fala em DataForSEO,
+    chave de API, Base64 ou logs do servidor. O saldo zerado tem código próprio
+    (`DATAFORSEO_BILLING_ISSUE`) e vale em todas as seções, não só em
+    backlinks e busca por IA (os classificadores dessas duas seguem com o código
+    delas). A página `/help/dataforseo-api-key` continua existindo, só para o
+    operador: nada na interface leva a ela. Arquivos do original tocados:
+    `AppShellParts.tsx`, `error-messages.ts`, `error-codes.ts`, `envelope.ts`,
+    `core.ts` e `dataforseoBillingClassification.ts`.
 11. **"Salvar como relatório" grava um retrato, não um link para a página viva**
     (decidido em 2026-10-06). Nas páginas de domínio, backlinks,
     palavras-chave, auditoria e monitor de posições, o botão grava o que está

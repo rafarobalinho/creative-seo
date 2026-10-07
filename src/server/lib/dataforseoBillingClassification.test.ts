@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createDataforseoBillingClassifier } from "@/server/lib/dataforseoBillingClassification";
+import {
+  classifyGenericDataforseoBilling,
+  createDataforseoBillingClassifier,
+} from "@/server/lib/dataforseoBillingClassification";
 
 const classify = createDataforseoBillingClassifier({
   pathPrefix: "/backlinks/",
@@ -40,5 +43,17 @@ describe("createDataforseoBillingClassifier", () => {
       "/v3/backlinks/summary/live",
     );
     expect(err?.code).toBe("BACKLINKS_BILLING_ISSUE");
+  });
+});
+
+describe("classifyGenericDataforseoBilling", () => {
+  it.each([40200, 40210, 402])("maps billing status %s", (status) => {
+    expect(classifyGenericDataforseoBilling(status)?.code).toBe(
+      "DATAFORSEO_BILLING_ISSUE",
+    );
+  });
+
+  it.each([undefined, 500, 50001, 40501])("ignores status %s", (status) => {
+    expect(classifyGenericDataforseoBilling(status)).toBe(null);
   });
 });

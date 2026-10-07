@@ -141,3 +141,61 @@ describe("assertOk", () => {
     }
   });
 });
+
+describe("assertOk: depleted balance outside the classified sections", () => {
+  const keywordsPath = [
+    "v3",
+    "dataforseo_labs",
+    "google",
+    "keyword_ideas",
+    "live",
+  ];
+
+  it.each([40200, 40210, 402])(
+    "maps task status %s on a labs path to DATAFORSEO_BILLING_ISSUE, even when billed",
+    (status_code) => {
+      const task = {
+        status_code,
+        status_message: "Payment Required.",
+        path: keywordsPath,
+        cost: 0.05,
+      };
+      expect.assertions(2);
+      try {
+        assertOk({ status_code: 20000, tasks: [task] });
+      } catch (error) {
+        expect(error).not.toBeInstanceOf(DataforseoChargedTaskError);
+        expect(error).toMatchObject({ code: "DATAFORSEO_BILLING_ISSUE" });
+      }
+    },
+  );
+
+  it("maps a top-level billing status to DATAFORSEO_BILLING_ISSUE", () => {
+    expect(() =>
+      assertOk({ status_code: 40200, status_message: "Payment Required." }),
+    ).toThrow(expect.objectContaining({ code: "DATAFORSEO_BILLING_ISSUE" }));
+  });
+
+  it("keeps the section classifier code when it recognises the failure", () => {
+    const classify = () => new AppError("BACKLINKS_BILLING_ISSUE", "x");
+    const task = {
+      status_code: 40200,
+      status_message: "Payment Required.",
+      path: ["v3", "backlinks", "summary", "live"],
+    };
+    expect(() =>
+      assertOk({ status_code: 20000, tasks: [task] }, { classify }),
+    ).toThrow(expect.objectContaining({ code: "BACKLINKS_BILLING_ISSUE" }));
+  });
+
+  it("does not read a balance word in the message as a depleted balance", () => {
+    const task = {
+      status_code: 50001,
+      status_message: "Error While Checking the Balance.",
+      path: keywordsPath,
+    };
+    expect(() => assertOk({ status_code: 20000, tasks: [task] })).toThrow(
+      expect.objectContaining({ code: "INTERNAL_ERROR" }),
+    );
+  });
+});

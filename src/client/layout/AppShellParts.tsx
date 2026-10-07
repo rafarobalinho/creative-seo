@@ -1,7 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ExternalLink } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { AppBanner } from "@/client/layout/AppBanner";
-import { dataforseoHelpLinkOptions } from "@/client/navigation/items";
 import { Button } from "@/client/components/ui/button";
 import {
   Dialog,
@@ -20,27 +18,19 @@ function SeoApiStatusBanners({
   seoApiKeyStatusError: boolean;
 }) {
   const icon = <AlertTriangle className="size-4 shrink-0" />;
-  const helpLink = (
-    <Link
-      {...dataforseoHelpLinkOptions}
-      className="font-medium text-primary underline-offset-4 hover:underline"
-    >
-      help page
-    </Link>
-  );
   return (
     <>
       {shouldShowSeoApiWarning ? (
         <AppBanner variant="warning" icon={icon}>
-          Setup needed: add your DataForSEO API key to use OpenSEO features. See
-          the quick steps on the {helpLink}.
+          Search data is not available in this installation yet. Talk to whoever
+          administers the tool.
         </AppBanner>
       ) : null}
 
       {seoApiKeyStatusError ? (
         <AppBanner variant="info" icon={icon}>
-          We could not verify your DataForSEO setup. If features are not
-          working, check the setup steps on the {helpLink}.
+          We could not confirm the search data connection. If tools stop
+          responding, talk to whoever administers the tool.
         </AppBanner>
       ) : null}
     </>
@@ -56,23 +46,15 @@ function MissingSeoSetupModal({ onClose }: { onClose: () => void }) {
             <AlertTriangle className="size-5" />
           </div>
           <div className="space-y-2">
-            <DialogTitle>One quick setup step</DialogTitle>
+            <DialogTitle>Search data unavailable</DialogTitle>
             <DialogDescription>
-              Add your DataForSEO API key to start using OpenSEO.
+              Search data is not available in this installation yet. Talk to
+              whoever administers the tool.
             </DialogDescription>
           </div>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
-            Dismiss
-          </Button>
-          <Button
-            nativeButton={false}
-            render={<Link {...dataforseoHelpLinkOptions} onClick={onClose} />}
-          >
-            Open setup guide
-            <ExternalLink className="size-4" />
-          </Button>
+          <Button onClick={onClose}>Got it</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
