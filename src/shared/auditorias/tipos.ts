@@ -36,3 +36,37 @@ export type ResumoScores = {
   eixosIndisponiveis: { eixo: string; motivo: string }[];
   eixos: EixoResumido[];
 };
+
+export type FalhaAuditoria =
+  | { estado: "sem-vinculo" }
+  | { estado: "falha-leitura"; motivo: "sem-credencial" | "bucket" };
+
+export type CicloListado = {
+  ciclo: string;
+  temScores: boolean;
+  temProbe: boolean;
+  temBenchmark: boolean;
+  entregaveis: number;
+};
+
+export type ResultadoCiclos =
+  | FalhaAuditoria
+  | { estado: "ok"; cliente: string; ciclos: CicloListado[] };
+
+export type ResultadoCiclo =
+  | FalhaAuditoria
+  | { estado: "ciclo-ausente" }
+  | {
+      estado: "ok";
+      cliente: string;
+      ciclo: string;
+      resumo: ResumoScores | null;
+      temProbe: boolean;
+      temBenchmark: boolean;
+      entregaveis: Entregavel[];
+    };
+
+export type ResultadoEntregavel =
+  | FalhaAuditoria
+  | { estado: "ausente" }
+  | { estado: "ok"; entregavel: Entregavel; texto: string };
