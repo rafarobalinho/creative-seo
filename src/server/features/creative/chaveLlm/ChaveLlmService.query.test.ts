@@ -349,3 +349,58 @@ describe("ChaveLlmService.remover e trocarModelo", () => {
     });
   });
 });
+
+describe("ChaveLlmService.resumo, estado da chave", () => {
+  it("valida dá ok, com limite e uso", async () => {
+    await salvar(CHAVE_A);
+
+    const resumo = await ChaveLlmService.resumo(ORG);
+
+    expect(resumo).toMatchObject({ estado: "ok", limite: 10, usado: 1 });
+    expect(JSON.stringify(resumo)).not.toContain(CHAVE_A);
+  });
+
+  it.each([["recusada"], ["indisponivel"]] as const)(
+    "consulta %s vira o estado e zera limite e uso",
+    async (tipo) => {
+      await salvar(CHAVE_A);
+      simulados.consultarChave.mockResolvedValue({ tipo });
+
+      const resumo = await ChaveLlmService.resumo(ORG);
+
+      expect(resumo).toMatchObject({ estado: tipo, limite: null, usado: null });
+      expect(JSON.stringify(resumo)).not.toContain(CHAVE_A);
+    },
+  );
+
+  it("chave que não abre dá ilegivel, sem consultar o OpenRouter", async () => {
+    await client.execute({
+      sql: `INSERT INTO workspace_llm_key
+        (organization_id, provider, encrypted_key, key_suffix, updated_by_user_id)
+        VALUES (?, 'openrouter', 'lixo', '1234', 'user_1')`,
+      args: [ORG],
+    });
+    simulados.consultarChave.mockClear();
+
+    const resumo = await ChaveLlmService.resumo(ORG);
+
+    expect(resumo).toMatchObject({
+      estado: "ilegivel",
+      limite: null,
+      usado: null,
+    });
+    expect(simulados.consultarChave).not.toHaveBeenCalled();
+    expect(JSON.stringify(resumo)).not.toContain("lixo");
+  });
+
+  it("salvar e trocarModelo devolvem ok", async () => {
+    expect(await salvar(CHAVE_A)).toMatchObject({ estado: "ok" });
+    expect(
+      await ChaveLlmService.trocarModelo({
+        organizationId: ORG,
+        userId: "user_1",
+        modelo: null,
+      }),
+    ).toMatchObject({ estado: "ok" });
+  });
+});

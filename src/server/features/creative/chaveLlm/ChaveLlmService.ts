@@ -40,6 +40,8 @@ export type ResumoDaChave = {
   atualizadoEm: string;
   limite: number | null;
   usado: number | null;
+  // Por que limite e uso podem faltar: a tela avisa em vez de parecer saudável.
+  estado: "ok" | "ilegivel" | "recusada" | "indisponivel";
 };
 
 export type ChaveParaUso =
@@ -93,12 +95,14 @@ async function validarModelo(modelo: string | null) {
 
 async function montarResumo(
   linha: Linha,
-  consulta: ConsultaDaChave | null,
+  consulta: ConsultaDaChave | "ilegivel",
 ): Promise<ResumoDaChave> {
   const [autor] = await AuthRepository.getHostedUserNames([
     linha.updatedByUserId,
   ]);
-  const valida = consulta?.tipo === "valida" ? consulta : null;
+  const tipo = consulta === "ilegivel" ? consulta : consulta.tipo;
+  const valida =
+    consulta !== "ilegivel" && consulta.tipo === "valida" ? consulta : null;
   return {
     provedor: PROVEDOR,
     final: linha.keySuffix,
@@ -107,12 +111,13 @@ async function montarResumo(
     atualizadoEm: linha.updatedAt,
     limite: valida?.limite ?? null,
     usado: valida?.usado ?? null,
+    estado: tipo === "valida" ? "ok" : tipo,
   };
 }
 
 async function consultarLinha(linha: Linha) {
   const chave = await abrir(linha);
-  return chave === null ? null : consultarChave(chave);
+  return chave === null ? "ilegivel" : consultarChave(chave);
 }
 
 async function resumo(organizationId: string): Promise<ResumoDaChave | null> {
