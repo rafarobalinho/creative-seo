@@ -16,9 +16,6 @@ import {
 import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import { getSignInHref, getSignInHrefForLocation } from "@/lib/auth-redirect";
 
-const CLOUDFLARE_SETUP_GUIDE_URL =
-  "https://github.com/every-app/open-seo/blob/main/docs/SELF_HOSTING_CLOUDFLARE.md#2-configure-authentication-and-secrets";
-
 type CardProps = {
   message: string;
   onRetry: () => void;
@@ -59,11 +56,6 @@ export function AuthErrorCard({
 }
 
 function AuthConfigErrorCard({ message, onRetry }: CardProps) {
-  // Only name a mode's settings when the client build names that mode. With
-  // AUTH_MODE unset here the server mode is unknown, and the alert above
-  // already carries the server's exact message.
-  const clientAuthMode = import.meta.env.AUTH_MODE;
-
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
@@ -76,39 +68,10 @@ function AuthConfigErrorCard({ message, onRetry }: CardProps) {
         <Alert variant="destructive">
           <AlertDescription>{message}</AlertDescription>
         </Alert>
-
-        {clientAuthMode === "hosted" ? (
-          <p className="text-muted-foreground">
-            Hosted mode requires{" "}
-            <code className="mx-1">BETTER_AUTH_SECRET</code>
-            (32+ characters), <code className="mx-1">BETTER_AUTH_URL</code>, and
-            Google OAuth credentials on the deployment.
-          </p>
-        ) : null}
-        {clientAuthMode === "cloudflare_access" ? (
-          <p className="text-muted-foreground">
-            Cloudflare Access mode requires
-            <code className="mx-1">TEAM_DOMAIN</code> (a full https URL) and
-            <code className="mx-1">POLICY_AUD</code> set on the deployment, with
-            an Access application protecting this hostname.
-          </p>
-        ) : null}
       </CardContent>
       <CardFooter className="justify-end gap-2">
         <Button variant="ghost" onClick={onRetry}>
           Try Again
-        </Button>
-        <Button
-          nativeButton={false}
-          render={
-            <a
-              href={CLOUDFLARE_SETUP_GUIDE_URL}
-              target="_blank"
-              rel="noreferrer"
-            />
-          }
-        >
-          Open Setup Guide
         </Button>
       </CardFooter>
     </Card>

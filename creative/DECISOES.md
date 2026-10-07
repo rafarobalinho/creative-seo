@@ -66,8 +66,13 @@ auditoria, vive no repositório do motor:
     chave de API, Base64 ou logs do servidor. O saldo zerado tem código próprio
     (`DATAFORSEO_BILLING_ISSUE`) e vale em todas as seções, não só em
     backlinks e busca por IA (os classificadores dessas duas seguem com o código
-    delas). A página `/help/dataforseo-api-key` continua existindo, só para o
-    operador: nada na interface leva a ela. Arquivos do original tocados:
+    delas). A tela de erro de autenticação (`AuthErrorCard`) também saiu
+    do guia: sem botão para o GitHub e sem `TEAM_DOMAIN`/`POLICY_AUD`, só
+    "tentar novamente". Ficam técnicas de propósito as superfícies só do
+    operador: a página `/help/dataforseo-api-key` (nada na interface leva a
+    ela) e o `setup-status`. As instruções ao dono do site em `audit-issues.ts`
+    ("verifique os logs do servidor" para erro 5xx do site auditado) falam do
+    site do cliente, não da instalação, e não entram na regra. Arquivos do original tocados:
     `AppShellParts.tsx`, `error-messages.ts`, `error-codes.ts`, `envelope.ts`,
     `core.ts` e `dataforseoBillingClassification.ts`.
 11. **"Salvar como relatório" grava um retrato, não um link para a página viva**

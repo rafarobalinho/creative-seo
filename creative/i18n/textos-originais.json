@@ -445,9 +445,6 @@
     "chave": "An active project named \"Default\" with no domain already exists. Rename it first, then restore this one."
   },
   {
-    "chave": "An unexpected error occurred. Please check server logs."
-  },
-  {
     "chave": "Analytics"
   },
   {
@@ -660,12 +657,6 @@
   },
   {
     "chave": "BE"
-  },
-  {
-    "chave": "BETTER_AUTH_SECRET"
-  },
-  {
-    "chave": "BETTER_AUTH_URL"
   },
   {
     "chave": "BETTER_AUTH_URL must use https or localhost"
@@ -1141,9 +1132,6 @@
   },
   {
     "chave": "Close {0} tab"
-  },
-  {
-    "chave": "Cloudflare Access mode requires{0} (a full https URL) and{1} set on the deployment, with an Access application protecting this hostname."
   },
   {
     "chave": "Cloudflare Access token rejected: audience mismatch. POLICY_AUD does not match your Access application's AUD tag — copy it from Zero Trust -> Access controls -> Applications -> Configure -> Additional settings."
@@ -2668,9 +2656,6 @@
     "chave": "Hong Kong"
   },
   {
-    "chave": "Hosted mode requires{0}{1}(32+ characters), {2}, and Google OAuth credentials on the deployment."
-  },
-  {
     "chave": "How To Fix"
   },
   {
@@ -4145,9 +4130,6 @@
     "chave": "Open OpenRouter Keys"
   },
   {
-    "chave": "Open Setup Guide"
-  },
-  {
     "chave": "Open a new Google Sheet and paste to fill it."
   },
   {
@@ -4269,9 +4251,6 @@
   },
   {
     "chave": "PL"
-  },
-  {
-    "chave": "POLICY_AUD"
   },
   {
     "chave": "PS"
@@ -5720,9 +5699,6 @@
   },
   {
     "chave": "TBT"
-  },
-  {
-    "chave": "TEAM_DOMAIN"
   },
   {
     "chave": "TH"
