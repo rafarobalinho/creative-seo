@@ -74,13 +74,18 @@ auditoria, vive no repositório do motor:
     `SamSetupGate.tsx` (o link de ajuda leva às Configurações) e o comentário
     de `useSamAccess.ts`.
 13. **O agente do app escreve relatórios em português do Brasil, com a skill
-    `seo-report`, e nunca apaga nada** (decidido em 2026-10-06). Ele grava com
+    `seo-report`, e não apaga relatórios nem mexe nos modelos** (decidido em
+    2026-10-06; os relatórios vão para clientes e prospects brasileiros, e
+    dados de terceiros ficam como vêm). Ele grava com
     `save_report` sob o rótulo "Agente Creative SEO", lê relatórios e modelos
     (`list_reports`, `get_report`, `list_report_templates`), mas não apaga
-    relatórios nem cria ou apaga modelos: o que ele escreve é rascunho que um
-    humano revisa antes de chegar ao cliente. O aviso de beta e o lembrete do
-    MCP na barra lateral saíram, porque o agente é a interface e não há mais
-    outra a que apontar. O botão "Gerar relatório" leva o pedido no estado de
+    relatórios nem cria ou apaga modelos: apagar e configurar continuam sendo
+    ações de tela. A nota manda mirar 15 a 25 KB, e o limite de saída por
+    passo do agente subiu de 16 mil para 24 mil tokens, para que o HTML
+    escrito num passo só não seja cortado. O aviso de beta e o lembrete do MCP
+    na barra lateral saíram, porque o agente passou a ser recurso oficial e o
+    aviso era um clique a mais sem informação nova; quem prefere o Claude Code
+    continua com a Configuração do agente no menu. O botão "Gerar relatório" leva o pedido no estado de
     navegação do roteador, não na URL; a página do agente cria uma conversa
     nova e o envia uma única vez. Limitação: recarregar durante a criação da
     conversa, ou depois de uma criação que falhou, cria a conversa de novo e
