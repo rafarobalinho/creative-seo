@@ -3,6 +3,7 @@ import { PageHeader } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { GerarRelatorio } from "@/client/features/creative/GerarRelatorio";
 import { ReportsList } from "@/client/features/reports/ReportsList";
 import {
   DeleteReportModal,
@@ -43,18 +44,22 @@ function ReportsPage() {
           title="Reports"
           description="HTML reports your agents saved to this project."
           actions={
-            <Button
-              variant="ghost"
-              nativeButton={false}
-              render={
-                <Link
-                  to="/p/$projectId/reports/templates"
-                  params={{ projectId }}
-                />
-              }
-            >
-              Templates
-            </Button>
+            <>
+              {/* Creative SEO: pede o relatório ao agente do app (creative/DECISOES.md, regra 13). */}
+              <GerarRelatorio projectId={projectId} />
+              <Button
+                variant="ghost"
+                nativeButton={false}
+                render={
+                  <Link
+                    to="/p/$projectId/reports/templates"
+                    params={{ projectId }}
+                  />
+                }
+              >
+                Templates
+              </Button>
+            </>
           }
         />
 

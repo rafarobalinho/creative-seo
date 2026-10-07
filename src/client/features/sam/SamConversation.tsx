@@ -15,6 +15,8 @@ import {
   messageHasVisibleContent,
 } from "@/client/components/chat/ChatMessage";
 import { useStickToBottom } from "@/client/components/chat/useStickToBottom";
+// Creative SEO: decide o envio do pedido (creative/DECISOES.md, regra 13).
+import { deveEnviarPedido } from "@/client/features/creative/pedidoDeRelatorio";
 
 const SUGGESTIONS = [
   "What keywords should I focus on next?",
@@ -26,9 +28,14 @@ const SUGGESTIONS = [
 export function SamConversation({
   projectId,
   sessionId,
+  pedidoInicial,
+  aoEnviarPedido,
 }: {
   projectId: string;
   sessionId: string;
+  // Creative SEO: pedido de relatório que chega pronto (creative/DECISOES.md, regra 13).
+  pedidoInicial?: string;
+  aoEnviarPedido?: () => void;
 }) {
   // The conversation lives in the SamChatAgent Durable Object, keyed by the
   // session id. The WebSocket is authorized in the Worker (src/server.ts) before
@@ -70,6 +77,27 @@ export function SamConversation({
     });
     void sendMessage({ text });
   };
+
+  // Creative SEO: o pedido entra uma vez, só em conversa vazia (creative/DECISOES.md, regra 13).
+  // Sem lista de dependências: sendText muda a cada render, e o ref e
+  // deveEnviarPedido é que impedem o reenvio.
+  const pedidoEnviado = useRef(false);
+  useEffect(() => {
+    if (
+      pedidoInicial === undefined ||
+      !deveEnviarPedido({
+        pedido: pedidoInicial,
+        quantidadeDeMensagens: messages.length,
+        jaEnviado: pedidoEnviado.current,
+        ocupado: isBusy,
+      })
+    ) {
+      return;
+    }
+    pedidoEnviado.current = true;
+    sendText(pedidoInicial, "suggestion");
+    aoEnviarPedido?.();
+  });
 
   // What the user sees as a failure: the turn-level error banner below, or
   // the socket dropping (code/reason from the close frame). The server side

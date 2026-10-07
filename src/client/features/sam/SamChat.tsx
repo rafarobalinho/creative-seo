@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+// Creative SEO: useLocation lê o pedido de relatório (creative/DECISOES.md, regra 13).
+import { Link, useLocation } from "@tanstack/react-router";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Brain } from "lucide-react";
 import { QueryError } from "@/client/components/QueryState";
@@ -10,6 +11,11 @@ import { optInToSamBeta, useSamBetaOptIn } from "./samBetaOptIn";
 import { SamBetaGate } from "./SamBetaGate";
 import { SamSetupGate } from "./SamSetupGate";
 import { SamConversation } from "./SamConversation";
+// Creative SEO: pouso e chave do pedido de relatório (creative/DECISOES.md, regra 13).
+import {
+  ESTADO_DO_PEDIDO,
+  decidirPouso,
+} from "@/client/features/creative/pedidoDeRelatorio";
 
 /**
  * The SAM route's content: the active conversation, full-width. The chat
@@ -43,19 +49,63 @@ export function SamChat({
         creating.current = false;
       },
     });
-  const { mutate: createSessionMutate } = createSession;
+  // Creative SEO: o pedido de relatório chega no estado de navegação e ganha
+  // conversa nova (creative/DECISOES.md, regra 13). O ref guarda o texto
+  // porque a navegação `replace` do goToSession limpa o estado; é essa
+  // limpeza que impede o reenvio ao recarregar.
+  const pedidoNoEstado = useLocation({
+    select: (location) => location.state[ESTADO_DO_PEDIDO],
+  });
+  const pedido = useRef<string | undefined>(undefined);
+  if (pedidoNoEstado !== undefined) pedido.current = pedidoNoEstado;
+  // Só a conversa criada para o pedido o recebe, nunca uma antiga.
+  const [pedidoDaConversa, setPedidoDaConversa] = useState<{
+    sessionId: string;
+    texto: string;
+  }>();
+  // Ligado do início da criação da conversa do pedido até o envio ou um erro:
+  // `creating` volta a falso no fim da criação, antes de a navegação limpar o
+  // estado, e sozinho deixaria o pouso criar uma segunda conversa.
+  const pedidoEmCriacao = useRef(false);
+  const limparPedido = useCallback(() => {
+    pedido.current = undefined;
+    pedidoEmCriacao.current = false;
+    setPedidoDaConversa(undefined);
+  }, []);
+
+  const { mutate: createSessionMutate, mutateAsync: createSessionAsync } =
+    createSession;
   const startChat = useCallback(() => {
     creating.current = true;
     setCreateError(null);
-    createSessionMutate();
-  }, [createSessionMutate]);
+    const texto = pedido.current;
+    if (texto === undefined) {
+      createSessionMutate();
+      return;
+    }
+    pedidoEmCriacao.current = true;
+    // O erro já chega a setCreateError pelo onError do hook.
+    createSessionAsync().then(
+      ({ id }) => setPedidoDaConversa({ sessionId: id, texto }),
+      () => {
+        pedidoEmCriacao.current = false;
+      },
+    );
+  }, [createSessionMutate, createSessionAsync]);
 
   // Landing without a session: open the most recent one, or start a fresh
   // chat when the project has none.
   const firstSessionId = sessions[0]?.id;
   useEffect(() => {
-    if (activeSessionId || !optedIn || access.status !== "ready") return;
-    if (firstSessionId) {
+    if (!optedIn || access.status !== "ready") return;
+    const pouso = decidirPouso({
+      temPedido: pedidoNoEstado !== undefined,
+      criacaoEmAndamento: pedidoEmCriacao.current,
+      sessaoAtiva: activeSessionId,
+      primeiraSessao: firstSessionId,
+    });
+    if (pouso === "nada") return;
+    if (pouso === "abrir-primeira" && firstSessionId) {
       goToSession(firstSessionId);
       return;
     }
@@ -66,6 +116,7 @@ export function SamChat({
     optedIn,
     access.status,
     firstSessionId,
+    pedidoNoEstado,
     sessionsQuery.isSuccess,
     goToSession,
     startChat,
@@ -209,6 +260,12 @@ export function SamChat({
             key={activeSessionId}
             projectId={projectId}
             sessionId={activeSessionId}
+            pedidoInicial={
+              pedidoDaConversa?.sessionId === activeSessionId
+                ? pedidoDaConversa.texto
+                : undefined
+            }
+            aoEnviarPedido={limparPedido}
           />
         </Suspense>
       </div>

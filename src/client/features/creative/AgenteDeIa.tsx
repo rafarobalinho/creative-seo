@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { QueryState } from "@/client/components/QueryState";
 import { ConfirmDialog } from "@/client/components/ConfirmDialog";
 import { SectionHeader } from "@/client/components/PageHeader";
+import { AvisoDoEstadoDaChave } from "./AvisoDoEstadoDaChave";
 import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Button } from "@/client/components/ui/button";
 import { Input } from "@/client/components/ui/input";
@@ -357,6 +358,7 @@ export function AgenteDeIa() {
                   </p>
                 ) : null}
               </div>
+              <AvisoDoEstadoDaChave estado={resumo.estado} />
               {resumo.usado !== null && resumo.limite === null ? (
                 <Alert variant="warning">
                   <AlertDescription>

@@ -13,24 +13,15 @@ const subscribe = (listener: () => void) => {
   listeners.add(listener);
   return () => listeners.delete(listener);
 };
-// Opting in is one-way, so the in-memory flag wins. It covers a localStorage
-// that cannot read or store (private browsing, strict modes, a full quota).
-let optedInThisSession = false;
-const read = () => {
-  if (optedInThisSession) return true;
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-};
+// Creative SEO: o agente saiu do beta e não pede mais aceite; sem a leitura,
+// a marca em memória deixou de existir (creative/DECISOES.md, regra 13).
+const read = () => true;
 
 export function optInToSamBeta() {
-  optedInThisSession = true;
   try {
     localStorage.setItem(STORAGE_KEY, "1");
   } catch {
-    // Kept in memory above.
+    // Creative SEO: falhar aqui não importa, a leitura já devolve true (creative/DECISOES.md, regra 13).
   }
   captureClientEvent("sam:beta_opt_in");
   listeners.forEach((listener) => listener());

@@ -73,6 +73,43 @@ auditoria, vive no repositório do motor:
     `samTurnTelemetry.ts`, `samAccess.ts`, `settings/index.tsx`,
     `SamSetupGate.tsx` (o link de ajuda leva às Configurações) e o comentário
     de `useSamAccess.ts`.
+13. **O agente do app escreve relatórios em português do Brasil, com a skill
+    `seo-report`, e não substitui nem apaga relatórios nem mexe nos modelos**
+    (decidido em 2026-10-06; os relatórios vão para clientes e prospects
+    brasileiros, e dados de terceiros ficam como vêm). Ele grava com
+    `save_report` sob o rótulo "Agente Creative SEO", lê relatórios e modelos
+    (`list_reports`, `get_report`, `list_report_templates`), mas não apaga
+    relatórios nem cria ou apaga modelos: apagar e configurar continuam sendo
+    ações de tela. Também nunca substitui um relatório: o `save_report` dele
+    não tem o campo `reportId` (que sobrescreve o HTML sem desfazer), e a nota
+    manda sempre criar um novo e, se o título já existir, mudar o título; a
+    ferramenta do MCP externo continua igual. O prompt de sistema manda
+    responder sempre em português do Brasil, também na conversa sem skill.
+    A nota manda mirar 15 a 25 KB, acima da orientação de 80 KB da skill e da
+    ferramenta, e regenerar mais curto qualquer falha no argumento `html`; o limite de saída por
+    passo do agente subiu de 16 mil para 24 mil tokens, para que o HTML
+    escrito num passo só não seja cortado. O aviso de beta e o lembrete do MCP
+    na barra lateral saíram, porque o agente passou a ser recurso oficial e o
+    aviso era um clique a mais sem informação nova; quem prefere o Claude Code
+    continua com a Configuração do agente no menu. O botão "Gerar relatório" leva o pedido no estado de
+    navegação do roteador, não na URL; a página do agente cria uma conversa
+    nova e o envia uma única vez. Limitação: recarregar durante a criação da
+    conversa, ou depois de uma criação que falhou, cria a conversa de novo e
+    reenvia o pedido. **Risco latente:** a nota do agente
+    (`src/server/features/creative/agente/notaDoAgente.ts`) proíbe links para
+    `openseo.so`, e a camada de marca só deixa esse domínio intocado enquanto
+    `dominio` é nulo em `creative/marca.json`. No dia em que `dominio` ganhar
+    valor, a camada passará a reescrevê-lo para o nosso domínio e a nota
+    proibiria o nosso próprio; reescreva essa frase da nota nesse momento. O
+    código fica em `src/server/features/creative/agente/` (com
+    `ferramentas.ts`, o `save_report` sem `reportId`),
+    `src/client/features/creative/pedidoDeRelatorio.ts`, `GerarRelatorio.tsx`,
+    `VoltarAoMenu.tsx` e `AvisoDoEstadoDaChave.tsx`. Arquivos do original
+    tocados: `samChatTools.ts`, `SamChatAgent.ts`, `samSkills.ts`,
+    `samSystemPrompt.ts`, `openseo-fact-sheet.md`, `samBetaOptIn.ts`,
+    `SamChat.tsx`, `SamConversation.tsx`, `SamSidebarPanel.tsx`,
+    `reports/index.tsx`, `items.ts` (o item "Agent" no menu) e os testes
+    `samChatTools.test.ts` e `samSkills.test.ts`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
