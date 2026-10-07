@@ -11,7 +11,8 @@ import { REPORT_MAX_HTML_BYTES } from "@/types/schemas/reports";
 import { montarDocumento, regraUsada } from "./retrato";
 
 // Creative SEO: grava o que está na tela como relatório. Dali, a página do
-// relatório já oferece o PDF e o link público. Ver creative/DECISOES.md.
+// relatório já oferece o PDF. O link público só existe no modo hosted (regra 11
+// de creative/DECISOES.md).
 
 const PAGINAS = {
   "/_app/p/$projectId/domain": {
@@ -170,7 +171,7 @@ export function SalvarComoRelatorio({ projectId }: { projectId: string }) {
       void queryClient.invalidateQueries({
         queryKey: reportsQueryKey(projectId),
       });
-      toast.success("Relatório salvo. Dele saem o PDF e o link público.");
+      toast.success("Relatório salvo. Use Exportar para gerar o PDF.");
       void navigate({
         to: "/p/$projectId/reports/$reportId",
         params: { projectId, reportId },

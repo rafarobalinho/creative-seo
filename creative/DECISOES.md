@@ -52,7 +52,12 @@ auditoria, vive no repositório do motor:
     (decidido em 2026-10-06). Nas páginas de domínio, backlinks,
     palavras-chave, auditoria e monitor de posições, o botão grava o que está
     na tela pelo mesmo `ReportService.saveReport` do `save_report` do MCP.
-    PDF e link público saem da página do relatório, que já existia. A página
+    O PDF sai da página do relatório, que já existia ("Exportar"). O link
+    público **não** existe neste deploy: o original o restringe ao modo
+    hosted (`sharesEnabled()` em `shareAccess.ts`; desenho em
+    `docs/maintainers/specs/0014-public-share-links.md`), porque atrás do
+    Access o leitor sem login não abriria o link. Ele liga sozinho quando o
+    Creative SEO passar ao modo hosted (Fase 5). A página
     viva pediria login, gastaria DataForSEO a cada visita e mudaria depois de
     enviada; o retrato fica como registro do que o prospect recebeu. O gancho é
     `src/routes/_app/p/$projectId/route.tsx`, que renderiza o botão ao lado da
