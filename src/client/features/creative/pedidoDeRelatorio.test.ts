@@ -104,6 +104,7 @@ describe("decidirPouso", () => {
     expect(
       decidirPouso({
         temPedido: true,
+        criacaoEmAndamento: false,
         sessaoAtiva: undefined,
         primeiraSessao: "antiga",
       }),
@@ -114,16 +115,31 @@ describe("decidirPouso", () => {
     expect(
       decidirPouso({
         temPedido: true,
+        criacaoEmAndamento: false,
         sessaoAtiva: undefined,
         primeiraSessao: undefined,
       }),
     ).toBe("criar");
   });
 
+  // O efeito de pouso roda de novo quando a criação termina e antes de a
+  // navegação limpar o estado; criar ali abriria uma segunda conversa.
+  it("não cria outra conversa enquanto a do pedido está sendo criada", () => {
+    expect(
+      decidirPouso({
+        temPedido: true,
+        criacaoEmAndamento: true,
+        sessaoAtiva: undefined,
+        primeiraSessao: "antiga",
+      }),
+    ).toBe("nada");
+  });
+
   it("não faz nada com conversa ativa e sem pedido", () => {
     expect(
       decidirPouso({
         temPedido: false,
+        criacaoEmAndamento: false,
         sessaoAtiva: "atual",
         primeiraSessao: "antiga",
       }),
@@ -134,6 +150,7 @@ describe("decidirPouso", () => {
     expect(
       decidirPouso({
         temPedido: false,
+        criacaoEmAndamento: false,
         sessaoAtiva: undefined,
         primeiraSessao: "antiga",
       }),
@@ -144,6 +161,7 @@ describe("decidirPouso", () => {
     expect(
       decidirPouso({
         temPedido: false,
+        criacaoEmAndamento: false,
         sessaoAtiva: undefined,
         primeiraSessao: undefined,
       }),

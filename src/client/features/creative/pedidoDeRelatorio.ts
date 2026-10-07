@@ -100,14 +100,18 @@ export function deveEnviarPedido(p: {
 
 /**
  * Com pedido, a conversa é sempre nova: aplicá-lo à mais recente misturaria o
- * relatório com o que já se falou ali.
+ * relatório com o que já se falou ali. E uma só: enquanto a conversa do pedido
+ * está sendo criada (até o envio ou um erro), o pouso não cria outra, porque o
+ * efeito roda de novo quando a criação termina, antes de a navegação limpar o
+ * estado.
  */
 export function decidirPouso(p: {
   temPedido: boolean;
+  criacaoEmAndamento: boolean;
   sessaoAtiva: string | undefined;
   primeiraSessao: string | undefined;
 }): "criar" | "abrir-primeira" | "nada" {
-  if (p.temPedido) return "criar";
+  if (p.temPedido) return p.criacaoEmAndamento ? "nada" : "criar";
   if (p.sessaoAtiva) return "nada";
   return p.primeiraSessao ? "abrir-primeira" : "criar";
 }

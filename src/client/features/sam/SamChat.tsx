@@ -63,8 +63,13 @@ export function SamChat({
     sessionId: string;
     texto: string;
   }>();
+  // Ligado do início da criação da conversa do pedido até o envio ou um erro:
+  // `creating` volta a falso no fim da criação, antes de a navegação limpar o
+  // estado, e sozinho deixaria o pouso criar uma segunda conversa.
+  const pedidoEmCriacao = useRef(false);
   const limparPedido = useCallback(() => {
     pedido.current = undefined;
+    pedidoEmCriacao.current = false;
     setPedidoDaConversa(undefined);
   }, []);
 
@@ -78,10 +83,13 @@ export function SamChat({
       createSessionMutate();
       return;
     }
+    pedidoEmCriacao.current = true;
     // O erro já chega a setCreateError pelo onError do hook.
     createSessionAsync().then(
       ({ id }) => setPedidoDaConversa({ sessionId: id, texto }),
-      () => {},
+      () => {
+        pedidoEmCriacao.current = false;
+      },
     );
   }, [createSessionMutate, createSessionAsync]);
 
@@ -92,6 +100,7 @@ export function SamChat({
     if (!optedIn || access.status !== "ready") return;
     const pouso = decidirPouso({
       temPedido: pedidoNoEstado !== undefined,
+      criacaoEmAndamento: pedidoEmCriacao.current,
       sessaoAtiva: activeSessionId,
       primeiraSessao: firstSessionId,
     });
