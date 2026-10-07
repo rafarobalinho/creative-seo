@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuSkeleton,
 } from "@/client/components/ui/sidebar";
+import { VoltarAoMenu } from "@/client/features/creative/VoltarAoMenu";
 import { useSamBetaOptIn } from "./samBetaOptIn";
 import { useSamSessions } from "./useSamSessions";
 
@@ -89,6 +90,8 @@ export function SamSidebarPanel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {/* Creative SEO: aqui o painel troca o menu e não deixava caminho de volta (creative/DECISOES.md, regra 13). */}
+      <VoltarAoMenu projectId={projectId} />
       <div className="px-2 pb-1">
         {/* Ghost row styled like a list item so the sidebar header doesn't
             stack three heavy full-width controls. */}

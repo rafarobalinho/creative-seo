@@ -76,6 +76,12 @@ const projectNavItems = [
     label: "Prompt Explorer",
     icon: MessageSquare,
   },
+  // Creative SEO: o agente (SAM) tem item próprio no menu, que o original só abria por outro caminho (creative/DECISOES.md, regra 13).
+  {
+    to: "/p/$projectId/sam" as const,
+    label: "Agent",
+    icon: Sparkles,
+  },
   {
     to: "/p/$projectId/reports" as const,
     label: "Reports",
@@ -154,6 +160,7 @@ export function getProjectNavGroups(projectId: string) {
     {
       label: "AI",
       items: [
+        byPath("/p/$projectId/sam"),
         byPath("/p/$projectId/reports"),
         byPath("/p/$projectId/context"),
         aiNavItem,
