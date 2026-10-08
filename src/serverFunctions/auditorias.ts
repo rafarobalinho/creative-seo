@@ -29,6 +29,8 @@ async function montarService() {
   return criarAuditoriasService({
     leitor: config ? criarLeitorS3(config) : null,
     vinculos: await getOptionalEnvValue("AEO_VINCULOS"),
+    // A F5 passa o slug da `aeo_cliente`; até lá vale só a variável.
+    slugDoBanco: null,
   });
 }
 
