@@ -4,6 +4,10 @@ import {
   lerEntregavelAuditoria,
   listarCiclosAuditoria,
 } from "@/serverFunctions/auditorias";
+import {
+  acompanharAuditoria,
+  lerConfiguracaoAuditoria,
+} from "@/serverFunctions/auditoriasRodadas";
 
 // `staleTime: 0`: um ciclo pode ter sido publicado minutos atrás, e o padrão
 // de 5 minutos do app mostraria a lista anterior como atual. `retry: false`:
@@ -35,6 +39,28 @@ export function consultaEntregavel(
   return queryOptions({
     queryKey: ["auditorias", projectId, "entregavel", ciclo, id],
     queryFn: () => lerEntregavelAuditoria({ data: { projectId, ciclo, id } }),
+    ...LEITURA,
+  });
+}
+
+/** Tudo o que a tela da auditoria lê deste projeto; salvar invalida a raiz. */
+export function chaveDaAuditoria(projectId: string) {
+  return ["auditorias", projectId] as const;
+}
+
+export function consultaConfiguracao(projectId: string) {
+  return queryOptions({
+    queryKey: ["auditorias", projectId, "configuracao"],
+    queryFn: () => lerConfiguracaoAuditoria({ data: { projectId } }),
+    ...LEITURA,
+  });
+}
+
+/** A última rodada do cliente; o intervalo de consulta fica com o hook. */
+export function consultaRodada(projectId: string) {
+  return queryOptions({
+    queryKey: ["auditorias", projectId, "rodada"],
+    queryFn: () => acompanharAuditoria({ data: { projectId } }),
     ...LEITURA,
   });
 }

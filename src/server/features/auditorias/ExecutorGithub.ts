@@ -20,7 +20,7 @@ export interface ExecutorDeAuditoria {
   estado(rodada: string): Promise<EstadoExecucao>;
 }
 
-export interface ConfigGithub {
+interface ConfigGithub {
   token: string;
   repo: string;
 }

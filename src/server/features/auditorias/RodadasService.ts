@@ -34,7 +34,7 @@ import { slugDoProjeto } from "./vinculoProjeto";
 // A F5 lê o padrão para mostrar o custo; o ponto de entrada é este serviço.
 export { lerPadraoDoMotor } from "./dadosDaRodada";
 
-export type ResultadoConfigurar =
+type ResultadoConfigurar =
   | { ok: true; slug: string; mudouASerie: boolean }
   | { ok: false; mensagem: string };
 

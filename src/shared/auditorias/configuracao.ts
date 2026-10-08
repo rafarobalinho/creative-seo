@@ -65,7 +65,7 @@ export const configuracaoSchema = z
 
 export type Configuracao = z.infer<typeof configuracaoSchema>;
 
-export type EntradaDoMotor = {
+type EntradaDoMotor = {
   versao: 1;
   slug: string;
   nome: string;
