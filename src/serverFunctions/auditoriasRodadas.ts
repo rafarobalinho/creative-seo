@@ -18,6 +18,7 @@ import { slugsDosVinculos } from "@/server/features/auditorias/vinculoProjeto";
 import { getOptionalEnvValue } from "@/server/lib/runtime-env";
 import { requireProjectContext } from "@/serverFunctions/middleware";
 import { configuracaoSchema } from "@/shared/auditorias/configuracao";
+import type { PadraoDoMotor } from "@/shared/auditorias/rodada";
 
 // Configurar e rodar a auditoria pela tela. O projeto passado ao serviço sai
 // sempre do contexto autorizado pelo middleware, nunca do navegador; o
@@ -40,6 +41,19 @@ function projetoDoContexto(c: Contexto): ProjetoDaAuditoria {
     id: c.project.id,
     organizationId: c.project.organizationId,
     domain: c.project.domain,
+  };
+}
+
+/**
+ * O padrão publicado traz também os slugs dos clientes do Git, que são da
+ * agência; só o que a tela precisa para estimar o custo vai ao navegador.
+ */
+function paraONavegador(padrao: PadraoDoMotor | null): PadraoDoMotor | null {
+  if (padrao === null) return null;
+  return {
+    engines: padrao.engines,
+    runs_per_prompt: padrao.runs_per_prompt,
+    price_per_query_usd: padrao.price_per_query_usd,
   };
 }
 
@@ -77,7 +91,7 @@ export const lerConfiguracaoAuditoria = createServerFn({ method: "GET" })
         ? lerConfiguracaoSalva(lida.cliente.configuracao)
         : null,
       slug: lida.slug,
-      padrao: await lerPadraoDoMotor(leitor),
+      padrao: paraONavegador(await lerPadraoDoMotor(leitor)),
     };
   });
 

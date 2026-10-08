@@ -2,6 +2,18 @@ import { normalizarDominio } from "@/shared/auditorias/dominio";
 
 const PADRAO_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 
+/** Pares `[dominio, slug]` da variável; entrada malformada ou slug inválido é ignorado. */
+function* paresValidos(vinculos: string | undefined) {
+  if (!vinculos) return;
+  for (const entrada of vinculos.split(",")) {
+    const separador = entrada.lastIndexOf("=");
+    if (separador === -1) continue;
+    const slug = entrada.slice(separador + 1).trim();
+    if (!PADRAO_SLUG.test(slug)) continue;
+    yield [entrada.slice(0, separador), slug] as const;
+  }
+}
+
 /**
  * Procura o slug do cliente da auditoria para o domínio do projeto. O mapa vem
  * de `AEO_VINCULOS` (`dominio=slug,dominio=slug`); entrada malformada ou com
@@ -13,14 +25,9 @@ export function slugDoProjeto(
   vinculos: string | undefined,
 ): string | null {
   const alvo = normalizarDominio(dominio);
-  if (alvo === null || !vinculos) return null;
-
-  for (const entrada of vinculos.split(",")) {
-    const separador = entrada.lastIndexOf("=");
-    if (separador === -1) continue;
-    const slug = entrada.slice(separador + 1).trim();
-    if (!PADRAO_SLUG.test(slug)) continue;
-    if (normalizarDominio(entrada.slice(0, separador)) === alvo) return slug;
+  if (alvo === null) return null;
+  for (const [dominioDaEntrada, slug] of paresValidos(vinculos)) {
+    if (normalizarDominio(dominioDaEntrada) === alvo) return slug;
   }
   return null;
 }
@@ -31,13 +38,5 @@ export function slugDoProjeto(
  * reuse o identificador de um cliente mantido pela agência.
  */
 export function slugsDosVinculos(vinculos: string | undefined): string[] {
-  if (!vinculos) return [];
-  const slugs: string[] = [];
-  for (const entrada of vinculos.split(",")) {
-    const separador = entrada.lastIndexOf("=");
-    if (separador === -1) continue;
-    const slug = entrada.slice(separador + 1).trim();
-    if (PADRAO_SLUG.test(slug)) slugs.push(slug);
-  }
-  return slugs;
+  return Array.from(paresValidos(vinculos), ([, slug]) => slug);
 }

@@ -245,6 +245,29 @@ describe("funções de servidor das rodadas da auditoria", () => {
       });
     });
 
+    it("não manda ao navegador nada além dos três campos do padrão", async () => {
+      lerConfiguracao.mockResolvedValue({
+        cliente: null,
+        origem: null,
+        slug: null,
+      });
+      lerPadraoDoMotor.mockResolvedValue({
+        engines: ["openai"],
+        runs_per_prompt: 1,
+        price_per_query_usd: { openai: 0.01 },
+        clientes_do_git: ["agencia"],
+        pricing_reviewed_at: "2026-10-01",
+      });
+      const resultado = await lerConfiguracaoAuditoria({
+        data: { projectId: "p1" },
+      });
+      expect(resultado.padrao).toStrictEqual({
+        engines: ["openai"],
+        runs_per_prompt: 1,
+        price_per_query_usd: { openai: 0.01 },
+      });
+    });
+
     it("cliente do Git: sem configuração, e padrão nulo sem leitor", async () => {
       lerConfiguracao.mockResolvedValue({
         cliente: null,
