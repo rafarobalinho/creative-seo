@@ -142,6 +142,28 @@ auditoria, vive no repositório do motor:
     `SamChat.tsx`, `SamConversation.tsx`, `SamSidebarPanel.tsx`,
     `reports/index.tsx`, `items.ts` (o item "Agent" no menu) e os testes
     `samChatTools.test.ts` e `samSkills.test.ts`.
+14. **A tela cria clientes de auditoria e dispara o workflow do motor; o token
+    do GitHub só mexe em Actions** (decidido em 2026-10-07). O Creative SEO
+    cria clientes e rodadas de auditoria e dispara o workflow do motor pela
+    tela. A configuração dos clientes criados na tela mora no banco do app
+    (`aeo_cliente` e `aeo_rodada`) e viaja como entrada do disparo
+    (`workflow_dispatch`); quem monta e grava a configuração é o motor, no
+    runner. Disparar não é escrever no motor (regra 7; `docs/camadas.md` §3.6
+    do repositório do motor). O token do GitHub é fine-grained, com permissão
+    de leitura e escrita só em Actions, e só no repositório do motor; fica
+    como segredo do Worker (`AEO_GITHUB_TOKEN`), e o nome do repositório vem de
+    `AEO_GITHUB_REPO`. O repositório é público: nenhum dado de cliente nem nome
+    de repositório privado entra no código. O teto é de 1 rodada por cliente a
+    cada 7 dias, aplicado pelo app (índice único parcial mais checagem) e de
+    novo pelo `ci/teto.py` do motor. Clientes do Git (os vinculados por
+    `AEO_VINCULOS`) podem ser rodados pela tela, mas não configurados por ela.
+    Vincular um cliente do Git por domínio também permite um disparo pago;
+    por isso `AEO_VINCULOS` só vale em estágio de um único workspace
+    (auto-hospedado atrás do Access). Em modo com várias organizações, qualquer
+    organização que criasse um projeto com o domínio vinculado poderia gastar a
+    rodada semanal desse cliente.
+    Arquivos do original tocados na Fase 3: os três barris de schema e
+    `src/db/schema-parity.test.ts`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 

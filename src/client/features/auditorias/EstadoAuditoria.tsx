@@ -32,13 +32,17 @@ function mensagem(e: EstadoNaoOk): string {
 export function EstadoAuditoria({
   estado,
   aoTentarDeNovo,
+  aoConfigurar,
 }: {
   estado: EstadoNaoOk;
   /** Só faz sentido na falha do bucket; credencial ausente não volta sozinha. */
   aoTentarDeNovo?: () => void;
+  /** Projeto sem cliente: o caminho é configurar a auditoria pela tela. */
+  aoConfigurar?: () => void;
 }) {
   const falhaBucket =
     estado.estado === "falha-leitura" && estado.motivo === "bucket";
+  const semVinculo = estado.estado === "sem-vinculo";
   return (
     <EmptyState
       kind={falhaBucket ? "error" : "no-data"}
@@ -47,6 +51,10 @@ export function EstadoAuditoria({
         falhaBucket && aoTentarDeNovo ? (
           <Button variant="outline" size="sm" onClick={aoTentarDeNovo}>
             Tentar de novo
+          </Button>
+        ) : semVinculo && aoConfigurar ? (
+          <Button size="sm" onClick={aoConfigurar}>
+            Configurar auditoria AEO
           </Button>
         ) : undefined
       }

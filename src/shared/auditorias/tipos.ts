@@ -66,6 +66,10 @@ export type ResultadoCiclo =
       temProbe: boolean;
       temBenchmark: boolean;
       entregaveis: Entregavel[];
+      /** Textos do `instrumento-probe.json`; null se ausente ou ilegível. */
+      perguntasMedidas: string[] | null;
+      /** O ciclo traz o `config-usada.yaml` gravado pelo motor. */
+      configUsada: boolean;
     };
 
 export type ResultadoEntregavel =

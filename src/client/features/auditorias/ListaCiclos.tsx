@@ -1,15 +1,24 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { PageHeader } from "@/client/components/PageHeader";
 import { QueryError } from "@/client/components/QueryState";
 import { SkeletonPage } from "@/client/components/SkeletonPresets";
+import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Badge } from "@/client/components/ui/badge";
+import { Button } from "@/client/components/ui/button";
 import { Card } from "@/client/components/ui/card";
+import type { lerConfiguracaoAuditoria } from "@/serverFunctions/auditoriasRodadas";
 import { dataLonga } from "@/shared/auditorias/formatos";
 import type { CicloListado } from "@/shared/auditorias/tipos";
-import { consultaCiclos } from "./consultas";
+import { BotaoRodar } from "./BotaoRodar";
+import { CartaoRodada } from "./CartaoRodada";
+import { consultaCiclos, consultaConfiguracao } from "./consultas";
 import { EstadoAuditoria } from "./EstadoAuditoria";
+import { FormularioConfiguracao } from "./FormularioConfiguracao";
+import { FRASE_AGENCIA } from "./rodadaNaTela";
+import { usePollingDaRodada } from "./usePollingDaRodada";
 
 function CartaoCiclo({
   projectId,
@@ -53,8 +62,51 @@ function CartaoCiclo({
   );
 }
 
+type DadosDaConfiguracao = Awaited<ReturnType<typeof lerConfiguracaoAuditoria>>;
+
+/**
+ * Cliente do banco edita a configuração aqui; cliente do Git só roda, com a
+ * configuração da agência. Sem cliente, nada: o caminho é o estado vazio.
+ */
+function AcoesDaAuditoria({
+  projectId,
+  dados,
+  rodada,
+  aoEditar,
+}: {
+  projectId: string;
+  dados: DadosDaConfiguracao;
+  rodada: ReturnType<typeof usePollingDaRodada>;
+  aoEditar: () => void;
+}) {
+  if (dados.origem === null) return null;
+  return (
+    <>
+      {dados.origem === "banco" ? (
+        <Button variant="outline" onClick={aoEditar}>
+          Editar configuração
+        </Button>
+      ) : null}
+      <BotaoRodar
+        projectId={projectId}
+        origem={dados.origem}
+        perguntas={dados.configuracao?.perguntas.length ?? 0}
+        padrao={dados.padrao}
+        rodada={rodada}
+      />
+    </>
+  );
+}
+
 export function ListaCiclos({ projectId }: { projectId: string }) {
   const consulta = useQuery(consultaCiclos(projectId));
+  const configuracao = useQuery(consultaConfiguracao(projectId));
+  const [configurando, setConfigurando] = useState(false);
+  const dados = configuracao.data;
+  const rodada = usePollingDaRodada(
+    projectId,
+    dados !== undefined && dados.origem !== null,
+  );
 
   return (
     <div className="overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
@@ -62,31 +114,75 @@ export function ListaCiclos({ projectId }: { projectId: string }) {
         <PageHeader
           title="Auditoria AEO"
           description="Quanto os motores de IA citam a marca, medido com repetição e margem de erro. Cada ciclo traz o score, os seis eixos e os entregáveis."
+          actions={
+            dados && !configurando ? (
+              <AcoesDaAuditoria
+                projectId={projectId}
+                dados={dados}
+                rodada={rodada}
+                aoEditar={() => setConfigurando(true)}
+              />
+            ) : undefined
+          }
         />
-        {consulta.isPending ? (
-          <SkeletonPage />
-        ) : consulta.isError ? (
-          <QueryError
-            error={consulta.error}
-            fallback="Não foi possível carregar os ciclos."
-            onRetry={() => void consulta.refetch()}
-            isRetrying={consulta.isFetching}
+        {configuracao.isError && !configurando ? (
+          <Alert variant="warning">
+            <AlertDescription>
+              Não foi possível carregar a configuração da auditoria; rodar e
+              editar ficam indisponíveis até ela carregar.{" "}
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0"
+                disabled={configuracao.isFetching}
+                onClick={() => void configuracao.refetch()}
+              >
+                Tentar de novo
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : null}
+        {dados?.origem === "git" ? (
+          <p className="text-sm text-muted-foreground">{FRASE_AGENCIA}</p>
+        ) : null}
+        {configurando ? (
+          <FormularioConfiguracao
+            projectId={projectId}
+            salva={dados?.configuracao ?? null}
+            slug={dados?.slug ?? null}
+            aoConcluir={() => setConfigurando(false)}
+            aoCancelar={() => setConfigurando(false)}
           />
-        ) : consulta.data.estado !== "ok" ? (
-          <EstadoAuditoria
-            estado={consulta.data}
-            aoTentarDeNovo={() => void consulta.refetch()}
-          />
-        ) : consulta.data.ciclos.length === 0 ? (
-          <EstadoAuditoria estado={{ estado: "sem-ciclos" }} />
         ) : (
-          <ul className="space-y-2">
-            {consulta.data.ciclos.map((c) => (
-              <li key={c.ciclo}>
-                <CartaoCiclo projectId={projectId} ciclo={c} />
-              </li>
-            ))}
-          </ul>
+          <>
+            <CartaoRodada rodada={rodada} />
+            {consulta.isPending ? (
+              <SkeletonPage />
+            ) : consulta.isError ? (
+              <QueryError
+                error={consulta.error}
+                fallback="Não foi possível carregar os ciclos."
+                onRetry={() => void consulta.refetch()}
+                isRetrying={consulta.isFetching}
+              />
+            ) : consulta.data.estado !== "ok" ? (
+              <EstadoAuditoria
+                estado={consulta.data}
+                aoTentarDeNovo={() => void consulta.refetch()}
+                aoConfigurar={() => setConfigurando(true)}
+              />
+            ) : consulta.data.ciclos.length === 0 ? (
+              <EstadoAuditoria estado={{ estado: "sem-ciclos" }} />
+            ) : (
+              <ul className="space-y-2">
+                {consulta.data.ciclos.map((c) => (
+                  <li key={c.ciclo}>
+                    <CartaoCiclo projectId={projectId} ciclo={c} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
     </div>

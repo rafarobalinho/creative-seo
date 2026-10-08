@@ -2,6 +2,7 @@ export * from "./app.schema";
 export * from "./project-context.schema";
 export * from "./reports.schema";
 export * from "./workspace-llm-key.schema";
+export * from "./aeo-auditoria.schema";
 export * from "./report-templates.schema";
 export * from "./audit.schema";
 export * from "./sam.schema";

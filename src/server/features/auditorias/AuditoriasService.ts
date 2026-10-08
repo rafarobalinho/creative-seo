@@ -20,6 +20,8 @@ export type DependenciasAuditoria = {
   /** `null` quando o ambiente não tem as credenciais do bucket. */
   leitor: LeitorCiclos | null;
   vinculos: string | undefined;
+  /** Slug do cliente gravado na `aeo_cliente`; ganha da `AEO_VINCULOS`. */
+  slugDoBanco: string | null;
 };
 
 type Contexto = { cliente: string; leitor: LeitorCiclos };
@@ -28,7 +30,7 @@ function contextoDe(
   d: DependenciasAuditoria,
   dominio: string | null,
 ): Contexto | FalhaAuditoria {
-  const cliente = slugDoProjeto(dominio, d.vinculos);
+  const cliente = d.slugDoBanco ?? slugDoProjeto(dominio, d.vinculos);
   if (cliente === null) return { estado: "sem-vinculo" };
   if (d.leitor === null) {
     return { estado: "falha-leitura", motivo: "sem-credencial" };
@@ -55,6 +57,34 @@ async function comoDado<T>(
     }
     throw erro;
   }
+}
+
+/**
+ * O `instrumento-probe.json` é o retrato do que o motor de fato perguntou;
+ * a configuração salva pode ter mudado depois. Qualquer forma inesperada
+ * vira null: a tela omite a lista em vez de mostrar uma lista errada.
+ */
+function perguntasDoInstrumento(texto: string | null): string[] | null {
+  if (texto === null) return null;
+  let dado: unknown;
+  try {
+    dado = JSON.parse(texto);
+  } catch {
+    return null;
+  }
+  if (typeof dado !== "object" || dado === null || !("perguntas" in dado)) {
+    return null;
+  }
+  const { perguntas } = dado;
+  if (!Array.isArray(perguntas)) return null;
+  const itens: unknown[] = perguntas;
+  const textos: string[] = [];
+  for (const p of itens) {
+    if (typeof p !== "object" || p === null || !("text" in p)) return null;
+    if (typeof p.text !== "string") return null;
+    textos.push(p.text);
+  }
+  return textos;
 }
 
 export function criarAuditoriasService(d: DependenciasAuditoria) {
@@ -134,6 +164,12 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
         temProbe: tem("probe.jsonl"),
         temBenchmark: tem("benchmark.json"),
         entregaveis: entregaveisDoInventario(objetos, raiz),
+        perguntasMedidas: tem("instrumento-probe.json")
+          ? perguntasDoInstrumento(
+              await leitor.lerTexto(`${raiz}/instrumento-probe.json`),
+            )
+          : null,
+        configUsada: tem("config-usada.yaml"),
       };
     });
   }

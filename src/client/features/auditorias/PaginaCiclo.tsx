@@ -63,6 +63,42 @@ function Agregado({
   );
 }
 
+/**
+ * As perguntas vêm do `instrumento-probe.json` do próprio ciclo, não da
+ * configuração atual: se as perguntas mudaram depois, o ciclo continua
+ * dizendo com quais foi medido.
+ */
+function PerguntasMedidas({
+  perguntas,
+  configUsada,
+}: {
+  perguntas: string[] | null;
+  configUsada: boolean;
+}) {
+  if (perguntas === null || perguntas.length === 0) return null;
+  return (
+    <section className="space-y-3">
+      <SectionHeader
+        title="Medido com estas perguntas"
+        hint={
+          configUsada
+            ? "A configuração usada ficou gravada junto com o ciclo."
+            : undefined
+        }
+      />
+      <Card>
+        <CardContent>
+          <ol className="list-decimal space-y-1.5 pl-5 text-sm">
+            {perguntas.map((p, i) => (
+              <li key={`${i}:${p}`}>{p}</li>
+            ))}
+          </ol>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}
+
 export function PaginaCiclo({
   projectId,
   ciclo,
@@ -123,6 +159,10 @@ export function PaginaCiclo({
             {consulta.data.resumo ? (
               <EixosDoCiclo resumo={consulta.data.resumo} />
             ) : null}
+            <PerguntasMedidas
+              perguntas={consulta.data.perguntasMedidas}
+              configUsada={consulta.data.configUsada}
+            />
             <section className="space-y-3">
               <SectionHeader
                 title="Entregáveis"

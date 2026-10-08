@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { criarAuditoriasService } from "./AuditoriasService";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
+import { leitorEmMemoria } from "./apoioDosTestes";
 
 const VINCULOS = "exemplo.com.br=exemplo";
 const DOMINIO = "exemplo.com.br";
@@ -11,44 +12,16 @@ const SCORES = JSON.stringify({
   axes: {},
 });
 
-type Chamadas = {
-  listar: { prefixo: string; delimitador?: "/" }[];
-  lerTexto: string[];
-};
-
-/** Bucket em memória: a listagem deriva das chaves, como o S3 faria. */
-function leitorEmMemoria(arquivos: Record<string, string>) {
-  const mapa = new Map(Object.entries(arquivos));
-  const chamadas: Chamadas = { listar: [], lerTexto: [] };
-  const leitor: LeitorCiclos = {
-    listar(prefixo, delimitador) {
-      chamadas.listar.push({ prefixo, delimitador });
-      const objetos: { chave: string; bytes: number }[] = [];
-      const prefixos = new Set<string>();
-      for (const [chave, valor] of mapa) {
-        if (!chave.startsWith(prefixo)) continue;
-        const resto = chave.slice(prefixo.length);
-        const corte = delimitador ? resto.indexOf(delimitador) : -1;
-        if (corte === -1) objetos.push({ chave, bytes: valor.length });
-        else prefixos.add(prefixo + resto.slice(0, corte + 1));
-      }
-      return Promise.resolve({ objetos, prefixos: [...prefixos] });
-    },
-    lerTexto(chave) {
-      chamadas.lerTexto.push(chave);
-      return Promise.resolve(mapa.get(chave) ?? null);
-    },
-  };
-  return { leitor, chamadas, mapa };
-}
-
 const leitorQueFalha: LeitorCiclos = {
   listar: () => Promise.reject(new FalhaDeLeitura("bucket fora do ar")),
   lerTexto: () => Promise.reject(new FalhaDeLeitura("bucket fora do ar")),
 };
 
-const servico = (leitor: LeitorCiclos | null, vinculos = VINCULOS) =>
-  criarAuditoriasService({ leitor, vinculos });
+const servico = (
+  leitor: LeitorCiclos | null,
+  vinculos: string | undefined = VINCULOS,
+  slugDoBanco: string | null = null,
+) => criarAuditoriasService({ leitor, vinculos, slugDoBanco });
 
 describe("AuditoriasService", () => {
   it("sem vínculo não toca o bucket", async () => {
@@ -250,5 +223,81 @@ describe("AuditoriasService", () => {
       { prefixo: "exemplo/2026-01-01/", delimitador: undefined },
     ]);
     expect(chamadas.lerTexto).toEqual(["exemplo/2026-01-01/scores.json"]);
+  });
+});
+
+const INSTRUMENTO = JSON.stringify({
+  schema: 1,
+  conjunto: "probe",
+  perguntas: [
+    { id: "p1", text: "Qual a melhor loja de exemplo?", locale: "pt-BR" },
+    { id: "p2", text: "Which example shop is best?", locale: "en" },
+  ],
+  motores: [],
+  repeticoes: 5,
+});
+
+describe("AuditoriasService: vínculo pelo banco", () => {
+  it("o slug do banco ganha da variável", async () => {
+    const { leitor } = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "do-banco/2026-02-01/scores.json": SCORES,
+    });
+    const r = await servico(leitor, VINCULOS, "do-banco").listarCiclos(DOMINIO);
+    expect(r).toMatchObject({ estado: "ok", cliente: "do-banco" });
+  });
+
+  it("o slug do banco vale para projeto que a variável não conhece", async () => {
+    const { leitor } = leitorEmMemoria({
+      "do-banco/2026-02-01/scores.json": SCORES,
+    });
+    const r = await servico(leitor, undefined, "do-banco").lerCiclo(
+      "outro.com.br",
+      "2026-02-01",
+    );
+    expect(r).toMatchObject({ estado: "ok", cliente: "do-banco" });
+  });
+});
+
+describe("AuditoriasService: perguntas medidas", () => {
+  it("vêm do instrumento-probe.json, e config-usada.yaml é sinalizado", async () => {
+    const { leitor } = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "exemplo/2026-01-01/instrumento-probe.json": INSTRUMENTO,
+      "exemplo/2026-01-01/config-usada.yaml": "client: {}",
+    });
+    const r = await servico(leitor).lerCiclo(DOMINIO, "2026-01-01");
+    expect(r).toMatchObject({
+      estado: "ok",
+      perguntasMedidas: [
+        "Qual a melhor loja de exemplo?",
+        "Which example shop is best?",
+      ],
+      configUsada: true,
+    });
+  });
+
+  it("sem instrumento ficam null e configUsada é falso", async () => {
+    const { leitor, chamadas } = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+    });
+    const r = await servico(leitor).lerCiclo(DOMINIO, "2026-01-01");
+    expect(r).toMatchObject({ perguntasMedidas: null, configUsada: false });
+    expect(chamadas.lerTexto).toEqual(["exemplo/2026-01-01/scores.json"]);
+  });
+
+  it("instrumento ilegível ou fora do formato vira null, não exceção", async () => {
+    for (const texto of [
+      "{quebrado",
+      "[]",
+      JSON.stringify({ perguntas: "x" }),
+      JSON.stringify({ perguntas: [{ id: "p1" }] }),
+    ]) {
+      const { leitor } = leitorEmMemoria({
+        "exemplo/2026-01-01/instrumento-probe.json": texto,
+      });
+      const r = await servico(leitor).lerCiclo(DOMINIO, "2026-01-01");
+      expect(r).toMatchObject({ estado: "ok", perguntasMedidas: null });
+    }
   });
 });

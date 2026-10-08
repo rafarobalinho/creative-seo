@@ -1,21 +1,17 @@
+import { normalizarDominio } from "@/shared/auditorias/dominio";
+
 const PADRAO_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 
-/**
- * O domínio do projeto é digitado em forma livre (com esquema, www, caminho).
- * Reduzimos tudo ao host puro para comparar com o mapa de vínculos.
- */
-export function normalizarDominio(
-  dominio: string | null | undefined,
-): string | null {
-  if (!dominio) return null;
-  const host = dominio
-    .trim()
-    .toLowerCase()
-    .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
-    .replace(/[/?#].*$/, "")
-    .replace(/:\d*$/, "")
-    .replace(/^www\./, "");
-  return host === "" ? null : host;
+/** Pares `[dominio, slug]` da variável; entrada malformada ou slug inválido é ignorado. */
+function* paresValidos(vinculos: string | undefined) {
+  if (!vinculos) return;
+  for (const entrada of vinculos.split(",")) {
+    const separador = entrada.lastIndexOf("=");
+    if (separador === -1) continue;
+    const slug = entrada.slice(separador + 1).trim();
+    if (!PADRAO_SLUG.test(slug)) continue;
+    yield [entrada.slice(0, separador), slug] as const;
+  }
 }
 
 /**
@@ -29,14 +25,18 @@ export function slugDoProjeto(
   vinculos: string | undefined,
 ): string | null {
   const alvo = normalizarDominio(dominio);
-  if (alvo === null || !vinculos) return null;
-
-  for (const entrada of vinculos.split(",")) {
-    const separador = entrada.lastIndexOf("=");
-    if (separador === -1) continue;
-    const slug = entrada.slice(separador + 1).trim();
-    if (!PADRAO_SLUG.test(slug)) continue;
-    if (normalizarDominio(entrada.slice(0, separador)) === alvo) return slug;
+  if (alvo === null) return null;
+  for (const [dominioDaEntrada, slug] of paresValidos(vinculos)) {
+    if (normalizarDominio(dominioDaEntrada) === alvo) return slug;
   }
   return null;
+}
+
+/**
+ * Os slugs de todos os clientes da `AEO_VINCULOS`. Entram na lista de nomes
+ * proibidos ao derivar o slug de um cliente novo, para que o banco nunca
+ * reuse o identificador de um cliente mantido pela agência.
+ */
+export function slugsDosVinculos(vinculos: string | undefined): string[] {
+  return Array.from(paresValidos(vinculos), ([, slug]) => slug);
 }
