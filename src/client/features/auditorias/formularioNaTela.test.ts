@@ -12,6 +12,10 @@ import {
 
 const HOJE = "2026-10-07";
 
+function longo(n: number): string {
+  return "x".repeat(n);
+}
+
 function valido(): EstadoFormulario {
   return {
     nome: "Exemplo",
@@ -118,6 +122,78 @@ describe("paraConfiguracao", () => {
     expect(paraConfiguracao({ ...valido(), segmento: "" }, null, HOJE)).toEqual(
       { ok: false, mensagem: "Descreva o segmento em uma frase." },
     );
+  });
+});
+
+describe("posição na tela e tamanho", () => {
+  it("linha vazia antes não muda o número da pergunta apontada", () => {
+    const e = valido();
+    e.perguntas = [
+      { texto: "", idioma: "pt-BR" },
+      { texto: "curta", idioma: "pt-BR" },
+      ...e.perguntas.slice(0, 3),
+    ];
+    expect(paraConfiguracao(e, null, HOJE)).toEqual({
+      ok: false,
+      mensagem: "A pergunta 2 precisa ter de 10 a 300 caracteres.",
+    });
+  });
+
+  it("linha vazia antes não muda o número do lugar apontado", () => {
+    const e = valido();
+    e.lugares = [
+      { nome: "", cidade: "" },
+      { nome: "", cidade: "Salvador" },
+    ];
+    expect(paraConfiguracao(e, null, HOJE)).toEqual({
+      ok: false,
+      mensagem: "O lugar 2 precisa de um nome.",
+    });
+  });
+
+  it("linha vazia antes não muda o número do concorrente apontado", () => {
+    const e = valido();
+    e.concorrentes = [
+      { nome: "", dominio: "" },
+      { nome: "", dominio: "outra.com" },
+    ];
+    expect(paraConfiguracao(e, null, HOJE)).toEqual({
+      ok: false,
+      mensagem: "O concorrente 2 precisa de um nome.",
+    });
+  });
+
+  it("texto longo demais diz o limite, não que falta", () => {
+    const casos: [Partial<EstadoFormulario>, string][] = [
+      [{ nome: longo(121) }, "O nome do cliente pode ter até 120 caracteres."],
+      [
+        {
+          marca: `Exemplo
+${longo(121)}`,
+        },
+        "Cada variação da marca pode ter até 120 caracteres.",
+      ],
+      [{ segmento: longo(201) }, "O segmento pode ter até 200 caracteres."],
+      [
+        {
+          lugares: [
+            { nome: "", cidade: "" },
+            { nome: "Centro", cidade: longo(121) },
+          ],
+        },
+        "A cidade do lugar 2 pode ter até 120 caracteres.",
+      ],
+      [
+        { concorrentes: [{ nome: longo(121), dominio: "" }] },
+        "O nome do concorrente 1 pode ter até 120 caracteres.",
+      ],
+    ];
+    for (const [campos, mensagem] of casos) {
+      expect(paraConfiguracao({ ...valido(), ...campos }, null, HOJE)).toEqual({
+        ok: false,
+        mensagem,
+      });
+    }
   });
 });
 

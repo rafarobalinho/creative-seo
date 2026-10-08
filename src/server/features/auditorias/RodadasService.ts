@@ -1,6 +1,7 @@
 import {
   configuracaoSchema,
   entradaDoMotor,
+  FRASE_SERIE_NOVA,
   mudaASerie,
   slugBase,
   slugLivre,
@@ -81,8 +82,6 @@ export type DependenciasRodadas = {
 const DIA_MS = 86_400_000;
 const ESTADOS_TERMINAIS = new Set(["concluida", "falhou", "sem_resposta"]);
 const MSG_AGENCIA = "Configuração mantida pela agência.";
-const MSG_SERIE =
-  "Isso inicia uma série nova: os próximos ciclos não serão comparáveis aos anteriores. Confirme para salvar.";
 
 function paraEstado(r: AeoRodadaLinha, ciclo: string | null = null) {
   const estado: EstadoRodada = {
@@ -164,7 +163,7 @@ export function criarRodadasService(d: DependenciasRodadas) {
     const anterior = atual ? lerConfiguracaoSalva(atual.configuracao) : null;
     const mudouASerie = anterior !== null && mudaASerie(anterior, nova);
     if (mudouASerie && !confirmouNovaSerie) {
-      return { ok: false, mensagem: MSG_SERIE };
+      return { ok: false, mensagem: FRASE_SERIE_NOVA };
     }
 
     const padrao = atual ? null : await lerPadraoDoMotor(d.leitor);

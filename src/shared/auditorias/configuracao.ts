@@ -148,6 +148,13 @@ export function entradaDoMotor(
   };
 }
 
+/**
+ * Recusa do servidor quando a série muda sem confirmação. A tela compara com
+ * esta constante para abrir a mesma confirmação em vez de mostrar erro.
+ */
+export const FRASE_SERIE_NOVA =
+  "Isso inicia uma série nova: os próximos ciclos não serão comparáveis aos anteriores.";
+
 /** `desde` fica de fora: é carimbo de data, não conteúdo da série. */
 function chavesDasPerguntas(c: Configuracao): [string, string][] {
   return c.perguntas.map((p) => [p.texto.trim(), p.idioma]);

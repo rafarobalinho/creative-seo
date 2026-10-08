@@ -57,6 +57,11 @@ export function BotaoRodar({
         );
         return;
       }
+      // A recusa pode vir de uma rodada que esta tela ainda não viu (outra
+      // aba, outro sócio): relê o estado para o cartão acompanhar o servidor.
+      void queryClient.invalidateQueries({
+        queryKey: consultaRodada(projectId).queryKey,
+      });
       if (resultado.motivo === "teto") {
         setLiberadaPeloServidor(resultado.liberadaEm);
         setRecusa(null);

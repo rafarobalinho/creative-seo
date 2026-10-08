@@ -156,12 +156,38 @@ function desdeDe(
   return igual?.desde ?? hoje;
 }
 
+/** Mantém cada linha preenchida junto com a posição dela na tela. */
+function preenchidas<T>(linhas: T[], cheia: (l: T) => boolean) {
+  const mantidas: T[] = [];
+  const posicoes: number[] = [];
+  linhas.forEach((l, i) => {
+    if (!cheia(l)) return;
+    mantidas.push(l);
+    posicoes.push(i);
+  });
+  return { mantidas, posicoes };
+}
+
+type PosicoesNaTela = Record<
+  "lugares" | "perguntas" | "concorrentes",
+  number[]
+>;
+
 function montar(
   e: EstadoFormulario,
   anterior: Configuracao | null,
   hoje: string,
 ) {
-  return {
+  const lugares = preenchidas(
+    e.lugares,
+    (l) => l.nome.trim() !== "" || l.cidade.trim() !== "",
+  );
+  const perguntas = preenchidas(e.perguntas, (p) => p.texto.trim() !== "");
+  const concorrentes = preenchidas(
+    e.concorrentes,
+    (k) => k.nome.trim() !== "" || k.dominio.trim() !== "",
+  );
+  const dados = {
     nome: e.nome.trim(),
     idiomas: e.idiomas,
     idiomaPadrao: e.idiomaPadrao,
@@ -170,28 +196,73 @@ function montar(
       .map((m) => m.trim())
       .filter((m) => m !== ""),
     segmento: e.segmento.trim(),
-    lugares: e.lugares
-      .filter((l) => l.nome.trim() !== "" || l.cidade.trim() !== "")
-      .map((l) => ({ nome: l.nome.trim(), cidade: semVazio(l.cidade) })),
-    perguntas: e.perguntas
-      .filter((p) => p.texto.trim() !== "")
-      .map((p) => {
-        const base = { texto: p.texto.trim(), idioma: p.idioma };
-        return { ...base, desde: desdeDe(base, anterior, hoje) };
-      }),
-    concorrentes: e.concorrentes
-      .filter((k) => k.nome.trim() !== "" || k.dominio.trim() !== "")
-      .map((k) => ({ nome: k.nome.trim(), dominio: semVazio(k.dominio) })),
+    lugares: lugares.mantidas.map((l) => ({
+      nome: l.nome.trim(),
+      cidade: semVazio(l.cidade),
+    })),
+    perguntas: perguntas.mantidas.map((p) => {
+      const base = { texto: p.texto.trim(), idioma: p.idioma };
+      return { ...base, desde: desdeDe(base, anterior, hoje) };
+    }),
+    concorrentes: concorrentes.mantidas.map((k) => ({
+      nome: k.nome.trim(),
+      dominio: semVazio(k.dominio),
+    })),
   };
+  const posicoes: PosicoesNaTela = {
+    lugares: lugares.posicoes,
+    perguntas: perguntas.posicoes,
+    concorrentes: concorrentes.posicoes,
+  };
+  return { dados, posicoes };
 }
 
-function posicao(caminho: PropertyKey[]): number {
-  const n = caminho[1];
-  return typeof n === "number" ? n + 1 : 1;
+type Falha = { code: string; path: PropertyKey[] };
+
+/**
+ * As linhas vazias saem antes da validação, então o índice do zod conta só
+ * as preenchidas; a frase precisa do número que o sócio vê na tela.
+ */
+function posicao(falha: Falha, posicoes: PosicoesNaTela): number {
+  const [campo, n] = falha.path;
+  if (typeof n !== "number") return 1;
+  const lista =
+    campo === "lugares" || campo === "perguntas" || campo === "concorrentes"
+      ? posicoes[campo]
+      : [];
+  return (lista[n] ?? n) + 1;
 }
 
-function fraseDoCampo(caminho: PropertyKey[]): string {
-  const [campo, , subcampo] = caminho;
+function fraseDoTamanho(falha: Falha, n: number): string {
+  const [campo, , subcampo] = falha.path;
+  switch (campo) {
+    case "nome":
+      return "O nome do cliente pode ter até 120 caracteres.";
+    case "marca":
+      return "Cada variação da marca pode ter até 120 caracteres.";
+    case "segmento":
+      return "O segmento pode ter até 200 caracteres.";
+    case "lugares":
+      return subcampo === "cidade"
+        ? `A cidade do lugar ${n} pode ter até 120 caracteres.`
+        : `O nome do lugar ${n} pode ter até 120 caracteres.`;
+    case "concorrentes":
+      return subcampo === "dominio"
+        ? `O domínio do concorrente ${n} pode ter até 253 caracteres.`
+        : `O nome do concorrente ${n} pode ter até 120 caracteres.`;
+    case "perguntas":
+      return falha.path.length === 1
+        ? "Escreva de 3 a 5 perguntas."
+        : `A pergunta ${n} precisa ter de 10 a 300 caracteres.`;
+    default:
+      return "Confira os campos do formulário.";
+  }
+}
+
+function fraseDoCampo(falha: Falha, posicoes: PosicoesNaTela): string {
+  const n = posicao(falha, posicoes);
+  if (falha.code === "too_big") return fraseDoTamanho(falha, n);
+  const [campo, , subcampo] = falha.path;
   switch (campo) {
     case "nome":
       return "Informe o nome do cliente.";
@@ -204,15 +275,15 @@ function fraseDoCampo(caminho: PropertyKey[]): string {
     case "segmento":
       return "Descreva o segmento em uma frase.";
     case "lugares":
-      return `O lugar ${posicao(caminho)} precisa de um nome.`;
+      return `O lugar ${n} precisa de um nome.`;
     case "concorrentes":
-      return `O concorrente ${posicao(caminho)} precisa de um nome.`;
+      return `O concorrente ${n} precisa de um nome.`;
     case "perguntas":
-      if (caminho.length === 1) return "Escreva de 3 a 5 perguntas.";
+      if (falha.path.length === 1) return "Escreva de 3 a 5 perguntas.";
       if (subcampo === "idioma") {
-        return `O idioma da pergunta ${posicao(caminho)} precisa estar entre os idiomas do site.`;
+        return `O idioma da pergunta ${n} precisa estar entre os idiomas do site.`;
       }
-      return `A pergunta ${posicao(caminho)} precisa ter de 10 a 300 caracteres.`;
+      return `A pergunta ${n} precisa ter de 10 a 300 caracteres.`;
     default:
       return "Confira os campos do formulário.";
   }
@@ -223,8 +294,12 @@ export function paraConfiguracao(
   anterior: Configuracao | null,
   hoje: string,
 ): { ok: true; configuracao: Configuracao } | { ok: false; mensagem: string } {
-  const lido = configuracaoSchema.safeParse(montar(e, anterior, hoje));
+  const { dados, posicoes } = montar(e, anterior, hoje);
+  const lido = configuracaoSchema.safeParse(dados);
   if (lido.success) return { ok: true, configuracao: lido.data };
   const primeira = lido.error.issues[0];
-  return { ok: false, mensagem: fraseDoCampo(primeira?.path ?? []) };
+  const falha: Falha = primeira
+    ? { code: primeira.code, path: primeira.path }
+    : { code: "custom", path: [] };
+  return { ok: false, mensagem: fraseDoCampo(falha, posicoes) };
 }

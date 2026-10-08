@@ -13,6 +13,7 @@ import { projectsQueryOptions } from "@/client/features/projects/projectQueries"
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import { salvarConfiguracaoAuditoria } from "@/serverFunctions/auditoriasRodadas";
 import {
+  FRASE_SERIE_NOVA,
   mudaASerie,
   slugBase,
   type Configuracao,
@@ -28,9 +29,6 @@ import {
 } from "./formularioNaTela";
 import { Campo, SemDominio, SeletorDeIdiomas } from "./CamposDoFormulario";
 import { EditorDeDuplas, EditorDePerguntas } from "./ListasDoFormulario";
-
-const FRASE_SERIE_NOVA =
-  "Isso inicia uma série nova: os próximos ciclos não serão comparáveis aos anteriores.";
 
 type Props = {
   projectId: string;
@@ -63,9 +61,19 @@ function Formulario({
       configuracao: Configuracao;
       confirmouNovaSerie: boolean;
     }) => salvarConfiguracaoAuditoria({ data: { projectId, ...dados } }),
-    onSuccess: (resultado) => {
+    onSuccess: (resultado, enviado) => {
       setAConfirmar(null);
       if (!resultado.ok) {
+        // A configuração salva que a tela tinha estava velha: o servidor viu
+        // a série mudar. A resposta é a mesma confirmação, não um erro.
+        if (
+          resultado.mensagem === FRASE_SERIE_NOVA &&
+          !enviado.confirmouNovaSerie
+        ) {
+          setErro(null);
+          setAConfirmar(enviado.configuracao);
+          return;
+        }
         setErro(resultado.mensagem);
         return;
       }
@@ -115,6 +123,7 @@ function Formulario({
         <Campo rotulo="Nome do cliente" htmlFor="auditoria-nome">
           <Input
             id="auditoria-nome"
+            maxLength={120}
             value={estado.nome}
             disabled={ocupado}
             onChange={(ev) => setEstado({ ...estado, nome: ev.target.value })}
@@ -156,6 +165,7 @@ function Formulario({
         <Campo rotulo="Segmento, em uma frase" htmlFor="auditoria-segmento">
           <Input
             id="auditoria-segmento"
+            maxLength={200}
             value={estado.segmento}
             disabled={ocupado}
             onChange={(ev) =>
@@ -191,6 +201,7 @@ function Formulario({
           linhas={estado.lugares}
           rotuloDoNome="Lugar"
           rotuloDoExtra="Cidade (opcional)"
+          maximoDoExtra={120}
           extra={(l) => l.cidade}
           comExtra={(l, valor) => ({ ...l, cidade: valor })}
           nova={{ nome: "", cidade: "" }}
@@ -207,6 +218,7 @@ function Formulario({
           linhas={estado.concorrentes}
           rotuloDoNome="Nome"
           rotuloDoExtra="Domínio (opcional)"
+          maximoDoExtra={253}
           extra={(k) => k.dominio}
           comExtra={(k, valor) => ({ ...k, dominio: valor })}
           nova={{ nome: "", dominio: "" }}

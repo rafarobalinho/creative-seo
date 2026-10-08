@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { PageHeader } from "@/client/components/PageHeader";
 import { QueryError } from "@/client/components/QueryState";
 import { SkeletonPage } from "@/client/components/SkeletonPresets";
+import { Alert, AlertDescription } from "@/client/components/ui/alert";
 import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
 import { Card } from "@/client/components/ui/card";
@@ -124,6 +125,23 @@ export function ListaCiclos({ projectId }: { projectId: string }) {
             ) : undefined
           }
         />
+        {configuracao.isError && !configurando ? (
+          <Alert variant="warning">
+            <AlertDescription>
+              Não foi possível carregar a configuração da auditoria; rodar e
+              editar ficam indisponíveis até ela carregar.{" "}
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0"
+                disabled={configuracao.isFetching}
+                onClick={() => void configuracao.refetch()}
+              >
+                Tentar de novo
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : null}
         {dados?.origem === "git" ? (
           <p className="text-sm text-muted-foreground">{FRASE_AGENCIA}</p>
         ) : null}

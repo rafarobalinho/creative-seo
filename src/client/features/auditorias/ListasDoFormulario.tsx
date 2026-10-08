@@ -78,6 +78,7 @@ export function EditorDePerguntas({
             </div>
             <Textarea
               id={`pergunta-${i}`}
+              maxLength={300}
               value={p.texto}
               disabled={desabilitado}
               placeholder="Como alguém perguntaria a um assistente de IA"
@@ -111,6 +112,7 @@ export function EditorDeDuplas<T extends Linha>({
   linhas,
   rotuloDoNome,
   rotuloDoExtra,
+  maximoDoExtra,
   extra,
   comExtra,
   nova,
@@ -122,6 +124,7 @@ export function EditorDeDuplas<T extends Linha>({
   linhas: T[];
   rotuloDoNome: string;
   rotuloDoExtra: string;
+  maximoDoExtra: number;
   extra: (linha: T) => string;
   comExtra: (linha: T, valor: string) => T;
   nova: T;
@@ -138,6 +141,7 @@ export function EditorDeDuplas<T extends Linha>({
               <Input
                 aria-label={`${rotuloDoNome} ${i + 1}`}
                 placeholder={rotuloDoNome}
+                maxLength={120}
                 value={linha.nome}
                 disabled={desabilitado}
                 onChange={(ev) =>
@@ -149,6 +153,7 @@ export function EditorDeDuplas<T extends Linha>({
               <Input
                 aria-label={`${rotuloDoExtra} ${i + 1}`}
                 placeholder={rotuloDoExtra}
+                maxLength={maximoDoExtra}
                 value={extra(linha)}
                 disabled={desabilitado}
                 onChange={(ev) =>
