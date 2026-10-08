@@ -13,6 +13,7 @@ const {
   lerEntregavel,
   lerConfigS3,
   criarLeitorS3,
+  clientePorProjeto,
   env,
   contexto,
 } = vi.hoisted(() => ({
@@ -21,6 +22,7 @@ const {
   lerEntregavel: vi.fn(),
   lerConfigS3: vi.fn(),
   criarLeitorS3: vi.fn(),
+  clientePorProjeto: vi.fn(),
   env: { vinculos: "exemplo.com.br=exemplo" as string | undefined },
   contexto: { dominio: "exemplo.com.br" as string | null },
 }));
@@ -28,6 +30,9 @@ const {
 vi.mock("@/server/features/auditorias/LeitorCiclos", () => ({
   lerConfigS3,
   criarLeitorS3,
+}));
+vi.mock("@/server/features/auditorias/AeoRepository", () => ({
+  AeoRepository: { clientePorProjeto },
 }));
 vi.mock("@/server/lib/runtime-env", () => ({
   getOptionalEnvValue: async (nome: string) =>
@@ -56,13 +61,15 @@ vi.mock("@tanstack/react-start", () => {
       (
         handler: (input: {
           data: unknown;
-          context: { project: { domain: string | null } };
+          context: { project: { id: string; domain: string | null } };
         }) => unknown,
       ) =>
       async (entrada?: { data?: unknown }) =>
         handler({
           data: schema ? schema.parse(entrada?.data) : undefined,
-          context: { project: { domain: contexto.dominio } },
+          context: {
+            project: { id: "projeto-do-contexto", domain: contexto.dominio },
+          },
         }),
   });
   return { createServerFn: () => ({ middleware: () => montar() }) };
@@ -74,6 +81,7 @@ describe("funções de servidor da auditoria AEO", () => {
     contexto.dominio = "exemplo.com.br";
     env.vinculos = "exemplo.com.br=exemplo";
     lerConfigS3.mockResolvedValue(null);
+    clientePorProjeto.mockResolvedValue(null);
   });
 
   it("usa o domínio do projeto do contexto, nunca um domínio vindo do navegador", async () => {
@@ -85,6 +93,17 @@ describe("funções de servidor da auditoria AEO", () => {
     const doNavegador = { projectId: "p1", dominio: "outro.com.br" };
     await listarCiclosAuditoria({ data: doNavegador });
     expect(listarCiclos).toHaveBeenCalledWith("exemplo.com.br");
+  });
+
+  it("passa ao serviço o slug do banco do projeto do contexto", async () => {
+    clientePorProjeto.mockResolvedValue({ slug: "do-banco" });
+    await listarCiclosAuditoria({ data: { projectId: "p1" } });
+    expect(clientePorProjeto).toHaveBeenCalledWith("projeto-do-contexto");
+    const { criarAuditoriasService } =
+      await import("@/server/features/auditorias/AuditoriasService");
+    expect(vi.mocked(criarAuditoriasService).mock.calls[0]?.[0]).toMatchObject({
+      slugDoBanco: "do-banco",
+    });
   });
 
   it("repassa o domínio, o ciclo e o id às demais funções", async () => {

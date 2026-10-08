@@ -24,3 +24,20 @@ export function slugDoProjeto(
   }
   return null;
 }
+
+/**
+ * Os slugs de todos os clientes da `AEO_VINCULOS`. Entram na lista de nomes
+ * proibidos ao derivar o slug de um cliente novo, para que o banco nunca
+ * reuse o identificador de um cliente mantido pela agência.
+ */
+export function slugsDosVinculos(vinculos: string | undefined): string[] {
+  if (!vinculos) return [];
+  const slugs: string[] = [];
+  for (const entrada of vinculos.split(",")) {
+    const separador = entrada.lastIndexOf("=");
+    if (separador === -1) continue;
+    const slug = entrada.slice(separador + 1).trim();
+    if (PADRAO_SLUG.test(slug)) slugs.push(slug);
+  }
+  return slugs;
+}

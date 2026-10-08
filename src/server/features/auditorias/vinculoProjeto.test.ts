@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugDoProjeto } from "./vinculoProjeto";
+import { slugDoProjeto, slugsDosVinculos } from "./vinculoProjeto";
 
 describe("slugDoProjeto", () => {
   const vinculos = "exemplo.com.br=exemplo, outro.com=outro";
@@ -34,5 +34,19 @@ describe("slugDoProjeto", () => {
   it("ignora slug fora do padrão", () => {
     expect(slugDoProjeto("exemplo.com.br", "exemplo.com.br=../x")).toBeNull();
     expect(slugDoProjeto("exemplo.com.br", "exemplo.com.br=-x")).toBeNull();
+  });
+});
+
+describe("slugsDosVinculos", () => {
+  it("lista os slugs válidos e ignora entrada malformada", () => {
+    expect(
+      slugsDosVinculos(
+        "exemplo.com.br=exemplo, sem-igual, x.com=Inválido, outro.com=outro",
+      ),
+    ).toEqual(["exemplo", "outro"]);
+  });
+
+  it("sem variável devolve lista vazia", () => {
+    expect(slugsDosVinculos(undefined)).toEqual([]);
   });
 });

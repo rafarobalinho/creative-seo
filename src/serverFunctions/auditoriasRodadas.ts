@@ -1,0 +1,111 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { lerConfiguracaoSalva } from "@/server/features/auditorias/dadosDaRodada";
+import {
+  criarExecutorGithub,
+  lerConfigGithub,
+} from "@/server/features/auditorias/ExecutorGithub";
+import {
+  criarLeitorS3,
+  lerConfigS3,
+} from "@/server/features/auditorias/LeitorCiclos";
+import {
+  criarRodadasService,
+  lerPadraoDoMotor,
+  type ProjetoDaAuditoria,
+} from "@/server/features/auditorias/RodadasService";
+import { slugsDosVinculos } from "@/server/features/auditorias/vinculoProjeto";
+import { getOptionalEnvValue } from "@/server/lib/runtime-env";
+import { requireProjectContext } from "@/serverFunctions/middleware";
+import { configuracaoSchema } from "@/shared/auditorias/configuracao";
+
+// Configurar e rodar a auditoria pela tela. O projeto passado ao serviço sai
+// sempre do contexto autorizado pelo middleware, nunca do navegador; o
+// `projectId` no validador é o que dispara a autorização do projeto.
+
+const porProjetoSchema = z.object({ projectId: z.string().min(1) });
+const salvarSchema = porProjetoSchema.extend({
+  configuracao: configuracaoSchema,
+  confirmouNovaSerie: z.boolean(),
+});
+
+type Contexto = {
+  project: ProjetoDaAuditoria;
+  userId: string;
+  userEmail: string;
+};
+
+function projetoDoContexto(c: Contexto): ProjetoDaAuditoria {
+  return {
+    id: c.project.id,
+    organizationId: c.project.organizationId,
+    domain: c.project.domain,
+  };
+}
+
+/** Fica registrado nas rodadas; o e-mail é o que o sócio reconhece. */
+function quemDispara(c: Contexto) {
+  return c.userEmail || c.userId;
+}
+
+/** Montado por chamada: o ambiente pode não ter credencial (dev local). */
+async function montarEntorno() {
+  const [configS3, configGithub, vinculos] = await Promise.all([
+    lerConfigS3(),
+    lerConfigGithub(),
+    getOptionalEnvValue("AEO_VINCULOS"),
+  ]);
+  const leitor = configS3 ? criarLeitorS3(configS3) : null;
+  const service = criarRodadasService({
+    executor: configGithub ? criarExecutorGithub(configGithub) : null,
+    leitor,
+    proibidos: ["_padrao", ...slugsDosVinculos(vinculos)],
+    vinculos,
+  });
+  return { service, leitor };
+}
+
+export const lerConfiguracaoAuditoria = createServerFn({ method: "GET" })
+  .middleware(requireProjectContext)
+  .validator(porProjetoSchema)
+  .handler(async ({ context }) => {
+    const { service, leitor } = await montarEntorno();
+    const lida = await service.lerConfiguracao(projetoDoContexto(context));
+    return {
+      origem: lida.origem,
+      configuracao: lida.cliente
+        ? lerConfiguracaoSalva(lida.cliente.configuracao)
+        : null,
+      slug: lida.slug,
+      padrao: await lerPadraoDoMotor(leitor),
+    };
+  });
+
+export const salvarConfiguracaoAuditoria = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(salvarSchema)
+  .handler(async ({ data, context }) => {
+    const { service } = await montarEntorno();
+    return service.configurar(
+      projetoDoContexto(context),
+      quemDispara(context),
+      data.configuracao,
+      data.confirmouNovaSerie,
+    );
+  });
+
+export const rodarAuditoria = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(porProjetoSchema)
+  .handler(async ({ context }) => {
+    const { service } = await montarEntorno();
+    return service.rodar(projetoDoContexto(context), quemDispara(context));
+  });
+
+export const acompanharAuditoria = createServerFn({ method: "GET" })
+  .middleware(requireProjectContext)
+  .validator(porProjetoSchema)
+  .handler(async ({ context }) => {
+    const { service } = await montarEntorno();
+    return service.acompanhar(projetoDoContexto(context));
+  });
