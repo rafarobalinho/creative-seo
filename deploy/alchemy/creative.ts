@@ -27,6 +27,9 @@ export const creativeEnv = {
   AEO_R2_SECRET_ACCESS_KEY: segredo("AEO_R2_SECRET_ACCESS_KEY"),
   AEO_R2_BUCKET: variavel("AEO_R2_BUCKET"),
   AEO_VINCULOS: variavel("AEO_VINCULOS"),
+  // Disparo da auditoria pela tela (regra 14 do creative/DECISOES.md).
+  AEO_GITHUB_TOKEN: segredo("AEO_GITHUB_TOKEN"),
+  AEO_GITHUB_REPO: variavel("AEO_GITHUB_REPO"),
 };
 
 /**
