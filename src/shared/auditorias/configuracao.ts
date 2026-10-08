@@ -4,10 +4,19 @@ import { normalizarDominio } from "./dominio";
 
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
 
+/** O motor usa `date.fromisoformat`: 2026-02-31 passa na regex mas ele recusa. */
+function dataReal(s: string): boolean {
+  const d = new Date(`${s}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(s);
+}
+
 const perguntaSchema = z.object({
   texto: z.string().trim().min(10).max(300),
   idioma: z.string().min(2).max(16),
-  desde: z.string().regex(DATA),
+  desde: z
+    .string()
+    .regex(DATA)
+    .refine(dataReal, { message: "Data de calendário inexistente." }),
 });
 
 const lugarSchema = z.object({
@@ -81,7 +90,7 @@ export function slugBase(dominio: string): string | null {
   const rotulo = host.split(".")[0] ?? "";
   const slug = rotulo
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, "-")
     .replace(/-{2,}/g, "-")
@@ -109,11 +118,15 @@ export function entradaDoMotor(
   dominio: string,
   c: Configuracao,
 ): EntradaDoMotor {
+  const dominioObrigatorio = normalizarDominio(dominio);
+  if (dominioObrigatorio === null) {
+    throw new Error("entradaDoMotor: domínio inválido ou vazio.");
+  }
   return {
     versao: 1,
     slug,
     nome: c.nome,
-    dominio: normalizarDominio(dominio) ?? dominio,
+    dominio: dominioObrigatorio,
     idiomas: c.idiomas,
     idioma_padrao: c.idiomaPadrao,
     marca: c.marca,
@@ -128,18 +141,22 @@ export function entradaDoMotor(
       idioma: p.idioma,
       desde: p.desde,
     })),
-    concorrentes: c.concorrentes.map((k) =>
-      k.dominio === undefined
-        ? { nome: k.nome }
-        : { nome: k.nome, dominio: k.dominio },
-    ),
+    concorrentes: c.concorrentes.map((k) => {
+      const d = normalizarDominio(k.dominio);
+      return d === null ? { nome: k.nome } : { nome: k.nome, dominio: d };
+    }),
   };
+}
+
+/** `desde` fica de fora: é carimbo de data, não conteúdo da série. */
+function chavesDasPerguntas(c: Configuracao): [string, string][] {
+  return c.perguntas.map((p) => [p.texto.trim(), p.idioma]);
 }
 
 /** Mudar perguntas ou concorrentes abre uma série nova; o resto não. */
 export function mudaASerie(antes: Configuracao, depois: Configuracao): boolean {
   return (
-    !isDeepEqual(antes.perguntas, depois.perguntas) ||
+    !isDeepEqual(chavesDasPerguntas(antes), chavesDasPerguntas(depois)) ||
     !isDeepEqual(antes.concorrentes, depois.concorrentes)
   );
 }

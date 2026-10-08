@@ -120,6 +120,16 @@ describe("configuracaoSchema", () => {
     ).toBe(false);
   });
 
+  it("recusa data de calendário inexistente", () => {
+    for (const desde of ["2026-02-31", "2026-13-01"]) {
+      const p = [...base.perguntas];
+      p[0] = { ...p[0], desde };
+      expect(
+        configuracaoSchema.safeParse({ ...base, perguntas: p }).success,
+      ).toBe(false);
+    }
+  });
+
   it("exige marca e idioma, e data AAAA-MM-DD", () => {
     expect(configuracaoSchema.safeParse({ ...base, marca: [] }).success).toBe(
       false,
@@ -162,7 +172,36 @@ describe("entradaDoMotor", () => {
   });
 });
 
+describe("entradaDoMotor (domínios)", () => {
+  it("lança erro com domínio inválido", () => {
+    expect(() => entradaDoMotor("casa", "  ", base)).toThrow();
+  });
+
+  it("normaliza o domínio do concorrente", () => {
+    const e = entradaDoMotor("casa", "casa.com", {
+      ...base,
+      concorrentes: [
+        { nome: "R", dominio: "https://www.Rival.com/x" },
+        { nome: "S", dominio: "  " },
+      ],
+    });
+    expect(e.concorrentes).toEqual([
+      { nome: "R", dominio: "rival.com" },
+      { nome: "S" },
+    ]);
+  });
+});
+
 describe("mudaASerie", () => {
+  it("ignora desde e espaços nas pontas do texto", () => {
+    const p = base.perguntas.map((q) => ({
+      ...q,
+      desde: "2027-01-01",
+      texto: ` ${q.texto} `,
+    }));
+    expect(mudaASerie(base, { ...base, perguntas: p })).toBe(false);
+  });
+
   it("é verdadeiro ao trocar uma pergunta", () => {
     const p = [...base.perguntas];
     p[1] = { ...p[1], texto: "Outra pergunta totalmente nova?" };

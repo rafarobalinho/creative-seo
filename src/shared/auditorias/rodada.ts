@@ -32,8 +32,10 @@ export function proximaRodadaLiberada(
   let maisRecente: number | null = null;
   for (const r of rodadas) {
     if (!ESTADOS_QUE_CONTAM.has(r.estado)) continue;
-    const t = Date.parse(r.disparadaEm);
-    if (Number.isNaN(t) || agora.getTime() - t >= JANELA_MS) continue;
+    const lido = Date.parse(r.disparadaEm);
+    // Data ilegível bloqueia (falha fechada): melhor travar 7 dias que furar o teto.
+    const t = Number.isNaN(lido) ? agora.getTime() : lido;
+    if (agora.getTime() - t >= JANELA_MS) continue;
     if (maisRecente === null || t > maisRecente) maisRecente = t;
   }
   return maisRecente === null ? null : new Date(maisRecente + JANELA_MS);

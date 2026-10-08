@@ -65,6 +65,16 @@ describe("proximaRodadaLiberada", () => {
     );
   });
 
+  it("data ilegível bloqueia por 7 dias a partir de agora", () => {
+    const d = proximaRodadaLiberada(
+      [{ estado: "concluida", disparadaEm: "lixo" }],
+      agora,
+    );
+    expect(d?.toISOString()).toBe(
+      new Date(agora.getTime() + 7 * 86_400_000).toISOString(),
+    );
+  });
+
   it("rodada com mais de 7 dias não conta", () => {
     expect(
       proximaRodadaLiberada(
