@@ -103,7 +103,7 @@ auditoria, vive no repositório do motor:
     `src/client/features/creative/AgenteDeIa.tsx`. Arquivos do original
     tocados: os três barris de schema, `SamChatAgent.ts`,
     `samTurnTelemetry.ts`, `samAccess.ts`, `settings/index.tsx`,
-    `SamSetupGate.tsx` (o link de ajuda leva às Configurações) e o comentário
+    `SamSetupGate.tsx` (delega a `AgenteSemChave.tsx`: uma frase e um botão para as Configurações, sem variável de ambiente nem reinício; decidido em 2026-10-08) e o comentário
     de `useSamAccess.ts`.
 13. **O agente do app escreve relatórios em português do Brasil, com a skill
     `seo-report`, e não substitui nem apaga relatórios nem mexe nos modelos**

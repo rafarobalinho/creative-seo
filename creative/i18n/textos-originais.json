@@ -1203,9 +1203,6 @@
     "chave": "Configured"
   },
   {
-    "chave": "Confirm API Key"
-  },
-  {
     "chave": "Confirm new password"
   },
   {
@@ -1921,9 +1918,6 @@
   },
   {
     "chave": "Empty"
-  },
-  {
-    "chave": "Enable AI Features"
   },
   {
     "chave": "Enable product analytics"
@@ -4127,9 +4121,6 @@
     "chave": "Open"
   },
   {
-    "chave": "Open OpenRouter Keys"
-  },
-  {
     "chave": "Open a new Google Sheet and paste to fill it."
   },
   {
@@ -4155,9 +4146,6 @@
   },
   {
     "chave": "OpenRouter API Keys"
-  },
-  {
-    "chave": "OpenRouter API key setup guide"
   },
   {
     "chave": "OpenSEO"
@@ -4947,9 +4935,6 @@
     "chave": "SAM stopped before finishing this reply."
   },
   {
-    "chave": "SAM, OpenSEO's in-app AI agent, needs an OpenRouter API key. Create a key on OpenRouter, set it as the{0}{1} environment variable, restart OpenSEO, then confirm here."
-  },
-  {
     "chave": "SE"
   },
   {
@@ -5642,9 +5627,6 @@
   },
   {
     "chave": "Step {0} of {1}"
-  },
-  {
-    "chave": "Step-by-step instructions for every deployment are in the{0}{1}."
   },
   {
     "chave": "Steps"
