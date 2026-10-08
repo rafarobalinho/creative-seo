@@ -22,6 +22,7 @@ import { cicloPublicado, decidir } from "./cicloDaRodada";
 import {
   eColisaoDeSlug,
   lerConfiguracaoSalva,
+  lerPadraoComFalha,
   lerPadraoDoMotor,
 } from "./dadosDaRodada";
 import {
@@ -166,7 +167,18 @@ export function criarRodadasService(d: DependenciasRodadas) {
       return { ok: false, mensagem: FRASE_SERIE_NOVA };
     }
 
-    const padrao = atual ? null : await lerPadraoDoMotor(d.leitor);
+    const { padrao, falhouALeitura } = atual
+      ? { padrao: null, falhouALeitura: false }
+      : await lerPadraoComFalha(d.leitor);
+    // Sem a lista de clientes do Git não dá para garantir que o slug novo não
+    // colide com um deles: recusa o cliente novo em vez de seguir às cegas.
+    if (falhouALeitura) {
+      return {
+        ok: false,
+        mensagem:
+          "Não foi possível conferir os clientes já existentes agora. Tente de novo em instantes.",
+      };
+    }
     const proibidos = [...d.proibidos, ...(padrao?.clientes_do_git ?? [])];
     const gravar = (slug: string) =>
       AeoRepository.gravarCliente({
@@ -288,11 +300,16 @@ export function criarRodadasService(d: DependenciasRodadas) {
     extra: { execucao?: string; ciclo?: string } = {},
   ) {
     const concluidaEm = agora().toISOString();
-    await AeoRepository.atualizarRodada(r.id, {
+    const mudadas = await AeoRepository.atualizarRodada(r.id, {
       ...campos,
       concluidaEm,
       ...(extra.execucao ? { execucaoGithub: extra.execucao } : {}),
     });
+    if (mudadas === 0) {
+      // Outra consulta já fechou esta rodada: vale o que ficou gravado.
+      const gravada = await AeoRepository.rodadaPorId(r.id);
+      return paraEstado(gravada ?? r);
+    }
     return paraEstado({ ...r, ...campos, concluidaEm }, extra.ciclo ?? null);
   }
 
@@ -341,8 +358,8 @@ export function criarRodadasService(d: DependenciasRodadas) {
   ): Promise<EstadoRodada | null> {
     const cliente = await resolver(p);
     if (cliente === null) return null;
-    const [r] = await AeoRepository.rodadasRecentes(cliente.slug, "");
-    if (r === undefined) return null;
+    const r = await AeoRepository.ultimaRodada(cliente.slug);
+    if (r === null) return null;
     if (ESTADOS_TERMINAIS.has(r.estado) || d.executor === null) {
       return paraEstado(r);
     }
@@ -370,10 +387,14 @@ export function criarRodadasService(d: DependenciasRodadas) {
     }
     const execucaoGithub = decisao.execucao ?? r.execucaoGithub;
     if (decisao.estado !== r.estado || execucaoGithub !== r.execucaoGithub) {
-      await AeoRepository.atualizarRodada(r.id, {
+      const mudadas = await AeoRepository.atualizarRodada(r.id, {
         estado: decisao.estado,
         execucaoGithub,
       });
+      if (mudadas === 0) {
+        const gravada = await AeoRepository.rodadaPorId(r.id);
+        return paraEstado(gravada ?? r);
+      }
     }
     return paraEstado({ ...r, estado: decisao.estado, execucaoGithub });
   }

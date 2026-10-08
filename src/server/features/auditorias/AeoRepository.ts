@@ -143,8 +143,39 @@ async function criarRodada(linha: RodadaParaCriar) {
   }
 }
 
+/**
+ * Só mexe em rodada ainda aberta: duas consultas ao mesmo tempo leem o mesmo
+ * estado, e a atrasada não pode reabrir nem sobrescrever a que já fechou.
+ * Devolve quantas linhas mudaram; 0 quer dizer "já fechada, leia de novo".
+ */
 async function atualizarRodada(id: string, campos: CamposDaRodada) {
-  await db.update(aeoRodada).set(campos).where(eq(aeoRodada.id, id));
+  const mudadas = await db
+    .update(aeoRodada)
+    .set(campos)
+    .where(
+      and(eq(aeoRodada.id, id), inArray(aeoRodada.estado, ESTADOS_ABERTOS)),
+    )
+    .returning({ id: aeoRodada.id });
+  return mudadas.length;
+}
+
+async function rodadaPorId(id: string) {
+  const [linha] = await db
+    .select()
+    .from(aeoRodada)
+    .where(eq(aeoRodada.id, id))
+    .limit(1);
+  return linha ?? null;
+}
+
+async function ultimaRodada(slug: string) {
+  const [linha] = await db
+    .select()
+    .from(aeoRodada)
+    .where(eq(aeoRodada.clienteSlug, slug))
+    .orderBy(desc(aeoRodada.disparadaEm))
+    .limit(1);
+  return linha ?? null;
 }
 
 async function rodadaAberta(slug: string) {
@@ -169,5 +200,7 @@ export const AeoRepository = {
   rodadasRecentes,
   criarRodada,
   atualizarRodada,
+  rodadaPorId,
+  ultimaRodada,
   rodadaAberta,
 } as const;

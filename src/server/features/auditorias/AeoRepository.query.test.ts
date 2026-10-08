@@ -212,6 +212,42 @@ describe("AeoRepository: rodadas", () => {
     expect(aberta?.perguntas).toBe(4);
   });
 
+  it("atualizarRodada devolve quantas linhas mudou e não reabre rodada fechada", async () => {
+    await AeoRepository.criarRodada(
+      rodadaDe("r1", "exemplo", "2026-10-01T10:00:00.000Z"),
+    );
+    expect(
+      await AeoRepository.atualizarRodada("r1", { estado: "rodando" }),
+    ).toBe(1);
+    expect(
+      await AeoRepository.atualizarRodada("r1", { estado: "concluida" }),
+    ).toBe(1);
+    // Consulta atrasada, que ainda leu "rodando", não pode reabrir nem refechar.
+    expect(
+      await AeoRepository.atualizarRodada("r1", { estado: "rodando" }),
+    ).toBe(0);
+    expect(
+      await AeoRepository.atualizarRodada("r1", { estado: "falhou" }),
+    ).toBe(0);
+    expect((await AeoRepository.rodadaPorId("r1"))?.estado).toBe("concluida");
+    expect(await AeoRepository.rodadaAberta("exemplo")).toBeNull();
+  });
+
+  it("ultimaRodada devolve só a mais nova do cliente", async () => {
+    await AeoRepository.criarRodada({
+      ...rodadaDe("antiga", "exemplo", "2026-09-01T10:00:00.000Z"),
+      estado: "concluida",
+    });
+    await AeoRepository.criarRodada(
+      rodadaDe("nova", "exemplo", "2026-10-05T10:00:00.000Z"),
+    );
+    await AeoRepository.criarRodada(
+      rodadaDe("alheia", "outro", "2026-10-09T10:00:00.000Z"),
+    );
+    expect((await AeoRepository.ultimaRodada("exemplo"))?.id).toBe("nova");
+    expect(await AeoRepository.ultimaRodada("ninguem")).toBeNull();
+  });
+
   it("rodadasRecentes filtra por data e ordena da mais nova para a mais antiga", async () => {
     await AeoRepository.criarRodada({
       ...rodadaDe("antiga", "exemplo", "2026-09-01T10:00:00.000Z"),

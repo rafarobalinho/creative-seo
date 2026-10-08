@@ -19,7 +19,7 @@ import {
   executorFalso,
   leitorEmMemoria,
 } from "./apoioDosTestes";
-import type { LeitorCiclos } from "./LeitorCiclos";
+import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import type { ExecutorDeAuditoria } from "./ExecutorGithub";
 
 vi.mock("cloudflare:workers", () => ({ env: { DATABASE_PROVIDER: "d1" } }));
@@ -147,6 +147,38 @@ describe("configurar", () => {
       false,
     );
     expect(r).toEqual({ ok: true, slug: "loja-3", mudouASerie: false });
+  });
+
+  it("com o bucket ilegível, recusa cliente novo e mantém o já existente", async () => {
+    const quebrado: LeitorCiclos = {
+      listar: () => Promise.reject(new FalhaDeLeitura("bucket 500")),
+      lerTexto: () => Promise.reject(new FalhaDeLeitura("bucket 500")),
+    };
+    const nova = await servico({ leitor: quebrado }).configurar(
+      { ...PROJETO, domain: "padrao.test" },
+      "user_1",
+      configuracaoDeExemplo(),
+      false,
+    );
+    expect(nova.ok).toBe(false);
+    expect(JSON.stringify(nova)).toContain(
+      "conferir os clientes já existentes",
+    );
+    expect(await contar("aeo_cliente")).toBe(0);
+
+    await servico().configurar(
+      PROJETO,
+      "user_1",
+      configuracaoDeExemplo(),
+      false,
+    );
+    const existente = await servico({ leitor: quebrado }).configurar(
+      PROJETO,
+      "user_1",
+      configuracaoDeExemplo(),
+      false,
+    );
+    expect(existente).toMatchObject({ ok: true, slug: "exemplo" });
   });
 
   it("sem o padrão publicado, segue só com os proibidos conhecidos", async () => {

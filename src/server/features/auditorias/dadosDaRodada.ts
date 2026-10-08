@@ -26,23 +26,37 @@ type PadraoPublicado = PadraoDoMotor & { clientes_do_git: string[] };
 export async function lerPadraoDoMotor(
   leitor: LeitorCiclos | null,
 ): Promise<PadraoPublicado | null> {
-  if (leitor === null) return null;
+  return (await lerPadraoComFalha(leitor)).padrao;
+}
+
+/**
+ * Como `lerPadraoDoMotor`, mas diz se o bucket falhou na leitura: quem precisa
+ * da lista de clientes do Git para recusar um slug não pode tratar falha de
+ * leitura como "lista vazia".
+ */
+export async function lerPadraoComFalha(
+  leitor: LeitorCiclos | null,
+): Promise<{ padrao: PadraoPublicado | null; falhouALeitura: boolean }> {
+  const sem = { padrao: null, falhouALeitura: false };
+  if (leitor === null) return sem;
   let texto: string | null;
   try {
     texto = await leitor.lerTexto("_motor/padrao.json");
   } catch (erro) {
-    if (erro instanceof FalhaDeLeitura) return null;
+    if (erro instanceof FalhaDeLeitura) {
+      return { padrao: null, falhouALeitura: true };
+    }
     throw erro;
   }
-  if (texto === null) return null;
+  if (texto === null) return sem;
   let bruto: unknown;
   try {
     bruto = JSON.parse(texto);
   } catch {
-    return null;
+    return sem;
   }
   const lido = padraoPublicadoSchema.safeParse(bruto);
-  return lido.success ? lido.data : null;
+  return { padrao: lido.success ? lido.data : null, falhouALeitura: false };
 }
 
 export function lerConfiguracaoSalva(texto: string): Configuracao | null {

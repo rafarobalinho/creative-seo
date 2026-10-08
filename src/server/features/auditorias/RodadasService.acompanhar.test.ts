@@ -232,6 +232,38 @@ describe("acompanhar: estados terminais e casos sem rodada", () => {
     expect(await s.acompanhar(PROJETO)).toBeNull();
   });
 
+  it("consultas sobrepostas não reabrem a rodada que a primeira fechou", async () => {
+    const { s, falso } = cenario(1);
+    falso.responder({ tipo: "rodando", execucao: "987" });
+    // A segunda consulta lê "na_fila" antes de a primeira gravar, e só depois
+    // tenta marcar "rodando"; a rodada já está fechada nessa hora.
+    const lerAntes = AeoRepository.ultimaRodada;
+    let primeira = true;
+    vi.spyOn(AeoRepository, "ultimaRodada").mockImplementation(async (slug) => {
+      const lida = await lerAntes(slug);
+      if (primeira) {
+        primeira = false;
+        await AeoRepository.atualizarRodada("r1", {
+          estado: "concluida",
+          concluidaEm: "2026-10-06T00:30:00.000Z",
+        });
+      }
+      return lida;
+    });
+    const resposta = await s.acompanhar(PROJETO);
+    expect(resposta).toMatchObject({ estado: "concluida" });
+    expect((await linha())?.estado).toBe("concluida");
+    vi.restoreAllMocks();
+  });
+
+  it("lê só a última rodada do cliente, sem listar todas", async () => {
+    const todas = vi.spyOn(AeoRepository, "rodadasRecentes");
+    const { s } = cenario(2);
+    await s.acompanhar(PROJETO);
+    expect(todas).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  });
+
   it("devolve a rodada mais recente", async () => {
     await AeoRepository.atualizarRodada("r1", { estado: "concluida" });
     await AeoRepository.criarRodada({
