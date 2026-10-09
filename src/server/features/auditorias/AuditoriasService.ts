@@ -8,6 +8,7 @@ import type {
   ResumoScores,
 } from "@/shared/auditorias/tipos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
+import { etapasAguardando, lerManifesto } from "./aguardando";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import {
   chaveDoEntregavel,
@@ -15,6 +16,7 @@ import {
 } from "./registroEntregaveis";
 import { resumirScores } from "./resumoScores";
 import { slugDoProjeto } from "./vinculoProjeto";
+import { lerVocabulario } from "./vocabulario";
 
 export type DependenciasAuditoria = {
   /** `null` quando o ambiente não tem as credenciais do bucket. */
@@ -170,6 +172,12 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
             )
           : null,
         configUsada: tem("config-usada.yaml"),
+        vocabulario: await lerVocabulario(leitor),
+        aguardando: etapasAguardando(
+          tem("run-manifest.json")
+            ? await lerManifesto(leitor, `${raiz}/run-manifest.json`)
+            : null,
+        ),
       };
     });
   }

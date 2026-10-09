@@ -55,13 +55,17 @@ describe("resumirScores", () => {
 
   it("eixo indisponível não vira zero", () => {
     const r = resumirScores(bruto);
-    expect(r?.eixosIndisponiveis).toEqual([{ eixo: "c", motivo: "sem probe" }]);
+    expect(r?.eixosIndisponiveis).toEqual([
+      { eixo: "c", motivo: "sem probe", codigo: null },
+    ]);
     expect(r?.eixos.map((e) => e.id)).not.toContain("c");
   });
 
   it('unavailable_axes em forma de string vira { eixo, motivo: "" }', () => {
     const r = resumirScores({ ...bruto, unavailable_axes: ["d"] });
-    expect(r?.eixosIndisponiveis).toEqual([{ eixo: "d", motivo: "" }]);
+    expect(r?.eixosIndisponiveis).toEqual([
+      { eixo: "d", motivo: "", codigo: null },
+    ]);
   });
 
   it("entrada sem axes devolve null", () => {
@@ -80,5 +84,23 @@ describe("resumirScores", () => {
     for (const e of r?.eixos ?? []) {
       expect(valoresBrutos.has(e.score)).toBe(true);
     }
+  });
+
+  it("passa o code e devolve null quando o item não tem code", () => {
+    const r = resumirScores({
+      ...bruto,
+      unavailable_axes: [
+        { axis: "c", reason: "sem crawl", code: "sem_crawl" },
+        { axis: "d", reason: "x", code: null },
+        { axis: "e", reason: "antigo" },
+        "f",
+      ],
+    });
+    expect(r?.eixosIndisponiveis).toEqual([
+      { eixo: "c", motivo: "sem crawl", codigo: "sem_crawl" },
+      { eixo: "d", motivo: "x", codigo: null },
+      { eixo: "e", motivo: "antigo", codigo: null },
+      { eixo: "f", motivo: "", codigo: null },
+    ]);
   });
 });

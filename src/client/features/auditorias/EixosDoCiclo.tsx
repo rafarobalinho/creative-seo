@@ -8,10 +8,18 @@ import type {
   CheckResumido,
   EixoResumido,
   ResumoScores,
+  Vocabulario,
 } from "@/shared/auditorias/tipos";
 import { FaixaIc } from "./FaixaIc";
+import { fraseDoMotivo, nomeDoCheck, nomeDoEixo } from "./frasesDoCiclo";
 
-function LinhaCheck({ check }: { check: CheckResumido }) {
+function LinhaCheck({
+  check,
+  vocabulario,
+}: {
+  check: CheckResumido;
+  vocabulario: Vocabulario | null;
+}) {
   const evidencia = lerEvidencia(check.evidencia);
   const faixa = evidencia ? calcularFaixa(evidencia) : null;
   return (
@@ -29,9 +37,9 @@ function LinhaCheck({ check }: { check: CheckResumido }) {
             Não passou
           </Badge>
         )}
-        <code className="font-mono text-xs text-muted-foreground">
-          {check.id}
-        </code>
+        <span className="text-sm font-medium">
+          {nomeDoCheck(vocabulario, check.id)}
+        </span>
       </div>
       {check.evidencia ? (
         <p className="text-sm leading-relaxed">{check.evidencia}</p>
@@ -47,12 +55,19 @@ function LinhaCheck({ check }: { check: CheckResumido }) {
   );
 }
 
-function CartaoEixo({ eixo }: { eixo: EixoResumido }) {
+function CartaoEixo({
+  eixo,
+  vocabulario,
+}: {
+  eixo: EixoResumido;
+  vocabulario: Vocabulario | null;
+}) {
+  const mede = vocabulario?.eixos[eixo.id]?.mede;
   return (
     <Card>
       <CardHeader className="gap-2">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-semibold">{eixo.id}</h3>
+          <h3 className="font-semibold">{nomeDoEixo(vocabulario, eixo.id)}</h3>
           <p className="text-sm">
             <span className="text-xl font-semibold tabular-nums">
               {decimal(eixo.score)}
@@ -60,6 +75,7 @@ function CartaoEixo({ eixo }: { eixo: EixoResumido }) {
             <span className="text-muted-foreground">de 100</span>
           </p>
         </div>
+        {mede ? <p className="text-sm text-muted-foreground">{mede}</p> : null}
         <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <div className="flex gap-1">
             <dt>Peso</dt>
@@ -85,7 +101,7 @@ function CartaoEixo({ eixo }: { eixo: EixoResumido }) {
         <CardContent>
           <ul>
             {eixo.checks.map((c) => (
-              <LinhaCheck key={c.id} check={c} />
+              <LinhaCheck key={c.id} check={c} vocabulario={vocabulario} />
             ))}
           </ul>
         </CardContent>
@@ -94,7 +110,13 @@ function CartaoEixo({ eixo }: { eixo: EixoResumido }) {
   );
 }
 
-export function EixosDoCiclo({ resumo }: { resumo: ResumoScores }) {
+export function EixosDoCiclo({
+  resumo,
+  vocabulario,
+}: {
+  resumo: ResumoScores;
+  vocabulario: Vocabulario | null;
+}) {
   return (
     <section className="space-y-3">
       <SectionHeader
@@ -103,7 +125,7 @@ export function EixosDoCiclo({ resumo }: { resumo: ResumoScores }) {
       />
       <div className="space-y-3">
         {resumo.eixos.map((e) => (
-          <CartaoEixo key={e.id} eixo={e} />
+          <CartaoEixo key={e.id} eixo={e} vocabulario={vocabulario} />
         ))}
       </div>
       {resumo.eixosIndisponiveis.length > 0 ? (
@@ -112,15 +134,17 @@ export function EixosDoCiclo({ resumo }: { resumo: ResumoScores }) {
             <h3 className="text-sm font-medium">
               Eixos indisponíveis neste ciclo
             </h3>
-            {/* Indisponível não é zero: o eixo fica fora do agregado, com o
-                motivo que o motor gravou. */}
+            {/* Indisponível não é zero: o eixo fica fora do agregado. A frase sai
+                do código do motivo; o texto do motor nunca vai à tela. */}
             <ul className="space-y-1 text-sm">
               {resumo.eixosIndisponiveis.map((i) => (
                 <li key={i.eixo}>
-                  <span className="font-medium">{i.eixo}</span>
+                  <span className="font-medium">
+                    {nomeDoEixo(vocabulario, i.eixo)}
+                  </span>
                   <span className="text-muted-foreground">
                     {" "}
-                    — {i.motivo || "motivo não declarado pelo motor"}
+                    — {fraseDoMotivo(i.codigo)}
                   </span>
                 </li>
               ))}

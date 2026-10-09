@@ -40,7 +40,9 @@ function CartaoCiclo({
               ausência leria como resultado ruim. */}
           <div className="flex flex-wrap gap-1.5">
             {ciclo.temScores ? <Badge variant="soft">Score</Badge> : null}
-            {ciclo.temProbe ? <Badge variant="outline">Probe</Badge> : null}
+            {ciclo.temProbe ? (
+              <Badge variant="outline">Assistentes consultados</Badge>
+            ) : null}
             {ciclo.temBenchmark ? (
               <Badge variant="outline">Benchmark</Badge>
             ) : null}

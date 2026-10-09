@@ -165,6 +165,19 @@ auditoria, vive no repositório do motor:
     Arquivos do original tocados na Fase 3: os três barris de schema e
     `src/db/schema-parity.test.ts`.
 
+15. **O vocabulário da tela vem do motor; as frases de estado são do fork**
+    (decidido em 2026-10-09). Os nomes dos eixos e dos checks, e a frase "o que
+    mede" de cada eixo, são publicados pelo motor em `_motor/vocabulario.json`
+    no bucket e lidos pelo mesmo leitor do `padrao.json`. Sem o arquivo, ou para
+    um identificador que ele não conhece, a tela mostra o identificador, sem
+    quebrar. As frases de estado (motivo de eixo indisponível, por código, e o
+    cartão "O que falta para liberar") são do fork, em
+    `src/client/features/auditorias/frasesDoCiclo.ts`: o motor só informa o
+    código e o insumo, e o texto livre dele (`reason`) nunca aparece na tela.
+    Código ausente ou desconhecido cai na frase genérica. Pela regra 10, texto
+    de tela não cita comando, arquivo nem ferramenta; o selo "Probe" virou
+    "Assistentes consultados". Arquivos do original tocados: nenhum.
+
 ## Adiado até virar produto (decidido em 2026-10-02)
 
 Para os sócios testarem já, domínio próprio, logo e ícone ficam para quando o
