@@ -25,7 +25,13 @@ const eixoBruto = z
 
 const indisponivelBruto = z.union([
   z.string(),
-  z.object({ axis: z.string(), reason: z.string().nullish() }).passthrough(),
+  z
+    .object({
+      axis: z.string(),
+      reason: z.string().nullish(),
+      code: z.string().nullish(),
+    })
+    .passthrough(),
 ]);
 
 const scoresBruto = z
@@ -87,8 +93,8 @@ export function resumirScores(bruto: unknown): ResumoScores | null {
       : null,
     eixosIndisponiveis: (s.unavailable_axes ?? []).map((u) =>
       typeof u === "string"
-        ? { eixo: u, motivo: "" }
-        : { eixo: u.axis, motivo: u.reason ?? "" },
+        ? { eixo: u, motivo: "", codigo: null }
+        : { eixo: u.axis, motivo: u.reason ?? "", codigo: u.code ?? null },
     ),
     eixos: Object.entries(s.axes).map(([id, e]) => resumirEixo(id, e)),
   };

@@ -29,11 +29,23 @@ export type EixoResumido = {
   rende: number | null;
 };
 
+/** O que o cliente precisa entregar para uma etapa deixar de aguardar. */
+export type InsumoAguardado =
+  | "mapa_de_paginas"
+  | "tipos_de_pagina"
+  | "publicacao";
+
+/** Nomes legíveis publicados pelo motor, por identificador. */
+export type Vocabulario = {
+  eixos: Record<string, { nome: string; mede: string }>;
+  checks: Record<string, string>;
+};
+
 export type ResumoScores = {
   geradoEm: string | null;
   agregado: number | null;
   base: { eixosUsados: string[]; pesoCoberto: number } | null;
-  eixosIndisponiveis: { eixo: string; motivo: string }[];
+  eixosIndisponiveis: { eixo: string; motivo: string; codigo: string | null }[];
   eixos: EixoResumido[];
 };
 
@@ -70,6 +82,10 @@ export type ResultadoCiclo =
       perguntasMedidas: string[] | null;
       /** O ciclo traz o `config-usada.yaml` gravado pelo motor. */
       configUsada: boolean;
+      /** Nomes legíveis de eixo e check; null se o motor não os publicou. */
+      vocabulario: Vocabulario | null;
+      /** Etapas da última execução que aguardam um insumo do cliente. */
+      aguardando: { insumo: InsumoAguardado; etapas: string[] }[];
     };
 
 export type ResultadoEntregavel =

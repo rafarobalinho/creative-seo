@@ -137,6 +137,52 @@ describe("AuditoriasService", () => {
     });
   });
 
+  it("traz vocabulário e etapas aguardando; ciclo antigo vem sem ambos", async () => {
+    const vocabulario = {
+      eixos: { a: { nome: "Eixo A", mede: "mede a" } },
+      checks: { a1: "Check A1" },
+    };
+    const manifesto = {
+      runs: [
+        {
+          etapas: [
+            { etapa: "spec", desfecho: "aguardando", insumo: "publicacao" },
+          ],
+        },
+        {
+          etapas: [
+            {
+              etapa: "briefings",
+              desfecho: "aguardando",
+              insumo: "mapa_de_paginas",
+            },
+          ],
+        },
+      ],
+    };
+    const novo = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "exemplo/2026-01-01/run-manifest.json": JSON.stringify(manifesto),
+      "_motor/vocabulario.json": JSON.stringify(vocabulario),
+    });
+    expect(
+      await servico(novo.leitor).lerCiclo(DOMINIO, "2026-01-01"),
+    ).toMatchObject({
+      estado: "ok",
+      vocabulario,
+      aguardando: [{ insumo: "mapa_de_paginas", etapas: ["briefings"] }],
+    });
+    const antigo = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+    });
+    expect(
+      await servico(antigo.leitor).lerCiclo(DOMINIO, "2026-01-01"),
+    ).toMatchObject({ estado: "ok", vocabulario: null, aguardando: [] });
+    expect(antigo.chamadas.lerTexto).not.toContain(
+      "exemplo/2026-01-01/run-manifest.json",
+    );
+  });
+
   it("ciclo com scores.json traz o resumo e os entregáveis", async () => {
     const { leitor } = leitorEmMemoria({
       "exemplo/2026-01-01/scores.json": SCORES,
@@ -222,7 +268,10 @@ describe("AuditoriasService", () => {
     expect(chamadas.listar).toEqual([
       { prefixo: "exemplo/2026-01-01/", delimitador: undefined },
     ]);
-    expect(chamadas.lerTexto).toEqual(["exemplo/2026-01-01/scores.json"]);
+    expect(chamadas.lerTexto).toEqual([
+      "exemplo/2026-01-01/scores.json",
+      "_motor/vocabulario.json",
+    ]);
   });
 });
 
@@ -283,7 +332,10 @@ describe("AuditoriasService: perguntas medidas", () => {
     });
     const r = await servico(leitor).lerCiclo(DOMINIO, "2026-01-01");
     expect(r).toMatchObject({ perguntasMedidas: null, configUsada: false });
-    expect(chamadas.lerTexto).toEqual(["exemplo/2026-01-01/scores.json"]);
+    expect(chamadas.lerTexto).toEqual([
+      "exemplo/2026-01-01/scores.json",
+      "_motor/vocabulario.json",
+    ]);
   });
 
   it("instrumento ilegível ou fora do formato vira null, não exceção", async () => {
