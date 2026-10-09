@@ -183,6 +183,27 @@ describe("AuditoriasService", () => {
     );
   });
 
+  it("falha de leitura só no manifesto não derruba o ciclo", async () => {
+    const { leitor } = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "exemplo/2026-01-01/run-manifest.json": "{}",
+    });
+    const instavel: LeitorCiclos = {
+      listar: (prefixo, delimitador) => leitor.listar(prefixo, delimitador),
+      lerTexto: (chave) =>
+        chave.endsWith("run-manifest.json")
+          ? Promise.reject(new FalhaDeLeitura("oscilou"))
+          : leitor.lerTexto(chave),
+    };
+    expect(
+      await servico(instavel).lerCiclo(DOMINIO, "2026-01-01"),
+    ).toMatchObject({
+      estado: "ok",
+      resumo: { agregado: 50 },
+      aguardando: [],
+    });
+  });
+
   it("ciclo com scores.json traz o resumo e os entregáveis", async () => {
     const { leitor } = leitorEmMemoria({
       "exemplo/2026-01-01/scores.json": SCORES,

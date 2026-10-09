@@ -1,25 +1,24 @@
 import { z } from "zod";
 import type { InsumoAguardado } from "@/shared/auditorias/tipos";
+import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 
-const manifestoSchema = z
+// Só a última run é validada: uma etapa malformada numa run antiga não pode
+// esconder o que a última deixou aguardando.
+const manifestoSchema = z.object({ runs: z.array(z.unknown()) }).passthrough();
+
+const runSchema = z
   .object({
-    runs: z.array(
-      z
-        .object({
-          etapas: z
-            .array(
-              z
-                .object({
-                  etapa: z.string(),
-                  desfecho: z.string(),
-                  insumo: z.string().optional(),
-                })
-                .passthrough(),
-            )
-            .default([]),
-        })
-        .passthrough(),
-    ),
+    etapas: z
+      .array(
+        z
+          .object({
+            etapa: z.string(),
+            desfecho: z.string(),
+            insumo: z.string().optional(),
+          })
+          .passthrough(),
+      )
+      .default([]),
   })
   .passthrough();
 
@@ -51,10 +50,28 @@ export function etapasAguardando(
   }
   const lido = manifestoSchema.safeParse(bruto);
   if (!lido.success) return [];
+  const run = runSchema.safeParse(lido.data.runs.at(-1));
+  if (!run.success) return [];
   const grupos = new Map<InsumoAguardado, string[]>();
-  for (const e of lido.data.runs.at(-1)?.etapas ?? []) {
+  for (const e of run.data.etapas) {
     if (e.desfecho !== "aguardando" || !eInsumo(e.insumo)) continue;
     grupos.set(e.insumo, [...(grupos.get(e.insumo) ?? []), e.etapa]);
   }
   return [...grupos].map(([insumo, etapas]) => ({ insumo, etapas }));
+}
+
+/**
+ * O manifesto é auxiliar: falha de leitura do bucket nele não pode derrubar
+ * o ciclo inteiro, então vira null (sem aviso de espera). Outros erros sobem.
+ */
+export async function lerManifesto(
+  leitor: LeitorCiclos,
+  chave: string,
+): Promise<string | null> {
+  try {
+    return await leitor.lerTexto(chave);
+  } catch (erro) {
+    if (erro instanceof FalhaDeLeitura) return null;
+    throw erro;
+  }
 }

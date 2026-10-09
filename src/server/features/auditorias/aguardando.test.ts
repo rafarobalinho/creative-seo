@@ -69,4 +69,20 @@ describe("etapasAguardando", () => {
     });
     expect(etapasAguardando(desconhecido)).toEqual([]);
   });
+
+  it("etapa malformada em run antiga não esconde o aguardando da última", () => {
+    const texto = JSON.stringify({
+      runs: [
+        { etapas: [{ etapa: "velha" }, 7] },
+        {
+          etapas: [
+            { etapa: "spec", desfecho: "aguardando", insumo: "publicacao" },
+          ],
+        },
+      ],
+    });
+    expect(etapasAguardando(texto)).toEqual([
+      { insumo: "publicacao", etapas: ["spec"] },
+    ]);
+  });
 });

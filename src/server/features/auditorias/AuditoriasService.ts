@@ -8,7 +8,7 @@ import type {
   ResumoScores,
 } from "@/shared/auditorias/tipos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
-import { etapasAguardando } from "./aguardando";
+import { etapasAguardando, lerManifesto } from "./aguardando";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import {
   chaveDoEntregavel,
@@ -175,7 +175,7 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
         vocabulario: await lerVocabulario(leitor),
         aguardando: etapasAguardando(
           tem("run-manifest.json")
-            ? await leitor.lerTexto(`${raiz}/run-manifest.json`)
+            ? await lerManifesto(leitor, `${raiz}/run-manifest.json`)
             : null,
         ),
       };
