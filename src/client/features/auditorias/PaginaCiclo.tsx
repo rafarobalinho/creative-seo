@@ -9,19 +9,23 @@ import { SkeletonPage } from "@/client/components/SkeletonPresets";
 import { Badge } from "@/client/components/ui/badge";
 import { Card, CardContent } from "@/client/components/ui/card";
 import { dataLonga, decimal, percentual } from "@/shared/auditorias/formatos";
-import type { ResumoScores } from "@/shared/auditorias/tipos";
+import type { ResumoScores, Vocabulario } from "@/shared/auditorias/tipos";
 import { consultaCiclo } from "./consultas";
 import { ausenciaPorParametro } from "./parametros";
 import { EixosDoCiclo } from "./EixosDoCiclo";
 import { EntregaveisDoCiclo } from "./EntregaveisDoCiclo";
 import { EstadoAuditoria } from "./EstadoAuditoria";
+import { nomeDoEixo } from "./frasesDoCiclo";
+import { OQueFaltaParaLiberar } from "./OQueFaltaParaLiberar";
 
 function Agregado({
   resumo,
   scoresIlegivel,
+  vocabulario,
 }: {
   resumo: ResumoScores | null;
   scoresIlegivel: boolean;
+  vocabulario: Vocabulario | null;
 }) {
   if (resumo === null) {
     // Ciclo só de benchmark ou de entrega: dizer que não há score, nunca
@@ -56,7 +60,7 @@ function Agregado({
             ? "O motor não declarou a base deste agregado."
             : base.eixosUsados.length === 0
               ? "Nenhum eixo foi medido neste ciclo."
-              : `Calculado sobre ${base.eixosUsados.length} ${base.eixosUsados.length === 1 ? "eixo" : "eixos"} (${base.eixosUsados.join(", ")}), que somam ${percentual(base.pesoCoberto * 100)} do peso.`}
+              : `Calculado sobre ${base.eixosUsados.length} ${base.eixosUsados.length === 1 ? "eixo" : "eixos"} (${base.eixosUsados.map((id) => nomeDoEixo(vocabulario, id)).join(", ")}), que somam ${percentual(base.pesoCoberto * 100)} do peso.`}
         </p>
       </CardContent>
     </Card>
@@ -126,7 +130,9 @@ export function PaginaCiclo({
           description={
             dados?.estado === "ok" && (dados.temProbe || dados.temBenchmark) ? (
               <div className="flex flex-wrap gap-1.5">
-                {dados.temProbe ? <Badge variant="outline">Probe</Badge> : null}
+                {dados.temProbe ? (
+                  <Badge variant="outline">Assistentes consultados</Badge>
+                ) : null}
                 {dados.temBenchmark ? (
                   <Badge variant="outline">Benchmark</Badge>
                 ) : null}
@@ -155,9 +161,14 @@ export function PaginaCiclo({
             <Agregado
               resumo={consulta.data.resumo}
               scoresIlegivel={consulta.data.scoresIlegivel}
+              vocabulario={consulta.data.vocabulario}
             />
+            <OQueFaltaParaLiberar aguardando={consulta.data.aguardando} />
             {consulta.data.resumo ? (
-              <EixosDoCiclo resumo={consulta.data.resumo} />
+              <EixosDoCiclo
+                resumo={consulta.data.resumo}
+                vocabulario={consulta.data.vocabulario}
+              />
             ) : null}
             <PerguntasMedidas
               perguntas={consulta.data.perguntasMedidas}
