@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
-import { toast } from "sonner";
 import { SectionHeader } from "@/client/components/PageHeader";
 import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
@@ -18,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/client/components/ui/select";
-import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import { confirmarJulgamentoAuditoria } from "@/serverFunctions/auditoriasRodadas";
 import type {
   DominioJulgado,
@@ -33,6 +31,7 @@ import {
 } from "./filaDeJulgamento";
 import {
   descricaoDoCaminho,
+  falhaDaConfirmacao,
   fraseDaRecusaDoJulgamento,
   nomeDoCaminho,
 } from "./frasesDoCiclo";
@@ -86,6 +85,7 @@ function LinhaDeSite({
     ),
   );
   const [recusa, setRecusa] = useState<string | null>(null);
+  const [recarregar, setRecarregar] = useState(false);
 
   const confirmar = useMutation({
     mutationFn: (caminho: string) =>
@@ -93,6 +93,7 @@ function LinhaDeSite({
         data: { projectId, ciclo, dominio: dominio.dominio, caminho },
       }),
     onSuccess: (resultado, caminho) => {
+      setRecarregar(false);
       if (resultado.ok) {
         setRecusa(null);
         aoConfirmar(dominio.dominio, caminho);
@@ -100,7 +101,11 @@ function LinhaDeSite({
       }
       setRecusa(fraseDaRecusaDoJulgamento(resultado.motivo));
     },
-    onError: (e) => toast.error(getStandardErrorMessage(e)),
+    onError: (e) => {
+      const falha = falhaDaConfirmacao(e);
+      setRecusa(falha.texto);
+      setRecarregar(falha.recarregar);
+    },
   });
 
   const corrigida = confirmados.get(dominio.dominio);
@@ -189,9 +194,18 @@ function LinhaDeSite({
         </Button>
       </div>
       {recusa ? (
-        <p role="alert" className="text-sm text-destructive">
-          {recusa}
-        </p>
+        <div role="alert" className="flex flex-wrap items-center gap-2">
+          <p className="text-sm text-destructive">{recusa}</p>
+          {recarregar ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Recarregar
+            </Button>
+          ) : null}
+        </div>
       ) : null}
     </li>
   );

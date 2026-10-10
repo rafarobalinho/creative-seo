@@ -1,3 +1,4 @@
+import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import type { MotivoDaRecusaDoJulgamento } from "@/shared/auditorias/julgamentos";
 import type { InsumoAguardado, Vocabulario } from "@/shared/auditorias/tipos";
 
@@ -99,6 +100,25 @@ const FRASES_DA_RECUSA: Record<MotivoDaRecusaDoJulgamento, string> = {
   dominio_desconhecido: "Este site não consta mais na lista deste ciclo.",
   caminho_invalido: "Essa categoria não está entre as opções deste ciclo.",
 };
+
+// Falha de rede na confirmação quase sempre é o login do Cloudflare Access que
+// expirou: a chamada é redirecionada para outro domínio e o navegador a
+// bloqueia. Cada navegador dá um texto; os três cobrem Chrome, Firefox e Safari.
+const FALHA_DE_REDE = /failed to fetch|networkerror|load failed/i;
+
+export function falhaDaConfirmacao(erro: unknown): {
+  texto: string;
+  recarregar: boolean;
+} {
+  if (erro instanceof TypeError && FALHA_DE_REDE.test(erro.message)) {
+    return {
+      texto:
+        "A conexão caiu, provavelmente porque o login expirou. Recarregue a página e confirme este site de novo.",
+      recarregar: true,
+    };
+  }
+  return { texto: getStandardErrorMessage(erro), recarregar: false };
+}
 
 export function fraseDaRecusaDoJulgamento(
   motivo: MotivoDaRecusaDoJulgamento,
