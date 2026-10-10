@@ -1,3 +1,4 @@
+import type { MotivoDaRecusaDoJulgamento } from "@/shared/auditorias/julgamentos";
 import type { InsumoAguardado, Vocabulario } from "@/shared/auditorias/tipos";
 
 /**
@@ -41,6 +42,14 @@ export function nomeDoCheck(
   return checks && Object.hasOwn(checks, id) ? checks[id] : id;
 }
 
+export function nomeDoCaminho(
+  vocabulario: Vocabulario | null,
+  id: string,
+): string {
+  const caminhos = vocabulario?.caminhos;
+  return caminhos && Object.hasOwn(caminhos, id) ? caminhos[id] : id;
+}
+
 const LINHAS_DOS_INSUMOS: Record<
   InsumoAguardado,
   { titulo: string; libera: string }
@@ -58,6 +67,15 @@ const LINHAS_DOS_INSUMOS: Record<
     titulo: "Páginas publicadas",
     libera: "libera a comparação entre o publicado e o planejado.",
   },
+  consulta: {
+    titulo: "Consulta",
+    libera: "Depende da consulta aos assistentes deste ciclo.",
+  },
+  credencial_decisao: {
+    titulo: "Sites citados",
+    libera:
+      "A análise automática dos sites citados não está disponível neste ciclo.",
+  },
 };
 
 export function linhaDoInsumo(insumo: InsumoAguardado): {
@@ -65,4 +83,17 @@ export function linhaDoInsumo(insumo: InsumoAguardado): {
   libera: string;
 } {
   return LINHAS_DOS_INSUMOS[insumo];
+}
+
+const FRASES_DA_RECUSA: Record<MotivoDaRecusaDoJulgamento, string> = {
+  sem_cliente: "Este projeto ainda não tem uma auditoria configurada.",
+  ciclo_indisponivel: "Não foi possível ler este ciclo agora. Tente de novo.",
+  dominio_desconhecido: "Este site não consta mais na lista deste ciclo.",
+  caminho_invalido: "Essa categoria não está entre as opções deste ciclo.",
+};
+
+export function fraseDaRecusaDoJulgamento(
+  motivo: MotivoDaRecusaDoJulgamento,
+): string {
+  return FRASES_DA_RECUSA[motivo];
 }

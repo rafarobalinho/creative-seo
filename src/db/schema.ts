@@ -110,6 +110,8 @@ export const {
   workspaceLlmKey,
   aeoCliente,
   aeoRodada,
+  aeoJulgamento,
+  aeoJulgamentoHistorico,
   reportTemplates,
   audits,
   auditPages,

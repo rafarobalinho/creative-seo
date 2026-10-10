@@ -28,6 +28,25 @@ describe("lerVocabulario", () => {
     expect(await lerVocabulario(fora.leitor)).toBeNull();
   });
 
+  it("lê a seção caminhos; vocabulário antigo, sem ela, continua válido", async () => {
+    const novo = leitorEmMemoria({
+      "_motor/vocabulario.json": JSON.stringify({
+        ...VOCABULARIO,
+        caminhos: { editorial_fechado: "Editorial fechado" },
+      }),
+    });
+    expect(await lerVocabulario(novo.leitor)).toMatchObject({
+      caminhos: { editorial_fechado: "Editorial fechado" },
+    });
+    const errado = leitorEmMemoria({
+      "_motor/vocabulario.json": JSON.stringify({
+        ...VOCABULARIO,
+        caminhos: { editorial_fechado: 1 },
+      }),
+    });
+    expect(await lerVocabulario(errado.leitor)).toBeNull();
+  });
+
   it("falha de leitura do bucket também vira null", async () => {
     const leitor: LeitorCiclos = {
       listar: () => Promise.reject(new FalhaDeLeitura("fora do ar")),

@@ -26,6 +26,8 @@ const INSUMOS: readonly string[] = [
   "mapa_de_paginas",
   "tipos_de_pagina",
   "publicacao",
+  "consulta",
+  "credencial_decisao",
 ] satisfies InsumoAguardado[];
 
 function eInsumo(valor: string | undefined): valor is InsumoAguardado {

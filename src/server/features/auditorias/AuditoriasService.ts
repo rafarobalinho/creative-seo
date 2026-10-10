@@ -2,11 +2,13 @@ import { sortBy } from "remeda";
 import type {
   CicloListado,
   FalhaAuditoria,
+  JulgadoNaTela,
   ResultadoCiclo,
   ResultadoCiclos,
   ResultadoEntregavel,
   ResumoScores,
 } from "@/shared/auditorias/tipos";
+import { lerJulgamentos } from "@/shared/auditorias/julgamentos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
 import { etapasAguardando, lerManifesto } from "./aguardando";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
@@ -24,6 +26,8 @@ export type DependenciasAuditoria = {
   vinculos: string | undefined;
   /** Slug do cliente gravado na `aeo_cliente`; ganha da `AEO_VINCULOS`. */
   slugDoBanco: string | null;
+  /** Domínios já julgados na tela para o cliente; sem isto, nenhum. */
+  dominiosJulgados?: (cliente: string) => Promise<JulgadoNaTela[]>;
 };
 
 type Contexto = { cliente: string; leitor: LeitorCiclos };
@@ -124,6 +128,19 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
     });
   }
 
+  /** Falha do banco não derruba o ciclo: a fila só volta a mostrar o site. */
+  async function julgadosNaTela(cliente: string): Promise<JulgadoNaTela[]> {
+    try {
+      return (await d.dominiosJulgados?.(cliente)) ?? [];
+    } catch (erro) {
+      // Só o slug e o tipo do erro: tabela ausente não pode ficar invisível.
+      console.warn(
+        `julgados na tela indisponíveis (cliente ${cliente}): ${erro instanceof Error ? erro.name : typeof erro}`,
+      );
+      return [];
+    }
+  }
+
   async function lerCiclo(
     dominio: string | null,
     ciclo: string,
@@ -157,6 +174,9 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
           scoresIlegivel = resumo === null;
         }
       }
+      const julgamentos = tem("julgamentos.json")
+        ? lerJulgamentos(await lerManifesto(leitor, `${raiz}/julgamentos.json`))
+        : null;
       return {
         estado: "ok",
         cliente,
@@ -178,6 +198,9 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
             ? await lerManifesto(leitor, `${raiz}/run-manifest.json`)
             : null,
         ),
+        julgamentos,
+        julgadosNaTela:
+          julgamentos === null ? [] : await julgadosNaTela(cliente),
       };
     });
   }

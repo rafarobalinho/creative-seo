@@ -1,3 +1,4 @@
+import type { Julgamentos } from "./julgamentos";
 export type GrupoEntregavel = "cliente" | "dev" | "conteudo";
 
 export type Entregavel = {
@@ -33,12 +34,16 @@ export type EixoResumido = {
 export type InsumoAguardado =
   | "mapa_de_paginas"
   | "tipos_de_pagina"
-  | "publicacao";
+  | "publicacao"
+  | "consulta"
+  | "credencial_decisao";
 
 /** Nomes legíveis publicados pelo motor, por identificador. */
 export type Vocabulario = {
   eixos: Record<string, { nome: string; mede: string }>;
   checks: Record<string, string>;
+  /** Nome de cada categoria de caminho; ausente em vocabulário antigo. */
+  caminhos?: Record<string, string>;
 };
 
 export type ResumoScores = {
@@ -86,7 +91,14 @@ export type ResultadoCiclo =
       vocabulario: Vocabulario | null;
       /** Etapas da última execução que aguardam um insumo do cliente. */
       aguardando: { insumo: InsumoAguardado; etapas: string[] }[];
+      /** Sites citados a julgar; null se o ciclo não traz o arquivo ou ele é ilegível. */
+      julgamentos: Julgamentos | null;
+      /** Sites que a tela já julgou para este cliente (banco), com a categoria; vazio se a leitura falhar. */
+      julgadosNaTela: JulgadoNaTela[];
     };
+
+/** Site julgado pela tela e a categoria escolhida pela pessoa. */
+export type JulgadoNaTela = { dominio: string; caminho: string };
 
 export type ResultadoEntregavel =
   | FalhaAuditoria

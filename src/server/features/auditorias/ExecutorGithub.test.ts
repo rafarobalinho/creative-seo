@@ -65,6 +65,7 @@ describe("disparar", () => {
       slug: "cliente-x",
       rodada,
       config: "perguntas: []",
+      julgamentos: '[{"dominio":"guia-exemplo.com"}]',
     });
     expect(r).toEqual({ ok: true });
     expect(chamadas[0]?.url).toBe(
@@ -78,7 +79,12 @@ describe("disparar", () => {
     expect(cab?.get("User-Agent")).toBe("creative-seo");
     expect(JSON.parse(chamadas[0]?.corpo ?? "")).toEqual({
       ref: "main",
-      inputs: { client: "cliente-x", rodada, config: "perguntas: []" },
+      inputs: {
+        client: "cliente-x",
+        rodada,
+        config: "perguntas: []",
+        julgamentos: '[{"dominio":"guia-exemplo.com"}]',
+      },
     });
   });
 
@@ -88,10 +94,24 @@ describe("disparar", () => {
       slug: "cliente-x",
       rodada,
       config: null,
+      julgamentos: "",
     });
     expect(JSON.parse(chamadas[0]?.corpo ?? "")).toMatchObject({
       inputs: { config: "" },
     });
+  });
+
+  it("omite a chave julgamentos quando não há julgamento", async () => {
+    const { buscar, chamadas } = buscaFalsa(resposta(null, 204));
+    await criarExecutorGithub(config, buscar).disparar({
+      slug: "cliente-x",
+      rodada,
+      config: null,
+      julgamentos: "",
+    });
+    expect(JSON.parse(chamadas[0]?.corpo ?? "")).not.toHaveProperty(
+      "inputs.julgamentos",
+    );
   });
 
   it.each([401, 404])(
@@ -104,6 +124,7 @@ describe("disparar", () => {
         slug: "cliente-x",
         rodada,
         config: null,
+        julgamentos: "",
       });
       expect(r).toEqual({ ok: false, motivo: `github ${s}` });
       expect(JSON.stringify(r)).not.toContain(config.token);
@@ -116,6 +137,7 @@ describe("disparar", () => {
       slug: "cliente-x",
       rodada,
       config: null,
+      julgamentos: "",
     });
     expect(r.ok).toBe(false);
     expect(JSON.stringify(r)).not.toContain(config.token);

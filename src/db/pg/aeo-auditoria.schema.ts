@@ -54,3 +54,40 @@ export const aeoRodada = pgTable(
       .where(sql`${tabela.estado} IN ('na_fila', 'rodando')`),
   ],
 );
+
+// Espelho de aeo_julgamento e aeo_julgamento_historico. Notas das colunas: ver ../aeo-auditoria.schema.ts.
+export const aeoJulgamento = pgTable(
+  "aeo_julgamento",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    clienteSlug: text("cliente_slug").notNull(),
+    dominio: text("dominio").notNull(),
+    caminho: text("caminho").notNull(),
+    julgadoPor: text("julgado_por").notNull(),
+    julgadoEm: text("julgado_em").notNull(),
+    sugestaoVista: text("sugestao_vista"),
+  },
+  (tabela) => [
+    uniqueIndex("aeo_julgamento_cliente_dominio_idx").on(
+      tabela.clienteSlug,
+      tabela.dominio,
+    ),
+  ],
+);
+
+export const aeoJulgamentoHistorico = pgTable("aeo_julgamento_historico", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  clienteSlug: text("cliente_slug").notNull(),
+  dominio: text("dominio").notNull(),
+  caminho: text("caminho").notNull(),
+  julgadoPor: text("julgado_por").notNull(),
+  julgadoEm: text("julgado_em").notNull(),
+  sugestaoVista: text("sugestao_vista"),
+  substituidoEm: text("substituido_em").notNull(),
+});

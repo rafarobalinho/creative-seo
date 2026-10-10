@@ -178,6 +178,20 @@ auditoria, vive no repositório do motor:
     de tela não cita comando, arquivo nem ferramenta; o selo "Probe" virou
     "Assistentes consultados". Arquivos do original tocados: nenhum.
 
+16. **A fila de julgamento é lida do ciclo; a confirmação fica no banco e a
+    tela nunca decide a fase** (decidido em 2026-10-09). A seção "Sites citados
+    a julgar" lê o `julgamentos.json` da pasta do ciclo, que é fato do ciclo e
+    nunca é escrito pela tela. Confirmar um site grava a escolha da pessoa no
+    banco (com a sugestão que ela viu, copiada do ciclo pelo servidor), e o
+    disparo seguinte leva todas as confirmações do cliente ao motor. Quem decide
+    a fase (sugestão ou automática) é o motor, pelo histórico de confirmações;
+    a tela não mostra placar, contador nem critério. Os sites já
+    confirmados na tela vêm do banco junto com a leitura do ciclo (uma falha
+    dessa leitura vira lista vazia e não derruba o ciclo) e saem da fila mesmo
+    depois de recarregar. O seletor de um site em dúvida começa vazio: a
+    escolha é da pessoa. Pela regra 10, o texto da seção não cita comando, arquivo nem
+    ferramenta. Arquivos do original tocados: nenhum.
+
 ## Adiado até virar produto (decidido em 2026-10-02)
 
 Para os sócios testarem já, domínio próprio, logo e ícone ficam para quando o

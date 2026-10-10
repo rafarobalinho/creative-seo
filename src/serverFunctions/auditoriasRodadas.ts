@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { AuthRepository } from "@/server/auth/repositories/AuthRepository";
 import { lerConfiguracaoSalva } from "@/server/features/auditorias/dadosDaRodada";
 import {
   criarExecutorGithub,
   lerConfigGithub,
 } from "@/server/features/auditorias/ExecutorGithub";
+import { criarJulgamentosService } from "@/server/features/auditorias/JulgamentosService";
 import {
   criarLeitorS3,
   lerConfigS3,
@@ -28,6 +30,12 @@ const porProjetoSchema = z.object({ projectId: z.string().min(1) });
 const salvarSchema = porProjetoSchema.extend({
   configuracao: configuracaoSchema,
   confirmouNovaSerie: z.boolean(),
+});
+
+const confirmarJulgamentoSchema = porProjetoSchema.extend({
+  ciclo: z.string().min(1),
+  dominio: z.string().min(1),
+  caminho: z.string().min(1),
 });
 
 type Contexto = {
@@ -62,6 +70,17 @@ function quemDispara(c: Contexto) {
   return c.userEmail || c.userId;
 }
 
+/**
+ * O julgamento vai para uma pasta entregue ao cliente, então grava o nome de
+ * exibição e nunca o e-mail. Sem nome no banco, um rótulo neutro.
+ */
+async function nomeDeExibicao(c: Contexto) {
+  const [usuario] = await AuthRepository.getHostedUserNames([c.userId]);
+  const nome = usuario?.name?.trim();
+  // O campo de nome aceita qualquer texto; e-mail nunca vai para a pasta do cliente.
+  return nome && !nome.includes("@") ? nome : "Equipe";
+}
+
 /** Montado por chamada: o ambiente pode não ter credencial (dev local). */
 async function montarEntorno() {
   const [configS3, configGithub, vinculos] = await Promise.all([
@@ -76,7 +95,8 @@ async function montarEntorno() {
     proibidos: ["_padrao", ...slugsDosVinculos(vinculos)],
     vinculos,
   });
-  return { service, leitor };
+  const julgamentos = criarJulgamentosService({ leitor, vinculos });
+  return { service, leitor, julgamentos };
 }
 
 export const lerConfiguracaoAuditoria = createServerFn({ method: "GET" })
@@ -122,4 +142,16 @@ export const acompanharAuditoria = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { service } = await montarEntorno();
     return service.acompanhar(projetoDoContexto(context));
+  });
+
+export const confirmarJulgamentoAuditoria = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(confirmarJulgamentoSchema)
+  .handler(async ({ data, context }) => {
+    const { julgamentos } = await montarEntorno();
+    return julgamentos.confirmar(
+      projetoDoContexto(context),
+      await nomeDeExibicao(context),
+      { ciclo: data.ciclo, dominio: data.dominio, caminho: data.caminho },
+    );
   });
