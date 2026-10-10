@@ -327,7 +327,7 @@ describe("funções de servidor das rodadas da auditoria", () => {
       confirmar.mockResolvedValue({ ok: true });
       nomesDosUsuarios.mockResolvedValue([]);
       await confirmarJulgamentoAuditoria({ data: pedido });
-      const nome = confirmar.mock.calls[0]?.[1];
+      const nome: unknown = confirmar.mock.calls[0]?.[1];
       expect(nome).toBe("Equipe");
     });
 

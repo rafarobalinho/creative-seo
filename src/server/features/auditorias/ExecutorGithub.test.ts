@@ -109,8 +109,9 @@ describe("disparar", () => {
       config: null,
       julgamentos: "",
     });
-    const { inputs } = JSON.parse(chamadas[0]?.corpo ?? "");
-    expect(inputs).not.toHaveProperty("julgamentos");
+    expect(JSON.parse(chamadas[0]?.corpo ?? "")).not.toHaveProperty(
+      "inputs.julgamentos",
+    );
   });
 
   it.each([401, 404])(
