@@ -48,3 +48,14 @@ export function filaDeJulgamento(
 function maisCitadosPrimeiro(lista: DominioJulgado[]): DominioJulgado[] {
   return sortBy(lista, [(d) => d.citacoes, "desc"]);
 }
+
+/** As categorias para a pessoa escolher: a união dos três baldes, sem repetir. */
+export function opcoesDeCategoria(caminhos: Julgamentos["tarefa"]["caminhos"]) {
+  return [
+    ...new Set([
+      ...caminhos.permitidos,
+      ...caminhos.bloqueados,
+      ...caminhos.condicionais,
+    ]),
+  ];
+}

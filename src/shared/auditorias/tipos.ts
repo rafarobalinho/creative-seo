@@ -34,7 +34,9 @@ export type EixoResumido = {
 export type InsumoAguardado =
   | "mapa_de_paginas"
   | "tipos_de_pagina"
-  | "publicacao";
+  | "publicacao"
+  | "consulta"
+  | "credencial_decisao";
 
 /** Nomes legíveis publicados pelo motor, por identificador. */
 export type Vocabulario = {

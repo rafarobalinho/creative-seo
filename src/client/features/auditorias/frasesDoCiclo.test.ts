@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Vocabulario } from "@/shared/auditorias/tipos";
 import {
+  fraseDaRecusaDoJulgamento,
   fraseDoMotivo,
   linhaDoInsumo,
   nomeDoCaminho,
@@ -86,11 +87,23 @@ describe("regra 10: texto de tela não cita comando, arquivo nem ferramenta", ()
       "mapa_de_paginas",
       "tipos_de_pagina",
       "publicacao",
+      "consulta",
+      "credencial_decisao",
     ] as const;
     const textos = [
       ...codigos.map(fraseDoMotivo),
       ...insumos.map((i) => linhaDoInsumo(i).titulo),
     ];
+    textos.push(
+      ...(
+        [
+          "sem_cliente",
+          "ciclo_indisponivel",
+          "dominio_desconhecido",
+          "caminho_invalido",
+        ] as const
+      ).map(fraseDaRecusaDoJulgamento),
+    );
     for (const t of textos) {
       expect(t).not.toMatch(/\baeo\b|\.csv|\.json|\.yaml|crawl|probe/i);
     }
@@ -116,5 +129,32 @@ describe("nomeDoCaminho", () => {
     );
     expect(nomeDoCaminho(comCaminhos, "outro")).toBe("outro");
     expect(nomeDoCaminho(comCaminhos, "toString")).toBe("toString");
+  });
+});
+
+describe("frases dos insumos da decisão", () => {
+  it("diz o que depende da consulta e da análise automática", () => {
+    expect(linhaDoInsumo("consulta").libera).toBe(
+      "Depende da consulta aos assistentes deste ciclo.",
+    );
+    expect(linhaDoInsumo("credencial_decisao").libera).toBe(
+      "A análise automática dos sites citados não está disponível neste ciclo.",
+    );
+  });
+});
+
+describe("fraseDaRecusaDoJulgamento", () => {
+  it("dá uma frase própria para cada motivo de recusa", () => {
+    const frases = new Set(
+      (
+        [
+          "sem_cliente",
+          "ciclo_indisponivel",
+          "dominio_desconhecido",
+          "caminho_invalido",
+        ] as const
+      ).map(fraseDaRecusaDoJulgamento),
+    );
+    expect(frases.size).toBe(4);
   });
 });

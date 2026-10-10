@@ -17,6 +17,7 @@ import { EntregaveisDoCiclo } from "./EntregaveisDoCiclo";
 import { EstadoAuditoria } from "./EstadoAuditoria";
 import { nomeDoEixo } from "./frasesDoCiclo";
 import { OQueFaltaParaLiberar } from "./OQueFaltaParaLiberar";
+import { SitesCitadosAJulgar } from "./SitesCitadosAJulgar";
 
 function Agregado({
   resumo,
@@ -164,6 +165,14 @@ export function PaginaCiclo({
               vocabulario={consulta.data.vocabulario}
             />
             <OQueFaltaParaLiberar aguardando={consulta.data.aguardando} />
+            {consulta.data.julgamentos ? (
+              <SitesCitadosAJulgar
+                projectId={projectId}
+                ciclo={ciclo}
+                julgamentos={consulta.data.julgamentos}
+                vocabulario={consulta.data.vocabulario}
+              />
+            ) : null}
             {consulta.data.resumo ? (
               <EixosDoCiclo
                 resumo={consulta.data.resumo}

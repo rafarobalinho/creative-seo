@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { julgamentosSchema } from "@/shared/auditorias/julgamentos";
 import { JULGAMENTOS_DE_EXEMPLO } from "@/shared/auditorias/julgamentosDeExemplo";
-import { filaDeJulgamento } from "./filaDeJulgamento";
+import { filaDeJulgamento, opcoesDeCategoria } from "./filaDeJulgamento";
 
 const julgamentos = julgamentosSchema.parse(JULGAMENTOS_DE_EXEMPLO);
 const nomes = (l: { dominio: string }[]) => l.map((d) => d.dominio);
@@ -65,5 +65,19 @@ describe("filaDeJulgamento", () => {
   it("ordena cada grupo pelas citações, mais citado primeiro", () => {
     const fila = filaDeJulgamento(julgamentos, new Set());
     expect(fila.firmes.map((d) => d.citacoes)).toEqual([2, 1]);
+  });
+});
+
+describe("opcoesDeCategoria", () => {
+  it("junta os três baldes, sem repetir", () => {
+    const { permitidos, bloqueados, condicionais } =
+      julgamentos.tarefa.caminhos;
+    const opcoes = opcoesDeCategoria({
+      permitidos,
+      bloqueados,
+      condicionais: [...condicionais, permitidos[0]],
+    });
+    expect(opcoes).toEqual([...permitidos, ...bloqueados, ...condicionais]);
+    expect(new Set(opcoes).size).toBe(opcoes.length);
   });
 });

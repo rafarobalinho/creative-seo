@@ -54,6 +54,27 @@ describe("etapasAguardando", () => {
     ]);
   });
 
+  it("reconhece os insumos da camada de decisão", () => {
+    const texto = JSON.stringify({
+      runs: [
+        {
+          etapas: [
+            { etapa: "julgamento", desfecho: "aguardando", insumo: "consulta" },
+            {
+              etapa: "julgamento",
+              desfecho: "aguardando",
+              insumo: "credencial_decisao",
+            },
+          ],
+        },
+      ],
+    });
+    expect(etapasAguardando(texto)).toEqual([
+      { insumo: "consulta", etapas: ["julgamento"] },
+      { insumo: "credencial_decisao", etapas: ["julgamento"] },
+    ]);
+  });
+
   it("devolve vazio para null, JSON quebrado, sem runs e insumo desconhecido", () => {
     expect(etapasAguardando(null)).toEqual([]);
     expect(etapasAguardando("{quebrado")).toEqual([]);

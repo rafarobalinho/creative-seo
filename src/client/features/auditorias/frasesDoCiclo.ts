@@ -1,4 +1,7 @@
+import type { ResultadoConfirmar } from "@/server/features/auditorias/JulgamentosService";
 import type { InsumoAguardado, Vocabulario } from "@/shared/auditorias/tipos";
+
+type MotivoDaRecusa = Extract<ResultadoConfirmar, { ok: false }>["motivo"];
 
 /**
  * Frases de estado do ciclo. O motor publica só o código do motivo; a frase é
@@ -66,6 +69,15 @@ const LINHAS_DOS_INSUMOS: Record<
     titulo: "Páginas publicadas",
     libera: "libera a comparação entre o publicado e o planejado.",
   },
+  consulta: {
+    titulo: "Consulta aos assistentes",
+    libera: "Depende da consulta aos assistentes deste ciclo.",
+  },
+  credencial_decisao: {
+    titulo: "Análise automática",
+    libera:
+      "A análise automática dos sites citados não está disponível neste ciclo.",
+  },
 };
 
 export function linhaDoInsumo(insumo: InsumoAguardado): {
@@ -73,4 +85,15 @@ export function linhaDoInsumo(insumo: InsumoAguardado): {
   libera: string;
 } {
   return LINHAS_DOS_INSUMOS[insumo];
+}
+
+const FRASES_DA_RECUSA: Record<MotivoDaRecusa, string> = {
+  sem_cliente: "Este projeto ainda não tem uma auditoria configurada.",
+  ciclo_indisponivel: "Não foi possível ler este ciclo agora. Tente de novo.",
+  dominio_desconhecido: "Este site não consta mais na lista deste ciclo.",
+  caminho_invalido: "Essa categoria não está entre as opções deste ciclo.",
+};
+
+export function fraseDaRecusaDoJulgamento(motivo: MotivoDaRecusa): string {
+  return FRASES_DA_RECUSA[motivo];
 }
