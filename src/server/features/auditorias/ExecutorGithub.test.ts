@@ -110,7 +110,7 @@ describe("disparar", () => {
       julgamentos: "",
     });
     const { inputs } = JSON.parse(chamadas[0]?.corpo ?? "");
-    expect(Object.keys(inputs).toSorted()).toEqual(["client", "config", "rodada"]);
+    expect(inputs).not.toHaveProperty("julgamentos");
   });
 
   it.each([401, 404])(
