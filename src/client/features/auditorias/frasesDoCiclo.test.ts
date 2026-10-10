@@ -4,6 +4,7 @@ import {
   fraseDaRecusaDoJulgamento,
   fraseDoMotivo,
   linhaDoInsumo,
+  descricaoDoCaminho,
   nomeDoCaminho,
   nomeDoCheck,
   nomeDoEixo,
@@ -129,6 +130,26 @@ describe("nomeDoCaminho", () => {
     );
     expect(nomeDoCaminho(comCaminhos, "outro")).toBe("outro");
     expect(nomeDoCaminho(comCaminhos, "toString")).toBe("toString");
+  });
+});
+
+describe("descricaoDoCaminho", () => {
+  const comDescricao: Vocabulario = {
+    ...vocabulario,
+    caminhos_descricao: { editorial_fechado: "Conteúdo de outra marca." },
+  };
+
+  it("devolve a descrição do caminho conhecido", () => {
+    expect(descricaoDoCaminho(comDescricao, "editorial_fechado")).toBe(
+      "Conteúdo de outra marca.",
+    );
+  });
+
+  it("é null sem vocabulário, sem a seção ou com id desconhecido", () => {
+    expect(descricaoDoCaminho(null, "editorial_fechado")).toBeNull();
+    expect(descricaoDoCaminho(vocabulario, "editorial_fechado")).toBeNull();
+    expect(descricaoDoCaminho(comDescricao, "outro")).toBeNull();
+    expect(descricaoDoCaminho(comDescricao, "toString")).toBeNull();
   });
 });
 

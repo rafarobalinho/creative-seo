@@ -50,6 +50,14 @@ export function nomeDoCaminho(
   return caminhos && Object.hasOwn(caminhos, id) ? caminhos[id] : id;
 }
 
+export function descricaoDoCaminho(
+  vocabulario: Vocabulario | null,
+  id: string,
+): string | null {
+  const descricoes = vocabulario?.caminhos_descricao;
+  return descricoes && Object.hasOwn(descricoes, id) ? descricoes[id] : null;
+}
+
 const LINHAS_DOS_INSUMOS: Record<
   InsumoAguardado,
   { titulo: string; libera: string }

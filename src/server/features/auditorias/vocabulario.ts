@@ -6,6 +6,7 @@ const vocabularioSchema = z.object({
   eixos: z.record(z.string(), z.object({ nome: z.string(), mede: z.string() })),
   checks: z.record(z.string(), z.string()),
   caminhos: z.record(z.string(), z.string()).optional(),
+  caminhos_descricao: z.record(z.string(), z.string()).optional(),
 });
 
 /**
