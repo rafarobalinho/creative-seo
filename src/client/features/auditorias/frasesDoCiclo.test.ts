@@ -5,6 +5,7 @@ import {
   fraseDoMotivo,
   linhaDoInsumo,
   descricaoDoCaminho,
+  falhaDaConfirmacao,
   nomeDoCaminho,
   nomeDoCheck,
   nomeDoEixo,
@@ -150,6 +151,28 @@ describe("descricaoDoCaminho", () => {
     expect(descricaoDoCaminho(vocabulario, "editorial_fechado")).toBeNull();
     expect(descricaoDoCaminho(comDescricao, "outro")).toBeNull();
     expect(descricaoDoCaminho(comDescricao, "toString")).toBeNull();
+  });
+});
+
+describe("falhaDaConfirmacao", () => {
+  it("falha de rede vira a frase do login expirado e pede recarregar", () => {
+    for (const mensagem of [
+      "Failed to fetch",
+      "NetworkError when attempting to fetch resource.",
+      "Load failed",
+    ]) {
+      expect(falhaDaConfirmacao(new TypeError(mensagem))).toEqual({
+        texto:
+          "A conexão caiu, provavelmente porque o login expirou. Recarregue a página e confirme este site de novo.",
+        recarregar: true,
+      });
+    }
+  });
+
+  it("outro erro mantém a mensagem padrão, sem pedir recarregar", () => {
+    const falha = falhaDaConfirmacao(new Error("FORBIDDEN"));
+    expect(falha.recarregar).toBe(false);
+    expect(falha.texto).not.toMatch(/login expirou/);
   });
 });
 
