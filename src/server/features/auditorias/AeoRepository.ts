@@ -231,6 +231,8 @@ function sugestaoVistaDoBanco(texto: string | null): SugestaoVista | null {
   }
 }
 
+// A chave é (cliente_slug, dominio) porque o slug do cliente é único no
+// produto, a mesma premissa do RodadasService.
 /**
  * Grava por cima e manda a linha anterior para o histórico, as duas coisas na
  * mesma transação. Dois cliques simultâneos no mesmo domínio podem ler a mesma
@@ -280,6 +282,7 @@ async function gravarJulgamento(j: JulgamentoParaGravar, agora: string) {
   ]);
 }
 
+// Chave (cliente_slug, dominio): o slug do cliente é único no produto.
 async function listarJulgamentos(
   clienteSlug: string,
 ): Promise<JulgamentoGravado[]> {

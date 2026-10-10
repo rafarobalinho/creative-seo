@@ -36,6 +36,16 @@ export type DependenciasJulgamentos = {
   agora?: () => Date;
 };
 
+// O motor lê só a data e desempata por ela; o dia é o de quem julgou, não o do
+// horário universal. "en-CA" formata como AAAA-MM-DD.
+const FORMATO_DO_DIA = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Sao_Paulo",
+});
+
+function diaEmSaoPaulo(momento: Date) {
+  return FORMATO_DO_DIA.format(momento);
+}
+
 export function criarJulgamentosService(d: DependenciasJulgamentos) {
   const agora = d.agora ?? (() => new Date());
 
@@ -99,8 +109,7 @@ export function criarJulgamentosService(d: DependenciasJulgamentos) {
         dominio: pedido.dominio,
         caminho: pedido.caminho,
         julgadoPor: usuario,
-        // O motor lê só a data; o dia é o do horário universal.
-        julgadoEm: momento.toISOString().slice(0, 10),
+        julgadoEm: diaEmSaoPaulo(momento),
         sugestaoVista,
       },
       momento.toISOString(),

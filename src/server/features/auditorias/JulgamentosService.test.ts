@@ -78,11 +78,14 @@ function comCiclo(
   return leitorEmMemoria(arquivos).leitor;
 }
 
-function servico(leitor: LeitorCiclos | null = comCiclo()) {
+function servico(
+  leitor: LeitorCiclos | null = comCiclo(),
+  agora: Date = AGORA,
+) {
   return criarJulgamentosService({
     leitor,
     vinculos: VINCULOS,
-    agora: () => AGORA,
+    agora: () => agora,
   });
 }
 
@@ -111,6 +114,17 @@ describe("confirmar julgamento", () => {
         },
       },
     ]);
+  });
+
+  it("julgado_em é a data de São Paulo, não a do horário universal", async () => {
+    // 01:30 UTC de 10/10 ainda é noite de 09/10 em São Paulo (UTC-3).
+    await servico(comCiclo(), new Date("2026-10-10T01:30:00.000Z")).confirmar(
+      PROJETO,
+      "Ana Sócia",
+      PEDIDO,
+    );
+    const [gravado] = await AeoRepository.listarJulgamentos("exemplo");
+    expect(gravado?.julgadoEm).toBe("2026-10-09");
   });
 
   it("domínio sem sugestão no ciclo grava sugestao_vista nula", async () => {
