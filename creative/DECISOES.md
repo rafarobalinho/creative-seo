@@ -185,9 +185,11 @@ auditoria, vive no repositório do motor:
     banco (com a sugestão que ela viu, copiada do ciclo pelo servidor), e o
     disparo seguinte leva todas as confirmações do cliente ao motor. Quem decide
     a fase (sugestão ou automática) é o motor, pelo histórico de confirmações;
-    a tela não mostra placar, contador nem critério. O conjunto de sites
-    confirmados na tela é local e só tira o site da fila até a página ser
-    recarregada. Pela regra 10, o texto da seção não cita comando, arquivo nem
+    a tela não mostra placar, contador nem critério. Os sites já
+    confirmados na tela vêm do banco junto com a leitura do ciclo (uma falha
+    dessa leitura vira lista vazia e não derruba o ciclo) e saem da fila mesmo
+    depois de recarregar. O seletor de um site em dúvida começa vazio: a
+    escolha é da pessoa. Pela regra 10, o texto da seção não cita comando, arquivo nem
     ferramenta. Arquivos do original tocados: nenhum.
 
 ## Adiado até virar produto (decidido em 2026-10-02)

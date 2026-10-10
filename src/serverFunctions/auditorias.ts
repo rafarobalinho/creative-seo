@@ -35,6 +35,8 @@ async function montarService(projectId: string) {
     vinculos: await getOptionalEnvValue("AEO_VINCULOS"),
     slugDoBanco:
       (await AeoRepository.clientePorProjeto(projectId))?.slug ?? null,
+    dominiosJulgados: async (slug) =>
+      (await AeoRepository.listarJulgamentos(slug)).map((j) => j.dominio),
   });
 }
 

@@ -25,8 +25,25 @@ import type {
   Julgamentos,
 } from "@/shared/auditorias/julgamentos";
 import type { Vocabulario } from "@/shared/auditorias/tipos";
-import { filaDeJulgamento, opcoesDeCategoria } from "./filaDeJulgamento";
+import {
+  categoriaInicial,
+  filaDeJulgamento,
+  opcoesDeCategoria,
+} from "./filaDeJulgamento";
 import { fraseDaRecusaDoJulgamento, nomeDoCaminho } from "./frasesDoCiclo";
+
+function fraseDaDuvida(
+  sugestao: DominioJulgado["sugestao"],
+  vocabulario: Vocabulario | null,
+): string {
+  if (sugestao === null) {
+    return "O sistema não chegou a uma sugestão para este site.";
+  }
+  const categoria = nomeDoCaminho(vocabulario, sugestao.categoria);
+  const ocupavel =
+    sugestao.ocupavel === "sim" ? "é ocupável" : "não é ocupável";
+  return `O sistema ficou em dúvida: sugeriu ${categoria} e respondeu que o site ${ocupavel}.`;
+}
 
 type Modo = "firme" | "duvida" | "automatico";
 
@@ -52,11 +69,13 @@ function LinhaDeSite({
 }) {
   const { projectId, ciclo, opcoes, vocabulario, confirmados, aoConfirmar } =
     contexto;
-  const inicial =
-    modo === "automatico"
-      ? dominio.caminho
-      : (dominio.sugestao?.categoria ?? null);
-  const [escolha, setEscolha] = useState<string | null>(inicial);
+  const [escolha, setEscolha] = useState<string | null>(() =>
+    categoriaInicial(
+      dominio,
+      modo,
+      opcoes.map((o) => o.value),
+    ),
+  );
   const [recusa, setRecusa] = useState<string | null>(null);
 
   const confirmar = useMutation({
@@ -116,9 +135,7 @@ function LinhaDeSite({
       ) : null}
       {modo === "duvida" ? (
         <p className="text-sm text-muted-foreground">
-          {sugestao
-            ? `O sistema ficou em dúvida. Respostas: categoria ${nomeDoCaminho(vocabulario, sugestao.categoria)}; ocupável: ${sugestao.ocupavel === "sim" ? "sim" : "não"}.`
-            : "O sistema não chegou a uma sugestão para este site."}
+          {fraseDaDuvida(sugestao, vocabulario)}
         </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-2">
@@ -235,26 +252,32 @@ function JaJulgados({
 
 /**
  * A fila vem do ciclo; o que a pessoa confirma aqui fica no banco e segue no
- * próximo disparo. O conjunto local só tira o site da fila desta tela: a tela
- * nunca decide a fase e não mostra placar.
+ * próximo disparo. Os sites já julgados (banco) e os confirmados agora saem da
+ * fila: a tela nunca decide a fase e não mostra placar.
  */
 export function SitesCitadosAJulgar({
   projectId,
   ciclo,
   julgamentos,
   vocabulario,
+  julgadosNaTela,
 }: {
   projectId: string;
   ciclo: string;
   julgamentos: Julgamentos;
   vocabulario: Vocabulario | null;
+  /** Sites que a tela já julgou, lidos do banco junto com o ciclo. */
+  julgadosNaTela: string[];
 }) {
   const [confirmados, setConfirmados] = useState<Map<string, string>>(
     () => new Map(),
   );
   if (julgamentos.dominios.length === 0) return null;
 
-  const fila = filaDeJulgamento(julgamentos, new Set(confirmados.keys()));
+  const fila = filaDeJulgamento(
+    julgamentos,
+    new Set([...julgadosNaTela, ...confirmados.keys()]),
+  );
   const contexto: Contexto = {
     projectId,
     ciclo,

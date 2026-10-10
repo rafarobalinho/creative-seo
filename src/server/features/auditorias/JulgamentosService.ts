@@ -1,5 +1,6 @@
 import {
   lerJulgamentos,
+  type MotivoDaRecusaDoJulgamento,
   type SugestaoVista,
 } from "@/shared/auditorias/julgamentos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
@@ -22,11 +23,7 @@ export type ResultadoConfirmar =
   | { ok: true }
   | {
       ok: false;
-      motivo:
-        | "sem_cliente"
-        | "ciclo_indisponivel"
-        | "dominio_desconhecido"
-        | "caminho_invalido";
+      motivo: MotivoDaRecusaDoJulgamento;
     };
 
 export type DependenciasJulgamentos = {

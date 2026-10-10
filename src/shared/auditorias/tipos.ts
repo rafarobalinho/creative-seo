@@ -93,6 +93,8 @@ export type ResultadoCiclo =
       aguardando: { insumo: InsumoAguardado; etapas: string[] }[];
       /** Sites citados a julgar; null se o ciclo não traz o arquivo ou ele é ilegível. */
       julgamentos: Julgamentos | null;
+      /** Sites que a tela já julgou para este cliente (banco); vazio se a leitura falhar. */
+      julgadosNaTela: string[];
     };
 
 export type ResultadoEntregavel =

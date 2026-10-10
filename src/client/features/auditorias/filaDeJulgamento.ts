@@ -59,3 +59,21 @@ export function opcoesDeCategoria(caminhos: Julgamentos["tarefa"]["caminhos"]) {
     ]),
   ];
 }
+
+/**
+ * A categoria que já vem escolhida no seletor. Site em dúvida começa vazio: a
+ * escolha é da pessoa. Valor que não está nas opções também começa vazio.
+ */
+export function categoriaInicial(
+  dominio: DominioJulgado,
+  modo: "firme" | "duvida" | "automatico",
+  opcoes: string[],
+): string | null {
+  const candidata =
+    modo === "automatico"
+      ? dominio.caminho
+      : modo === "firme"
+        ? (dominio.sugestao?.categoria ?? null)
+        : null;
+  return candidata !== null && opcoes.includes(candidata) ? candidata : null;
+}

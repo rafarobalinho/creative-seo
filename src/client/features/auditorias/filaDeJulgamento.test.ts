@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { julgamentosSchema } from "@/shared/auditorias/julgamentos";
 import { JULGAMENTOS_DE_EXEMPLO } from "@/shared/auditorias/julgamentosDeExemplo";
-import { filaDeJulgamento, opcoesDeCategoria } from "./filaDeJulgamento";
+import {
+  categoriaInicial,
+  filaDeJulgamento,
+  opcoesDeCategoria,
+} from "./filaDeJulgamento";
 
 const julgamentos = julgamentosSchema.parse(JULGAMENTOS_DE_EXEMPLO);
 const nomes = (l: { dominio: string }[]) => l.map((d) => d.dominio);
@@ -79,5 +83,42 @@ describe("opcoesDeCategoria", () => {
     });
     expect(opcoes).toEqual([...permitidos, ...bloqueados, ...condicionais]);
     expect(new Set(opcoes).size).toBe(opcoes.length);
+  });
+});
+
+describe("categoriaInicial", () => {
+  const base = julgamentos.dominios[0];
+  const opcoes = ["editorial_conquistado", "parceria_comercial"];
+  const sugerindo = (categoria: string) => ({
+    ...base,
+    caminho: categoria,
+    sugestao: {
+      categoria,
+      confianca_categoria: 0.9,
+      ocupavel: "sim" as const,
+      confianca_ocupavel: 0.9,
+      firme: true,
+      brutos: [],
+    },
+  });
+
+  it("firme começa na sugestão; automático, na categoria decidida", () => {
+    const d = sugerindo("editorial_conquistado");
+    expect(categoriaInicial(d, "firme", opcoes)).toBe("editorial_conquistado");
+    expect(categoriaInicial(d, "automatico", opcoes)).toBe(
+      "editorial_conquistado",
+    );
+  });
+
+  it("em dúvida começa vazio, mesmo com sugestão", () => {
+    expect(
+      categoriaInicial(sugerindo("editorial_conquistado"), "duvida", opcoes),
+    ).toBeNull();
+  });
+
+  it("valor fora das opções começa vazio", () => {
+    const d = sugerindo("inventada");
+    expect(categoriaInicial(d, "firme", opcoes)).toBeNull();
+    expect(categoriaInicial(d, "automatico", opcoes)).toBeNull();
   });
 });

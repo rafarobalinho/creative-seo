@@ -171,6 +171,7 @@ export function PaginaCiclo({
                 ciclo={ciclo}
                 julgamentos={consulta.data.julgamentos}
                 vocabulario={consulta.data.vocabulario}
+                julgadosNaTela={consulta.data.julgadosNaTela}
               />
             ) : null}
             {consulta.data.resumo ? (

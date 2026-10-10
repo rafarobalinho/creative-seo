@@ -25,6 +25,8 @@ export type DependenciasAuditoria = {
   vinculos: string | undefined;
   /** Slug do cliente gravado na `aeo_cliente`; ganha da `AEO_VINCULOS`. */
   slugDoBanco: string | null;
+  /** Domínios já julgados na tela para o cliente; sem isto, nenhum. */
+  dominiosJulgados?: (cliente: string) => Promise<string[]>;
 };
 
 type Contexto = { cliente: string; leitor: LeitorCiclos };
@@ -125,6 +127,15 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
     });
   }
 
+  /** Falha do banco não derruba o ciclo: a fila só volta a mostrar o site. */
+  async function julgadosNaTela(cliente: string): Promise<string[]> {
+    try {
+      return (await d.dominiosJulgados?.(cliente)) ?? [];
+    } catch {
+      return [];
+    }
+  }
+
   async function lerCiclo(
     dominio: string | null,
     ciclo: string,
@@ -158,6 +169,9 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
           scoresIlegivel = resumo === null;
         }
       }
+      const julgamentos = tem("julgamentos.json")
+        ? lerJulgamentos(await leitor.lerTexto(`${raiz}/julgamentos.json`))
+        : null;
       return {
         estado: "ok",
         cliente,
@@ -179,9 +193,9 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
             ? await lerManifesto(leitor, `${raiz}/run-manifest.json`)
             : null,
         ),
-        julgamentos: tem("julgamentos.json")
-          ? lerJulgamentos(await leitor.lerTexto(`${raiz}/julgamentos.json`))
-          : null,
+        julgamentos,
+        julgadosNaTela:
+          julgamentos === null ? [] : await julgadosNaTela(cliente),
       };
     });
   }

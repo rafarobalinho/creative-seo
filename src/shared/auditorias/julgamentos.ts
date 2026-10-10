@@ -92,3 +92,10 @@ export const sugestaoVistaSchema = z.object({
 });
 
 export type SugestaoVista = z.infer<typeof sugestaoVistaSchema>;
+
+/** Por que o servidor recusou uma confirmação de julgamento. */
+export type MotivoDaRecusaDoJulgamento =
+  | "sem_cliente"
+  | "ciclo_indisponivel"
+  | "dominio_desconhecido"
+  | "caminho_invalido";
