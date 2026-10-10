@@ -3,6 +3,7 @@ import type {
   DominioJulgado,
   Julgamentos,
 } from "@/shared/auditorias/julgamentos";
+import type { JulgadoNaTela } from "@/shared/auditorias/tipos";
 
 type FilaDeJulgamento = {
   /** Sem decisão, com sugestão firme do modelo: a pessoa só confirma. */
@@ -43,6 +44,20 @@ export function filaDeJulgamento(
     automaticos: maisCitadosPrimeiro(fila.automaticos),
     julgados: maisCitadosPrimeiro(fila.julgados),
   };
+}
+
+/**
+ * Site -> categoria que a pessoa escolheu: o que já está no banco, coberto
+ * pelo que ela confirmou agora nesta tela (a confirmação mais recente vale).
+ */
+export function confirmadosDaTela(
+  doBanco: JulgadoNaTela[],
+  locais: Map<string, string>,
+): Map<string, string> {
+  return new Map([
+    ...doBanco.map((j): [string, string] => [j.dominio, j.caminho]),
+    ...locais,
+  ]);
 }
 
 function maisCitadosPrimeiro(lista: DominioJulgado[]): DominioJulgado[] {

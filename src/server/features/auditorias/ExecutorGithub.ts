@@ -76,7 +76,9 @@ export function criarExecutorGithub(
               client: slug,
               rodada,
               config: config ?? "",
-              julgamentos,
+              // Vazio some do corpo: motor que ainda não declara o input
+              // continua aceitando o disparo de quem não tem julgamento.
+              ...(julgamentos === "" ? {} : { julgamentos }),
             },
           }),
           signal: AbortSignal.timeout(TEMPO_LIMITE_MS),

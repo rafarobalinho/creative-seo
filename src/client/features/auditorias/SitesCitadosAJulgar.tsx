@@ -24,9 +24,10 @@ import type {
   DominioJulgado,
   Julgamentos,
 } from "@/shared/auditorias/julgamentos";
-import type { Vocabulario } from "@/shared/auditorias/tipos";
+import type { JulgadoNaTela, Vocabulario } from "@/shared/auditorias/tipos";
 import {
   categoriaInicial,
+  confirmadosDaTela,
   filaDeJulgamento,
   opcoesDeCategoria,
 } from "./filaDeJulgamento";
@@ -69,9 +70,13 @@ function LinhaDeSite({
 }) {
   const { projectId, ciclo, opcoes, vocabulario, confirmados, aoConfirmar } =
     contexto;
+  // Site automático que a pessoa corrigiu abre já na categoria dela.
   const [escolha, setEscolha] = useState<string | null>(() =>
     categoriaInicial(
-      dominio,
+      {
+        ...dominio,
+        caminho: confirmados.get(dominio.dominio) ?? dominio.caminho,
+      },
       modo,
       opcoes.map((o) => o.value),
     ),
@@ -266,18 +271,14 @@ export function SitesCitadosAJulgar({
   ciclo: string;
   julgamentos: Julgamentos;
   vocabulario: Vocabulario | null;
-  /** Sites que a tela já julgou, lidos do banco junto com o ciclo. */
-  julgadosNaTela: string[];
+  /** Sites que a tela já julgou e a categoria, lidos do banco junto com o ciclo. */
+  julgadosNaTela: JulgadoNaTela[];
 }) {
-  const [confirmados, setConfirmados] = useState<Map<string, string>>(
-    () => new Map(),
-  );
+  const [locais, setLocais] = useState<Map<string, string>>(() => new Map());
   if (julgamentos.dominios.length === 0) return null;
 
-  const fila = filaDeJulgamento(
-    julgamentos,
-    new Set([...julgadosNaTela, ...confirmados.keys()]),
-  );
+  const confirmados = confirmadosDaTela(julgadosNaTela, locais);
+  const fila = filaDeJulgamento(julgamentos, new Set(confirmados.keys()));
   const contexto: Contexto = {
     projectId,
     ciclo,
@@ -288,7 +289,7 @@ export function SitesCitadosAJulgar({
       label: nomeDoCaminho(vocabulario, id),
     })),
     aoConfirmar: (dominio, caminho) =>
-      setConfirmados((atual) => new Map(atual).set(dominio, caminho)),
+      setLocais((atual) => new Map(atual).set(dominio, caminho)),
   };
   return (
     <section className="space-y-3">

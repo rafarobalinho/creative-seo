@@ -331,6 +331,15 @@ describe("funções de servidor das rodadas da auditoria", () => {
       expect(nome).toBe("Equipe");
     });
 
+    it("nome de exibição com @ vira Equipe", async () => {
+      confirmar.mockResolvedValue({ ok: true });
+      nomesDosUsuarios.mockResolvedValue([
+        { id: "usuario-do-contexto", name: "ana@exemplo.test" },
+      ]);
+      await confirmarJulgamentoAuditoria({ data: pedido });
+      expect(confirmar.mock.calls[0]?.[1]).toBe("Equipe");
+    });
+
     it("devolve a recusa como dado", async () => {
       confirmar.mockResolvedValue({ ok: false, motivo: "caminho_invalido" });
       expect(await confirmarJulgamentoAuditoria({ data: pedido })).toEqual({

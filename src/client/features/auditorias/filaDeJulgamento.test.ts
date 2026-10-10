@@ -3,6 +3,7 @@ import { julgamentosSchema } from "@/shared/auditorias/julgamentos";
 import { JULGAMENTOS_DE_EXEMPLO } from "@/shared/auditorias/julgamentosDeExemplo";
 import {
   categoriaInicial,
+  confirmadosDaTela,
   filaDeJulgamento,
   opcoesDeCategoria,
 } from "./filaDeJulgamento";
@@ -120,5 +121,21 @@ describe("categoriaInicial", () => {
     const d = sugerindo("inventada");
     expect(categoriaInicial(d, "firme", opcoes)).toBeNull();
     expect(categoriaInicial(d, "automatico", opcoes)).toBeNull();
+  });
+});
+
+describe("confirmadosDaTela", () => {
+  it("junta o banco e o confirmado agora; o mais recente vale", () => {
+    const mapa = confirmadosDaTela(
+      [
+        { dominio: "a-exemplo.com", caminho: "editorial_conquistado" },
+        { dominio: "b-exemplo.com", caminho: "outra" },
+      ],
+      new Map([["b-exemplo.com", "nova"]]),
+    );
+    expect([...mapa]).toEqual([
+      ["a-exemplo.com", "editorial_conquistado"],
+      ["b-exemplo.com", "nova"],
+    ]);
   });
 });

@@ -80,7 +80,7 @@ const julgamento = (slug: string, dominio: string) => ({
   clienteSlug: slug,
   dominio,
   caminho: "permitido",
-  julgadoPor: "socio@exemplo.test",
+  julgadoPor: "Maria Souza",
   julgadoEm: "2026-10-08",
   sugestaoVista: null,
 });
@@ -101,7 +101,7 @@ describe("rodar: julgamentos no disparo", () => {
       {
         dominio: "guia-exemplo.com",
         caminho: "permitido",
-        julgado_por: "socio@exemplo.test",
+        julgado_por: "Maria Souza",
         julgado_em: "2026-10-08",
         sugestao_vista: null,
       },

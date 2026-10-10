@@ -2,6 +2,7 @@ import { sortBy } from "remeda";
 import type {
   CicloListado,
   FalhaAuditoria,
+  JulgadoNaTela,
   ResultadoCiclo,
   ResultadoCiclos,
   ResultadoEntregavel,
@@ -26,7 +27,7 @@ export type DependenciasAuditoria = {
   /** Slug do cliente gravado na `aeo_cliente`; ganha da `AEO_VINCULOS`. */
   slugDoBanco: string | null;
   /** Domínios já julgados na tela para o cliente; sem isto, nenhum. */
-  dominiosJulgados?: (cliente: string) => Promise<string[]>;
+  dominiosJulgados?: (cliente: string) => Promise<JulgadoNaTela[]>;
 };
 
 type Contexto = { cliente: string; leitor: LeitorCiclos };
@@ -128,10 +129,14 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
   }
 
   /** Falha do banco não derruba o ciclo: a fila só volta a mostrar o site. */
-  async function julgadosNaTela(cliente: string): Promise<string[]> {
+  async function julgadosNaTela(cliente: string): Promise<JulgadoNaTela[]> {
     try {
       return (await d.dominiosJulgados?.(cliente)) ?? [];
-    } catch {
+    } catch (erro) {
+      // Só o slug e o tipo do erro: tabela ausente não pode ficar invisível.
+      console.warn(
+        `julgados na tela indisponíveis (cliente ${cliente}): ${erro instanceof Error ? erro.name : typeof erro}`,
+      );
       return [];
     }
   }
@@ -170,7 +175,7 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
         }
       }
       const julgamentos = tem("julgamentos.json")
-        ? lerJulgamentos(await leitor.lerTexto(`${raiz}/julgamentos.json`))
+        ? lerJulgamentos(await lerManifesto(leitor, `${raiz}/julgamentos.json`))
         : null;
       return {
         estado: "ok",

@@ -12,7 +12,7 @@ const sugestao = {
 const linha = (dominio: string) => ({
   dominio,
   caminho: "permitido",
-  julgadoPor: "a@exemplo.test",
+  julgadoPor: "Ana Lima",
   julgadoEm: "2026-10-08",
   sugestaoVista: null,
 });
@@ -30,14 +30,14 @@ describe("julgamentosDoDisparo", () => {
       {
         dominio: "guia-exemplo.com",
         caminho: "permitido",
-        julgadoPor: "socio@exemplo.test",
+        julgadoPor: "Maria Souza",
         julgadoEm: "2026-10-08",
         sugestaoVista: sugestao,
       },
       {
         dominio: "exemplo.com",
         caminho: "bloqueado",
-        julgadoPor: "socio@exemplo.test",
+        julgadoPor: "Maria Souza",
         julgadoEm: "2026-10-09",
         sugestaoVista: null,
       },
@@ -46,14 +46,14 @@ describe("julgamentosDoDisparo", () => {
       {
         dominio: "guia-exemplo.com",
         caminho: "permitido",
-        julgado_por: "socio@exemplo.test",
+        julgado_por: "Maria Souza",
         julgado_em: "2026-10-08",
         sugestao_vista: sugestao,
       },
       {
         dominio: "exemplo.com",
         caminho: "bloqueado",
-        julgado_por: "socio@exemplo.test",
+        julgado_por: "Maria Souza",
         julgado_em: "2026-10-09",
         sugestao_vista: null,
       },

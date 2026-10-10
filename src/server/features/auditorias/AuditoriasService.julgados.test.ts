@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { JULGAMENTOS_DE_EXEMPLO } from "@/shared/auditorias/julgamentosDeExemplo";
 import { criarAuditoriasService } from "./AuditoriasService";
 import { leitorEmMemoria } from "./apoioDosTestes";
+import { FalhaDeLeitura } from "./LeitorCiclos";
 
 const VINCULOS = "exemplo.com.br=exemplo";
 const DOMINIO = "exemplo.com.br";
@@ -26,15 +27,20 @@ describe("AuditoriasService: julgados na tela", () => {
       slugDoBanco: null,
       dominiosJulgados: async (cliente) => {
         chamadas.push(cliente);
-        return ["guia-exemplo.com"];
+        return [
+          { dominio: "guia-exemplo.com", caminho: "editorial_conquistado" },
+        ];
       },
     });
     expect(await com.lerCiclo(DOMINIO, "2026-01-01")).toMatchObject({
       estado: "ok",
-      julgadosNaTela: ["guia-exemplo.com"],
+      julgadosNaTela: [
+        { dominio: "guia-exemplo.com", caminho: "editorial_conquistado" },
+      ],
     });
     expect(chamadas).toEqual(["exemplo"]);
 
+    const aviso = vi.spyOn(console, "warn").mockImplementation(() => {});
     const quebrado = criarAuditoriasService({
       leitor: leitorEmMemoria(arquivos).leitor,
       vinculos: VINCULOS,
@@ -46,17 +52,49 @@ describe("AuditoriasService: julgados na tela", () => {
       julgamentos: { tarefa: { nome: "sites_citados" } },
       julgadosNaTela: [],
     });
+    expect(aviso).toHaveBeenCalledOnce();
+    const frase = String(aviso.mock.calls[0]?.[0]);
+    expect(frase).toContain("exemplo");
+    expect(frase).toContain("Error");
+    expect(frase).not.toContain("banco fora");
+    aviso.mockRestore();
 
     const semArquivo = criarAuditoriasService({
       leitor: leitorEmMemoria({ "exemplo/2026-01-01/scores.json": SCORES })
         .leitor,
       vinculos: VINCULOS,
       slugDoBanco: null,
-      dominiosJulgados: async () => ["x.com"],
+      dominiosJulgados: async () => [{ dominio: "x.com", caminho: "y" }],
     });
     expect(await semArquivo.lerCiclo(DOMINIO, "2026-01-01")).toMatchObject({
       julgamentos: null,
       julgadosNaTela: [],
+    });
+  });
+});
+
+describe("AuditoriasService: julgamentos.json", () => {
+  it("falha do bucket só nesse arquivo vira julgamentos nulo, sem derrubar o ciclo", async () => {
+    const { leitor } = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "exemplo/2026-01-01/julgamentos.json": "{}",
+    });
+    const servico = criarAuditoriasService({
+      leitor: {
+        ...leitor,
+        lerTexto: async (chave) => {
+          if (chave.endsWith("julgamentos.json")) {
+            throw new FalhaDeLeitura("oscilou");
+          }
+          return leitor.lerTexto(chave);
+        },
+      },
+      vinculos: VINCULOS,
+      slugDoBanco: null,
+    });
+    expect(await servico.lerCiclo(DOMINIO, "2026-01-01")).toMatchObject({
+      estado: "ok",
+      julgamentos: null,
     });
   });
 });

@@ -76,7 +76,9 @@ function quemDispara(c: Contexto) {
  */
 async function nomeDeExibicao(c: Contexto) {
   const [usuario] = await AuthRepository.getHostedUserNames([c.userId]);
-  return usuario?.name || "Equipe";
+  const nome = usuario?.name?.trim();
+  // O campo de nome aceita qualquer texto; e-mail nunca vai para a pasta do cliente.
+  return nome && !nome.includes("@") ? nome : "Equipe";
 }
 
 /** Montado por chamada: o ambiente pode não ter credencial (dev local). */

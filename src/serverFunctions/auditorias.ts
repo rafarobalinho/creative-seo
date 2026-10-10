@@ -36,7 +36,10 @@ async function montarService(projectId: string) {
     slugDoBanco:
       (await AeoRepository.clientePorProjeto(projectId))?.slug ?? null,
     dominiosJulgados: async (slug) =>
-      (await AeoRepository.listarJulgamentos(slug)).map((j) => j.dominio),
+      (await AeoRepository.listarJulgamentos(slug)).map((j) => ({
+        dominio: j.dominio,
+        caminho: j.caminho,
+      })),
   });
 }
 

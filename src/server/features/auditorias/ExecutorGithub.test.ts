@@ -97,8 +97,20 @@ describe("disparar", () => {
       julgamentos: "",
     });
     expect(JSON.parse(chamadas[0]?.corpo ?? "")).toMatchObject({
-      inputs: { config: "", julgamentos: "" },
+      inputs: { config: "" },
     });
+  });
+
+  it("omite a chave julgamentos quando não há julgamento", async () => {
+    const { buscar, chamadas } = buscaFalsa(resposta(null, 204));
+    await criarExecutorGithub(config, buscar).disparar({
+      slug: "cliente-x",
+      rodada,
+      config: null,
+      julgamentos: "",
+    });
+    const { inputs } = JSON.parse(chamadas[0]?.corpo ?? "");
+    expect(Object.keys(inputs).toSorted()).toEqual(["client", "config", "rodada"]);
   });
 
   it.each([401, 404])(
