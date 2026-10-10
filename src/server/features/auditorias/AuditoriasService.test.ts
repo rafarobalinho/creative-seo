@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { JULGAMENTOS_DE_EXEMPLO } from "@/shared/auditorias/julgamentosDeExemplo";
 import { criarAuditoriasService } from "./AuditoriasService";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import { leitorEmMemoria } from "./apoioDosTestes";
@@ -181,6 +182,41 @@ describe("AuditoriasService", () => {
     expect(antigo.chamadas.lerTexto).not.toContain(
       "exemplo/2026-01-01/run-manifest.json",
     );
+  });
+
+  it("lê o julgamentos.json do ciclo; ausente ou ilegível vira null", async () => {
+    const com = leitorEmMemoria({
+      "exemplo/2026-01-01/scores.json": SCORES,
+      "exemplo/2026-01-01/julgamentos.json": JSON.stringify(
+        JULGAMENTOS_DE_EXEMPLO,
+      ),
+    });
+    expect(
+      await servico(com.leitor).lerCiclo(DOMINIO, "2026-01-01"),
+    ).toMatchObject({
+      estado: "ok",
+      julgamentos: { tarefa: { nome: "sites_citados" } },
+    });
+    const sem = leitorEmMemoria({ "exemplo/2026-01-01/scores.json": SCORES });
+    expect(
+      await servico(sem.leitor).lerCiclo(DOMINIO, "2026-01-01"),
+    ).toMatchObject({ estado: "ok", julgamentos: null });
+    expect(sem.chamadas.lerTexto).not.toContain(
+      "exemplo/2026-01-01/julgamentos.json",
+    );
+    for (const conteudo of ["{quebrado", JSON.stringify({ tarefa: 1 })]) {
+      const ruim = leitorEmMemoria({
+        "exemplo/2026-01-01/scores.json": SCORES,
+        "exemplo/2026-01-01/julgamentos.json": conteudo,
+      });
+      expect(
+        await servico(ruim.leitor).lerCiclo(DOMINIO, "2026-01-01"),
+      ).toMatchObject({
+        estado: "ok",
+        julgamentos: null,
+        resumo: { agregado: 50 },
+      });
+    }
   });
 
   it("falha de leitura só no manifesto não derruba o ciclo", async () => {

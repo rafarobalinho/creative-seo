@@ -3,6 +3,7 @@ import type { Vocabulario } from "@/shared/auditorias/tipos";
 import {
   fraseDoMotivo,
   linhaDoInsumo,
+  nomeDoCaminho,
   nomeDoCheck,
   nomeDoEixo,
 } from "./frasesDoCiclo";
@@ -93,5 +94,27 @@ describe("regra 10: texto de tela não cita comando, arquivo nem ferramenta", ()
     for (const t of textos) {
       expect(t).not.toMatch(/\baeo\b|\.csv|\.json|\.yaml|crawl|probe/i);
     }
+  });
+});
+
+describe("nomeDoCaminho", () => {
+  const comCaminhos: Vocabulario = {
+    ...vocabulario,
+    caminhos: { editorial_fechado: "Editorial fechado" },
+  };
+
+  it("traduz o caminho conhecido", () => {
+    expect(nomeDoCaminho(comCaminhos, "editorial_fechado")).toBe(
+      "Editorial fechado",
+    );
+  });
+
+  it("cai no identificador sem vocabulário, sem a seção ou com id desconhecido", () => {
+    expect(nomeDoCaminho(null, "editorial_fechado")).toBe("editorial_fechado");
+    expect(nomeDoCaminho(vocabulario, "editorial_fechado")).toBe(
+      "editorial_fechado",
+    );
+    expect(nomeDoCaminho(comCaminhos, "outro")).toBe("outro");
+    expect(nomeDoCaminho(comCaminhos, "toString")).toBe("toString");
   });
 });

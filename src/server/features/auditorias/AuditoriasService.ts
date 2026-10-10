@@ -7,6 +7,10 @@ import type {
   ResultadoEntregavel,
   ResumoScores,
 } from "@/shared/auditorias/tipos";
+import {
+  type Julgamentos,
+  julgamentosSchema,
+} from "@/shared/auditorias/julgamentos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
 import { etapasAguardando, lerManifesto } from "./aguardando";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
@@ -87,6 +91,20 @@ function perguntasDoInstrumento(texto: string | null): string[] | null {
     textos.push(p.text);
   }
   return textos;
+}
+
+/**
+ * O `julgamentos.json` é fato do ciclo e a tela só lê. Qualquer forma
+ * inesperada vira null: a seção some em vez de mostrar uma fila errada.
+ */
+function julgamentosDoCiclo(texto: string | null): Julgamentos | null {
+  if (texto === null) return null;
+  try {
+    const lido = julgamentosSchema.safeParse(JSON.parse(texto));
+    return lido.success ? lido.data : null;
+  } catch {
+    return null;
+  }
 }
 
 export function criarAuditoriasService(d: DependenciasAuditoria) {
@@ -178,6 +196,11 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
             ? await lerManifesto(leitor, `${raiz}/run-manifest.json`)
             : null,
         ),
+        julgamentos: tem("julgamentos.json")
+          ? julgamentosDoCiclo(
+              await leitor.lerTexto(`${raiz}/julgamentos.json`),
+            )
+          : null,
       };
     });
   }

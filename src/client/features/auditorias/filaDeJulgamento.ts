@@ -1,0 +1,50 @@
+import { sortBy } from "remeda";
+import type {
+  DominioJulgado,
+  Julgamentos,
+} from "@/shared/auditorias/julgamentos";
+
+type FilaDeJulgamento = {
+  /** Sem decisão, com sugestão firme do modelo: a pessoa só confirma. */
+  firmes: DominioJulgado[];
+  /** Sem decisão e sem sugestão firme (dúvida do modelo ou sem resposta). */
+  emDuvida: DominioJulgado[];
+  /** Decididos pelo modelo na fase automática. */
+  automaticos: DominioJulgado[];
+  /** Já decididos por regra ou por pessoa, no ciclo ou depois dele. */
+  julgados: DominioJulgado[];
+};
+
+/**
+ * Divide os domínios do ciclo pelo que a pessoa ainda precisa fazer.
+ * `confirmados` são os domínios julgados depois do ciclo: saem da fila e
+ * passam a julgados. Em cada grupo, o mais citado vem primeiro.
+ */
+export function filaDeJulgamento(
+  j: Julgamentos,
+  confirmados: Set<string>,
+): FilaDeJulgamento {
+  const fila: FilaDeJulgamento = {
+    firmes: [],
+    emDuvida: [],
+    automaticos: [],
+    julgados: [],
+  };
+  for (const d of j.dominios) {
+    if (d.origem === "modelo") fila.automaticos.push(d);
+    else if (d.origem !== null || confirmados.has(d.dominio)) {
+      fila.julgados.push(d);
+    } else if (d.sugestao?.firme === true) fila.firmes.push(d);
+    else fila.emDuvida.push(d);
+  }
+  return {
+    firmes: maisCitadosPrimeiro(fila.firmes),
+    emDuvida: maisCitadosPrimeiro(fila.emDuvida),
+    automaticos: maisCitadosPrimeiro(fila.automaticos),
+    julgados: maisCitadosPrimeiro(fila.julgados),
+  };
+}
+
+function maisCitadosPrimeiro(lista: DominioJulgado[]): DominioJulgado[] {
+  return sortBy(lista, [(d) => d.citacoes, "desc"]);
+}

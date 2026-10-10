@@ -1,3 +1,4 @@
+import type { Julgamentos } from "./julgamentos";
 export type GrupoEntregavel = "cliente" | "dev" | "conteudo";
 
 export type Entregavel = {
@@ -39,6 +40,8 @@ export type InsumoAguardado =
 export type Vocabulario = {
   eixos: Record<string, { nome: string; mede: string }>;
   checks: Record<string, string>;
+  /** Nome de cada categoria de caminho; ausente em vocabulário antigo. */
+  caminhos?: Record<string, string>;
 };
 
 export type ResumoScores = {
@@ -86,6 +89,8 @@ export type ResultadoCiclo =
       vocabulario: Vocabulario | null;
       /** Etapas da última execução que aguardam um insumo do cliente. */
       aguardando: { insumo: InsumoAguardado; etapas: string[] }[];
+      /** Sites citados a julgar; null se o ciclo não traz o arquivo ou ele é ilegível. */
+      julgamentos: Julgamentos | null;
     };
 
 export type ResultadoEntregavel =

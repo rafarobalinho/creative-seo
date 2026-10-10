@@ -41,6 +41,14 @@ export function nomeDoCheck(
   return checks && Object.hasOwn(checks, id) ? checks[id] : id;
 }
 
+export function nomeDoCaminho(
+  vocabulario: Vocabulario | null,
+  id: string,
+): string {
+  const caminhos = vocabulario?.caminhos;
+  return caminhos && Object.hasOwn(caminhos, id) ? caminhos[id] : id;
+}
+
 const LINHAS_DOS_INSUMOS: Record<
   InsumoAguardado,
   { titulo: string; libera: string }
