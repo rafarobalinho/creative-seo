@@ -127,7 +127,12 @@ export const PADRAO_JSON = JSON.stringify({
   clientes_do_git: ["agencia"],
 });
 
-type Disparo = { slug: string; rodada: string; config: string | null };
+type Disparo = {
+  slug: string;
+  rodada: string;
+  config: string | null;
+  julgamentos: string;
+};
 
 const naoEncontrada = (): Promise<EstadoExecucao> =>
   Promise.resolve({ tipo: "nao_encontrada" });

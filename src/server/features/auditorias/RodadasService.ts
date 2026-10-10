@@ -31,6 +31,7 @@ import {
   type ExecutorDeAuditoria,
 } from "./ExecutorGithub";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
+import { julgamentosParaDisparar } from "./julgamentosParaDisparar";
 import { slugDoProjeto } from "./vinculoProjeto";
 
 // A F5 lê o padrão para mostrar o custo; o ponto de entrada é este serviço.
@@ -251,6 +252,8 @@ export function criarRodadasService(d: DependenciasRodadas) {
     if (liberada !== null) {
       return { ok: false, motivo: "teto", liberadaEm: liberada.toISOString() };
     }
+    // Lido antes de criar a rodada: falha de leitura não deixa rodada na fila.
+    const julgamentos = await julgamentosParaDisparar(slug);
 
     const perguntas = config?.perguntas.length ?? 0;
     const padrao = config ? await lerPadraoDoMotor(d.leitor) : null;
@@ -281,7 +284,12 @@ export function criarRodadasService(d: DependenciasRodadas) {
     }
 
     const disparo = await executor
-      .disparar({ slug, rodada: criada.id, config: entrada })
+      .disparar({
+        slug,
+        rodada: criada.id,
+        config: entrada,
+        julgamentos,
+      })
       .catch(() => ({ ok: false as const, motivo: "erro ao disparar" }));
     if (!disparo.ok) {
       await AeoRepository.atualizarRodada(criada.id, {

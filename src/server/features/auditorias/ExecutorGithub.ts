@@ -16,6 +16,8 @@ export interface ExecutorDeAuditoria {
     slug: string;
     rodada: string;
     config: string | null;
+    /** JSON dos julgamentos confirmados na tela; vazio quando não há. */
+    julgamentos: string;
   }): Promise<{ ok: true } | { ok: false; motivo: string }>;
   estado(rodada: string): Promise<EstadoExecucao>;
 }
@@ -62,7 +64,7 @@ export function criarExecutorGithub(
   };
 
   return {
-    async disparar({ slug, rodada, config }) {
+    async disparar({ slug, rodada, config, julgamentos }) {
       let resposta: Response;
       try {
         resposta = await buscar(`${base}/dispatches`, {
@@ -70,7 +72,12 @@ export function criarExecutorGithub(
           headers: { ...cabecalhos, "Content-Type": "application/json" },
           body: JSON.stringify({
             ref: "main",
-            inputs: { client: slug, rodada, config: config ?? "" },
+            inputs: {
+              client: slug,
+              rodada,
+              config: config ?? "",
+              julgamentos,
+            },
           }),
           signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
         });
