@@ -44,6 +44,8 @@ export type Vocabulario = {
   checks: Record<string, string>;
   /** Nome de cada categoria de caminho; ausente em vocabulário antigo. */
   caminhos?: Record<string, string>;
+  /** O mesmo critério que o modelo recebe, para quem julga escolher igual. */
+  caminhos_descricao?: Record<string, string>;
 };
 
 export type ResumoScores = {

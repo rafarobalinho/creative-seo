@@ -31,7 +31,11 @@ import {
   filaDeJulgamento,
   opcoesDeCategoria,
 } from "./filaDeJulgamento";
-import { fraseDaRecusaDoJulgamento, nomeDoCaminho } from "./frasesDoCiclo";
+import {
+  descricaoDoCaminho,
+  fraseDaRecusaDoJulgamento,
+  nomeDoCaminho,
+} from "./frasesDoCiclo";
 
 function fraseDaDuvida(
   sugestao: DominioJulgado["sugestao"],
@@ -52,7 +56,7 @@ type Modo = "firme" | "duvida" | "automatico";
 type Contexto = {
   projectId: string;
   ciclo: string;
-  opcoes: { value: string; label: string }[];
+  opcoes: { value: string; label: string; descricao: string | null }[];
   vocabulario: Vocabulario | null;
   /** Site -> categoria que a pessoa acabou de confirmar nesta tela. */
   confirmados: Map<string, string>;
@@ -146,15 +150,29 @@ function LinhaDeSite({
       <div className="flex flex-wrap items-center gap-2">
         <Select items={opcoes} value={escolha} onValueChange={setEscolha}>
           <SelectTrigger
-            className="w-64 max-w-full"
+            className="w-full sm:w-96"
             aria-label={`Categoria de ${dominio.dominio}`}
           >
             <SelectValue placeholder="Escolha a categoria" />
           </SelectTrigger>
-          <SelectContent>
+          {/* A lista cresce com o texto e as opções quebram linha: o nome e a
+              descrição precisam ser lidos inteiros para a escolha ser a mesma
+              que o critério do modelo. */}
+          <SelectContent className="w-auto max-w-[min(32rem,calc(100vw-2rem))] min-w-(--anchor-width)">
             {opcoes.map((o) => (
-              <SelectItem key={o.value} value={o.value}>
-                {o.label}
+              <SelectItem
+                key={o.value}
+                value={o.value}
+                className="items-start [&>*:first-child]:min-w-0 [&>*:first-child]:shrink [&>*:first-child]:whitespace-normal"
+              >
+                <span className="flex flex-col gap-0.5">
+                  <span>{o.label}</span>
+                  {o.descricao ? (
+                    <span className="text-xs text-muted-foreground">
+                      {o.descricao}
+                    </span>
+                  ) : null}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -287,6 +305,7 @@ export function SitesCitadosAJulgar({
     opcoes: opcoesDeCategoria(julgamentos.tarefa.caminhos).map((id) => ({
       value: id,
       label: nomeDoCaminho(vocabulario, id),
+      descricao: descricaoDoCaminho(vocabulario, id),
     })),
     aoConfirmar: (dominio, caminho) =>
       setLocais((atual) => new Map(atual).set(dominio, caminho)),
