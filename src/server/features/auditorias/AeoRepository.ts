@@ -1,6 +1,16 @@
-import { and, desc, eq, gte, inArray, like, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, like, or } from "drizzle-orm";
 import { db } from "@/db";
-import { aeoCliente, aeoRodada } from "@/db/schema";
+import { runBatch } from "@/db/runBatch";
+import {
+  aeoCliente,
+  aeoJulgamento,
+  aeoJulgamentoHistorico,
+  aeoRodada,
+} from "@/db/schema";
+import {
+  sugestaoVistaSchema,
+  type SugestaoVista,
+} from "@/shared/auditorias/julgamentos";
 
 // Só lê e escreve as linhas. Decidir o slug, o teto de 7 dias e quem pode
 // disparar é do serviço; aqui ficam a escrita e a garantia de que o banco
@@ -28,6 +38,23 @@ type CamposDaRodada = Partial<
     typeof aeoRodada.$inferInsert,
     "estado" | "motivo" | "execucaoGithub" | "concluidaEm"
   >
+>;
+
+/** O que o repositório grava; `id` e a data da substituição são dele. */
+export type JulgamentoParaGravar = {
+  organizationId: string;
+  clienteSlug: string;
+  dominio: string;
+  caminho: string;
+  julgadoPor: string;
+  julgadoEm: string;
+  sugestaoVista: SugestaoVista | null;
+};
+
+/** O que a F3 monta no campo `julgamentos` do disparo. */
+export type JulgamentoGravado = Pick<
+  JulgamentoParaGravar,
+  "dominio" | "caminho" | "julgadoPor" | "julgadoEm" | "sugestaoVista"
 >;
 
 const ESTADOS_ABERTOS = ["na_fila", "rodando"];
@@ -192,6 +219,84 @@ async function rodadaAberta(slug: string) {
   return linha ?? null;
 }
 
+// JSON ilegível no banco vira "sem sugestão": o julgamento da pessoa continua
+// valendo, só perde o registro do que ela viu.
+function sugestaoVistaDoBanco(texto: string | null): SugestaoVista | null {
+  if (texto === null) return null;
+  try {
+    const lida = sugestaoVistaSchema.safeParse(JSON.parse(texto));
+    return lida.success ? lida.data : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Grava por cima e manda a linha anterior para o histórico, as duas coisas na
+ * mesma transação. Dois cliques simultâneos no mesmo domínio podem ler a mesma
+ * linha anterior; o último a gravar vence, e o histórico guarda o que ele leu.
+ */
+async function gravarJulgamento(j: JulgamentoParaGravar, agora: string) {
+  const [anterior] = await db
+    .select()
+    .from(aeoJulgamento)
+    .where(
+      and(
+        eq(aeoJulgamento.clienteSlug, j.clienteSlug),
+        eq(aeoJulgamento.dominio, j.dominio),
+      ),
+    )
+    .limit(1);
+  const campos = {
+    organizationId: j.organizationId,
+    caminho: j.caminho,
+    julgadoPor: j.julgadoPor,
+    julgadoEm: j.julgadoEm,
+    sugestaoVista:
+      j.sugestaoVista === null ? null : JSON.stringify(j.sugestaoVista),
+  };
+  await runBatch((tx) => [
+    ...(anterior
+      ? [
+          tx.insert(aeoJulgamentoHistorico).values({
+            ...anterior,
+            id: crypto.randomUUID(),
+            substituidoEm: agora,
+          }),
+        ]
+      : []),
+    tx
+      .insert(aeoJulgamento)
+      .values({
+        id: crypto.randomUUID(),
+        clienteSlug: j.clienteSlug,
+        dominio: j.dominio,
+        ...campos,
+      })
+      .onConflictDoUpdate({
+        target: [aeoJulgamento.clienteSlug, aeoJulgamento.dominio],
+        set: campos,
+      }),
+  ]);
+}
+
+async function listarJulgamentos(
+  clienteSlug: string,
+): Promise<JulgamentoGravado[]> {
+  const linhas = await db
+    .select()
+    .from(aeoJulgamento)
+    .where(eq(aeoJulgamento.clienteSlug, clienteSlug))
+    .orderBy(asc(aeoJulgamento.dominio));
+  return linhas.map((l) => ({
+    dominio: l.dominio,
+    caminho: l.caminho,
+    julgadoPor: l.julgadoPor,
+    julgadoEm: l.julgadoEm,
+    sugestaoVista: sugestaoVistaDoBanco(l.sugestaoVista),
+  }));
+}
+
 export const AeoRepository = {
   clientePorProjeto,
   clientePorSlug,
@@ -203,4 +308,6 @@ export const AeoRepository = {
   rodadaPorId,
   ultimaRodada,
   rodadaAberta,
+  gravarJulgamento,
+  listarJulgamentos,
 } as const;

@@ -4,6 +4,7 @@ import type * as ServicoRodadas from "@/server/features/auditorias/RodadasServic
 import { configuracaoDeExemplo } from "@/server/features/auditorias/apoioDosTestes";
 import {
   acompanharAuditoria,
+  confirmarJulgamentoAuditoria,
   lerConfiguracaoAuditoria,
   rodarAuditoria,
   salvarConfiguracaoAuditoria,
@@ -14,6 +15,8 @@ const {
   configurar,
   rodar,
   acompanhar,
+  confirmar,
+  nomesDosUsuarios,
   lerConfigGithub,
   lerConfigS3,
   criarLeitorS3,
@@ -25,6 +28,8 @@ const {
   configurar: vi.fn(),
   rodar: vi.fn(),
   acompanhar: vi.fn(),
+  confirmar: vi.fn(),
+  nomesDosUsuarios: vi.fn(),
   lerConfigGithub: vi.fn(),
   lerConfigS3: vi.fn(),
   criarLeitorS3: vi.fn(),
@@ -53,6 +58,12 @@ vi.mock("@/server/features/auditorias/LeitorCiclos", () => ({
 vi.mock("@/server/features/auditorias/AeoRepository", () => ({
   AeoRepository: {},
   ConflitoDeRodada: class ConflitoDeRodada extends Error {},
+}));
+vi.mock("@/server/features/auditorias/JulgamentosService", () => ({
+  criarJulgamentosService: vi.fn(() => ({ confirmar })),
+}));
+vi.mock("@/server/auth/repositories/AuthRepository", () => ({
+  AuthRepository: { getHostedUserNames: nomesDosUsuarios },
 }));
 vi.mock("@/server/lib/runtime-env", () => ({
   getOptionalEnvValue: async (nome: string) =>
@@ -113,6 +124,9 @@ describe("funções de servidor das rodadas da auditoria", () => {
     lerConfigGithub.mockResolvedValue({ token: "t", repo: "dono/motor" });
     lerConfigS3.mockResolvedValue(null);
     lerPadraoDoMotor.mockResolvedValue(null);
+    nomesDosUsuarios.mockResolvedValue([
+      { id: "usuario-do-contexto", name: "Ana Sócia" },
+    ]);
   });
 
   it("o projeto vem do contexto, nunca do navegador", async () => {
@@ -283,6 +297,58 @@ describe("funções de servidor das rodadas da auditoria", () => {
         padrao: null,
       });
       expect(lerPadraoDoMotor).toHaveBeenCalledWith(null);
+    });
+  });
+
+  describe("confirmarJulgamentoAuditoria", () => {
+    const pedido = {
+      projectId: "p1",
+      ciclo: "2026-10-08",
+      dominio: "guia-exemplo.com",
+      caminho: "editorial_conquistado",
+    };
+
+    it("o projeto vem do contexto e quem julgou é o nome, nunca o e-mail", async () => {
+      confirmar.mockResolvedValue({ ok: true });
+      const resultado = await confirmarJulgamentoAuditoria({
+        data: { ...pedido, organizationId: "invasora" } as typeof pedido,
+      });
+      expect(resultado).toEqual({ ok: true });
+      expect(nomesDosUsuarios).toHaveBeenCalledWith(["usuario-do-contexto"]);
+      expect(confirmar).toHaveBeenCalledWith(projetoDoServico, "Ana Sócia", {
+        ciclo: "2026-10-08",
+        dominio: "guia-exemplo.com",
+        caminho: "editorial_conquistado",
+      });
+      expect(JSON.stringify(confirmar.mock.calls)).not.toContain("@");
+    });
+
+    it("sem nome no banco, não cai para o e-mail", async () => {
+      confirmar.mockResolvedValue({ ok: true });
+      nomesDosUsuarios.mockResolvedValue([]);
+      await confirmarJulgamentoAuditoria({ data: pedido });
+      const nome = confirmar.mock.calls[0]?.[1];
+      expect(nome).toBe("Equipe");
+    });
+
+    it("devolve a recusa como dado", async () => {
+      confirmar.mockResolvedValue({ ok: false, motivo: "caminho_invalido" });
+      expect(await confirmarJulgamentoAuditoria({ data: pedido })).toEqual({
+        ok: false,
+        motivo: "caminho_invalido",
+      });
+    });
+
+    it("o validador exige projectId (é ele que dispara a checagem de organização)", async () => {
+      const { projectId: _fora, ...semProjeto } = pedido;
+      await expect(
+        // @ts-expect-error falta o projectId, que o validador exige
+        confirmarJulgamentoAuditoria({ data: semProjeto }),
+      ).rejects.toThrow();
+      await expect(
+        confirmarJulgamentoAuditoria({ data: { ...pedido, caminho: "" } }),
+      ).rejects.toThrow();
+      expect(confirmar).not.toHaveBeenCalled();
     });
   });
 });

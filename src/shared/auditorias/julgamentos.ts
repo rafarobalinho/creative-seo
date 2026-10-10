@@ -63,3 +63,32 @@ export const julgamentosSchema = z.object({
 
 export type Julgamentos = z.infer<typeof julgamentosSchema>;
 export type DominioJulgado = z.infer<typeof dominioJulgadoSchema>;
+
+/**
+ * Lê o texto do `julgamentos.json`. Forma inesperada vira null: a tela some com
+ * a seção em vez de mostrar uma fila errada.
+ */
+export function lerJulgamentos(texto: string | null): Julgamentos | null {
+  if (texto === null) return null;
+  try {
+    const lido = julgamentosSchema.safeParse(JSON.parse(texto));
+    return lido.success ? lido.data : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * O que a pessoa viu na tela ao confirmar, no formato que o motor lê em
+ * `sugestao_vista` do campo `julgamentos` do disparo. Copiado do
+ * `julgamentos.json` do ciclo, nunca do navegador.
+ */
+export const sugestaoVistaSchema = z.object({
+  categoria: z.string(),
+  ocupavel: z.enum(["sim", "nao"]),
+  firme: z.boolean(),
+  modelo: z.string(),
+  versao: z.string(),
+});
+
+export type SugestaoVista = z.infer<typeof sugestaoVistaSchema>;

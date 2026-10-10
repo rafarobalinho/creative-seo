@@ -74,3 +74,51 @@ export const aeoRodada = sqliteTable(
       .where(sql`${tabela.estado} IN ('na_fila', 'rodando')`),
   ],
 );
+
+// O caminho de entrada que uma pessoa confirmou para um domínio citado. Uma
+// linha por cliente e domínio: corrigir grava por cima, e a linha anterior vai
+// para aeo_julgamento_historico. O slug fica copiado (sem FK), como nas
+// rodadas, para o registro sobreviver a quem apaga o cliente.
+export const aeoJulgamento = sqliteTable(
+  "aeo_julgamento",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    clienteSlug: text("cliente_slug").notNull(),
+    dominio: text("dominio").notNull(),
+    caminho: text("caminho").notNull(),
+    // Nome de exibição, nunca o e-mail: o motor copia o valor para uma pasta
+    // que é entregue ao cliente.
+    julgadoPor: text("julgado_por").notNull(),
+    // AAAA-MM-DD: é o que o motor lê (`date`) para decidir qual julgamento vale.
+    julgadoEm: text("julgado_em").notNull(),
+    // JSON em texto: o que a pessoa viu na tela (categoria, ocupavel, firme,
+    // modelo, versao), copiado do julgamentos.json do ciclo. Nulo quando não
+    // havia sugestão.
+    sugestaoVista: text("sugestao_vista"),
+  },
+  (tabela) => [
+    uniqueIndex("aeo_julgamento_cliente_dominio_idx").on(
+      tabela.clienteSlug,
+      tabela.dominio,
+    ),
+  ],
+);
+
+// As linhas que foram substituídas. Mesmas colunas, sem índice único: um
+// domínio pode ser corrigido muitas vezes.
+export const aeoJulgamentoHistorico = sqliteTable("aeo_julgamento_historico", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  clienteSlug: text("cliente_slug").notNull(),
+  dominio: text("dominio").notNull(),
+  caminho: text("caminho").notNull(),
+  julgadoPor: text("julgado_por").notNull(),
+  julgadoEm: text("julgado_em").notNull(),
+  sugestaoVista: text("sugestao_vista"),
+  substituidoEm: text("substituido_em").notNull(),
+});

@@ -36,7 +36,7 @@ export function leitorEmMemoria(arquivos: Record<string, string>) {
   return { leitor, chamadas, mapa };
 }
 
-/** As duas tabelas com os índices que importam (slug único, uma aberta por cliente). */
+/** As tabelas com os índices que importam (slug único, uma aberta por cliente, um julgamento por domínio). */
 export const DDL_AEO = `
   CREATE TABLE aeo_cliente (
     id TEXT PRIMARY KEY,
@@ -67,6 +67,29 @@ export const DDL_AEO = `
   );
   CREATE UNIQUE INDEX aeo_rodada_uma_aberta_por_cliente_idx
     ON aeo_rodada (cliente_slug) WHERE estado IN ('na_fila', 'rodando');
+  CREATE TABLE aeo_julgamento (
+    id TEXT PRIMARY KEY,
+    organization_id TEXT NOT NULL,
+    cliente_slug TEXT NOT NULL,
+    dominio TEXT NOT NULL,
+    caminho TEXT NOT NULL,
+    julgado_por TEXT NOT NULL,
+    julgado_em TEXT NOT NULL,
+    sugestao_vista TEXT
+  );
+  CREATE UNIQUE INDEX aeo_julgamento_cliente_dominio_idx
+    ON aeo_julgamento (cliente_slug, dominio);
+  CREATE TABLE aeo_julgamento_historico (
+    id TEXT PRIMARY KEY,
+    organization_id TEXT NOT NULL,
+    cliente_slug TEXT NOT NULL,
+    dominio TEXT NOT NULL,
+    caminho TEXT NOT NULL,
+    julgado_por TEXT NOT NULL,
+    julgado_em TEXT NOT NULL,
+    sugestao_vista TEXT,
+    substituido_em TEXT NOT NULL
+  );
 `;
 
 /** Configuração de nível 1 válida, com dados fictícios. */
