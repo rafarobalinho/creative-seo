@@ -197,6 +197,34 @@ auditoria, vive no repositório do motor:
     vira uma frase na linha do site com o botão Recarregar (2026-10-10). Pela
     regra 10, o texto da seção não cita comando, arquivo nem ferramenta.
     Arquivos do original tocados: nenhum.
+17. **O Worker principal carrega o MCP sob demanda** (decidido em 2026-10-13).
+    A Cloudflare recusa o envio de um Worker cujo escopo global passe de 1 s de
+    CPU (erro 10021, "Script startup exceeded CPU time limit"); em 2026-10-13, o
+    deploy de um Worker novo foi recusado duas vezes antes de passar e, depois
+    da mudança, foram 3 de 3 aceitos. Medido com
+    `wrangler check startup`, cerca de 65% da CPU de partida era o zod montando
+    schemas, e cerca de um terço das chamadas feitas na carga vinha do MCP, que
+    entrava por três imports estáticos: o provedor OAuth no nível de módulo do
+    `server.ts`, o transporte MCP no `server.ts` e as ferramentas do SAM no
+    `SamChatAgent.ts`. Os três passam a ser `import()`, executados só na
+    primeira chamada; a mediana da CPU ativa caiu de 581 para 385 ms em 6
+    rodadas alternadas de `wrangler check startup`. A verificação
+    `scripts/creative/verificar-partida.ts` roda no CI do fork depois do build
+    e falha se o servidor MCP do OpenSEO ou as ferramentas do SAM voltarem à
+    partida; o lado cliente do MCP, que o `SamChatAgent` herda do pacote
+    `agents`, fica na partida por desenho. Ela lê a entrada no `main` do
+    `wrangler.json` do build e exige duas coisas para valer: cada marcador (nome
+    de função do MCP) existir em algum `.js` de `dist/server`, e `function
+appFetch`, do `server.ts`, estar na partida. Como a minificação apaga nomes
+    de função, um build minificado ou um marcador renomeado pelo original faz a
+    verificação falhar ("marcador ausente do build"), em vez de passar em
+    falso. Na sincronização semanal com o original, se um conflito tocar esses
+    trechos, mantenha o `import()` e rode a verificação; se o original
+    acrescentar outro import estático do MCP alcançável a partir da entrada, a
+    verificação acusa. No modo `hosted`, que o fork não usa, a carga do MCP
+    passa para a primeira requisição de cada isolate, e um erro de configuração
+    do provedor aparece ali, não no deploy. Arquivos do original tocados:
+    `src/server.ts` e `src/server/features/sam/SamChatAgent.ts`.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 

@@ -11,13 +11,11 @@ import { reconcileStaleAudits } from "@/server/features/audit/services/auditReco
 import { getOrCreateOrganizationCustomer } from "@/server/billing/subscription";
 import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
 import { getAuthMode, isHostedAuthMode } from "@/lib/auth-mode";
-import {
-  createOpenSeoOAuthProvider,
-  type OpenSeoOAuthEnv,
-} from "@/server/mcp/oauth-provider";
+// Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+import type { OpenSeoOAuthEnv } from "@/server/mcp/oauth-provider";
+import { sobDemanda } from "@/server/features/creative/partida/sobDemanda";
 import { requestWithPublicOrigin } from "@/server/mcp/public-origin";
 import { MCP_ROUTE } from "@/server/mcp/context";
-import { handleSelfHostedOpenSeoMcpRequest } from "@/server/mcp/transport";
 import { withPgClient } from "@/db";
 import {
   AUTUMN_WEBHOOK_PATH,
@@ -61,7 +59,12 @@ async function appFetch(request: Request): Promise<Response> {
   });
 }
 
-const openSeoOAuthProvider = createOpenSeoOAuthProvider(appFetch);
+// Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+const provedorOAuth = sobDemanda(async () =>
+  (await import("@/server/mcp/oauth-provider")).createOpenSeoOAuthProvider(
+    appFetch,
+  ),
+);
 
 // Authorize a SAM agent connection in the Worker, before it reaches the Durable
 // Object. The DO instance name is the sessionId (set client-side); we resolve
@@ -158,10 +161,9 @@ function handleFetch(
       return handleAutumnWebhookRequest(publicRequest);
     }
 
-    return openSeoOAuthProvider.fetch(
-      publicRequest,
-      env as OpenSeoOAuthEnv,
-      ctx,
+    // Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+    return provedorOAuth().then((p) =>
+      p.fetch(publicRequest, env as OpenSeoOAuthEnv, ctx),
     );
   }
 
@@ -169,7 +171,10 @@ function handleFetch(
     (authMode === "cloudflare_access" || authMode === "local_noauth") &&
     pathname === MCP_ROUTE
   ) {
-    return handleSelfHostedOpenSeoMcpRequest(publicRequest, authMode, env, ctx);
+    // Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+    return import("@/server/mcp/transport").then((m) =>
+      m.handleSelfHostedOpenSeoMcpRequest(publicRequest, authMode, env, ctx),
+    );
   }
 
   return appFetch(request);
@@ -195,9 +200,10 @@ export default {
     if (controller.cron === MCP_OAUTH_PURGE_CRON) {
       // Only hosted mode runs the OAuth provider (and has OAUTH_KV bound).
       if (isHostedAuthMode(getAuthMode(env.AUTH_MODE))) {
-        const result = await openSeoOAuthProvider.purgeExpiredData(
-          env as OpenSeoOAuthEnv,
-        );
+        // Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+        const result = await (
+          await provedorOAuth()
+        ).purgeExpiredData(env as OpenSeoOAuthEnv);
         console.log("[mcp-oauth] purged expired OAuth data", result);
         if (!result.done) {
           // The sweep only advances past live records via deletions; a

@@ -51,3 +51,6 @@ jobs:
 
       - name: Marca do original no build
         run: pnpm exec tsx scripts/creative/verificar-marca.ts
+
+      - name: Partida do Worker
+        run: pnpm exec tsx scripts/creative/verificar-partida.ts
