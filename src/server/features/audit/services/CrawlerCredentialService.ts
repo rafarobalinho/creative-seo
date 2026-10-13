@@ -117,13 +117,6 @@ async function saveCrawlerCredential(input: {
   return { credential: toSummary(saved) };
 }
 
-async function deleteCrawlerCredential(input: {
-  organizationId: string;
-  id: string;
-}) {
-  await CrawlerCredentialRepository.remove(input.organizationId, input.id);
-}
-
 /**
  * The credential the audit crawler should replay for this host, if any. An
  * expired one is skipped: Shopify rejects it, and the report names the expiry.
@@ -180,7 +173,6 @@ async function openCrawlerAccess(
 export const CrawlerCredentialService = {
   listCrawlerCredentials,
   saveCrawlerCredential,
-  deleteCrawlerCredential,
   resolveCrawlerAccess,
   openCrawlerAccess,
 } as const;
