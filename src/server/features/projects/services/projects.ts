@@ -1,6 +1,7 @@
 import type {
   ArchiveProjectInput,
   CreateProjectInput,
+  DeleteArchivedProjectInput,
   RestoreProjectInput,
   SetProjectWebsiteInput,
   UpdateProjectInput,
@@ -187,6 +188,23 @@ export async function restoreProject(
       );
     }
     throw error;
+  }
+  return { success: true };
+}
+
+// Creative SEO: exclusão definitiva de projeto arquivado. Projeto ativo nunca
+// é apagado: o repositório só alcança arquivados, e "nada apagado" vira
+// NOT_FOUND, igual ao restore.
+export async function deleteArchivedProject(
+  organizationId: string,
+  input: DeleteArchivedProjectInput,
+) {
+  const deleted = await ProjectRepository.deleteArchivedProject(
+    input.archivedProjectId,
+    organizationId,
+  );
+  if (!deleted) {
+    throw new AppError("NOT_FOUND");
   }
   return { success: true };
 }

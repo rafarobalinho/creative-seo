@@ -209,6 +209,27 @@ async function archiveProject(projectId: string, organizationId: string) {
   }
 }
 
+// Creative SEO: exclusão definitiva. Só alcança projeto já arquivado da própria
+// organização; o ON DELETE CASCADE das tabelas filhas limpa o resto. Devolve
+// false (em vez de lançar) para o serviço decidir o erro.
+async function deleteArchivedProject(
+  projectId: string,
+  organizationId: string,
+) {
+  const rows = await db
+    .delete(projects)
+    .where(
+      and(
+        eq(projects.id, projectId),
+        eq(projects.organizationId, organizationId),
+        isNotNull(projects.archivedAt),
+      ),
+    )
+    .returning({ id: projects.id });
+
+  return rows.length > 0;
+}
+
 export const ProjectRepository = {
   listProjects,
   listArchivedProjects,
@@ -222,4 +243,5 @@ export const ProjectRepository = {
   tryCreateDefaultProject,
   archiveProject,
   restoreProject,
+  deleteArchivedProject,
 } as const;

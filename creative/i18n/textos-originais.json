@@ -1674,6 +1674,9 @@
     "chave": "Delete log entry from {0}"
   },
   {
+    "chave": "Delete project"
+  },
+  {
     "chave": "Delete report"
   },
   {
@@ -4397,6 +4400,9 @@
     "chave": "Performance ({0})"
   },
   {
+    "chave": "Permanently delete \"{0}\"?"
+  },
+  {
     "chave": "Perplexity"
   },
   {
@@ -4509,6 +4515,9 @@
   },
   {
     "chave": "Project created"
+  },
+  {
+    "chave": "Project deleted"
   },
   {
     "chave": "Project id is required"
@@ -6055,6 +6064,9 @@
   },
   {
     "chave": "This cannot be undone."
+  },
+  {
+    "chave": "This cannot be undone. It deletes the project's audits, reports, integrations (Search Console and GA4), rank tracking and SAM conversations. AEO audit cycles already published stay stored."
   },
   {
     "chave": "This chat was archived or does not exist."

@@ -5,9 +5,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
+  deleteArchivedProject,
   getArchivedProjects,
   restoreProject,
 } from "@/serverFunctions/projects";
+import { ConfirmDialog } from "@/client/components/ConfirmDialog";
 import { PageHeader, SectionHeader } from "@/client/components/PageHeader";
 import { QueryState } from "@/client/components/QueryState";
 import { Badge } from "@/client/components/ui/badge";
@@ -110,6 +112,23 @@ function ArchivedProjects() {
     },
   });
 
+  // Creative SEO: exclusão definitiva, sempre atrás de confirmação.
+  const [deleting, setDeleting] = React.useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const deleteMutation = useMutation({
+    mutationFn: (projectId: string) =>
+      deleteArchivedProject({ data: { archivedProjectId: projectId } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: projectsQueryOptions().queryKey,
+      });
+      toast.success("Project deleted");
+    },
+    onSettled: () => setDeleting(null),
+  });
+
   if (archived.length === 0) return null;
 
   return (
@@ -129,17 +148,43 @@ function ArchivedProjects() {
                 {project.domain ?? "No domain set"}
               </span>
             </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => restoreMutation.mutate(project.id)}
-              disabled={restoreMutation.isPending}
-            >
-              Restore
-            </Button>
+            <span className="flex shrink-0 items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => restoreMutation.mutate(project.id)}
+                disabled={restoreMutation.isPending}
+              >
+                Restore
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                onClick={() =>
+                  setDeleting({ id: project.id, name: project.name })
+                }
+              >
+                Delete
+              </Button>
+            </span>
           </li>
         ))}
       </ul>
+      {deleting ? (
+        <ConfirmDialog
+          title={`Permanently delete "${deleting.name}"?`}
+          confirmLabel="Delete project"
+          destructive
+          pending={deleteMutation.isPending}
+          onClose={() => setDeleting(null)}
+          onConfirm={() => deleteMutation.mutate(deleting.id)}
+        >
+          This cannot be undone. It deletes the project's audits, reports,
+          integrations (Search Console and GA4), rank tracking and SAM
+          conversations. AEO audit cycles already published stay stored.
+        </ConfirmDialog>
+      ) : null}
     </section>
   );
 }
