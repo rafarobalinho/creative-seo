@@ -47,6 +47,7 @@ pnpm exec vitest run scripts/creative
 pnpm exec tsx scripts/creative/extrair-textos.ts --verificar
 pnpm run ci:check && pnpm run test:ci
 pnpm exec vite build --mode selfhost && pnpm exec tsx scripts/creative/verificar-marca.ts
+pnpm exec tsx scripts/creative/verificar-partida.ts
 ```
 
 Para ver a interface: `pnpm run db:migrate:local` uma vez e, com
