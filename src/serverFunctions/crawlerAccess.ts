@@ -5,10 +5,7 @@ import {
   requireAuthenticatedContext,
   requireProjectContext,
 } from "@/serverFunctions/middleware";
-import {
-  deleteCrawlerCredentialSchema,
-  saveCrawlerCredentialSchema,
-} from "@/types/schemas/crawlerAccess";
+import { saveCrawlerCredentialSchema } from "@/types/schemas/crawlerAccess";
 
 // Crawler-access signatures are saved on a project but read across the
 // organization, so they get the same gate as the other third-party
@@ -32,16 +29,4 @@ export const saveCrawlerCredential = createServerFn({ method: "POST" })
       signatureInput: data.signatureInput,
       signature: data.signature,
     });
-  });
-
-export const deleteCrawlerCredential = createServerFn({ method: "POST" })
-  .middleware(requireAuthenticatedContext)
-  .validator(deleteCrawlerCredentialSchema)
-  .handler(async ({ data, context }) => {
-    requireOrgPermission(context, { integration: ["manage"] });
-    await CrawlerCredentialService.deleteCrawlerCredential({
-      organizationId: context.organizationId,
-      id: data.id,
-    });
-    return { success: true };
   });

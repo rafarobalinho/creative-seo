@@ -2,7 +2,6 @@ import { queryClient } from "@/client/tanstack-db/queryClient";
 import { googleConnectionOptions } from "@/client/features/integrations/googleProviders";
 import { createFileRoute } from "@tanstack/react-router";
 import { GoogleConnectionCard } from "@/client/features/integrations/GoogleConnectionCard";
-import { CrawlerAccessSettings } from "@/client/features/settings/CrawlerAccessSettings";
 
 export const Route = createFileRoute(
   "/_app/p/$projectId/settings/integrations",
@@ -35,7 +34,8 @@ function ProjectIntegrationsRoute() {
         <GoogleConnectionCard provider="ga4" projectId={projectId} />
       </section>
 
-      <CrawlerAccessSettings projectId={projectId} />
+      {/* Acesso do rastreador (assinatura da Shopify) fica fora da tela: o
+          produto não usa. O alerta de auditoria Shopify ainda pode salvar uma. */}
     </div>
   );
 }
