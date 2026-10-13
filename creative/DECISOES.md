@@ -189,8 +189,14 @@ auditoria, vive no repositório do motor:
     confirmados na tela vêm do banco junto com a leitura do ciclo (uma falha
     dessa leitura vira lista vazia e não derruba o ciclo) e saem da fila mesmo
     depois de recarregar. O seletor de um site em dúvida começa vazio: a
-    escolha é da pessoa. Pela regra 10, o texto da seção não cita comando, arquivo nem
-    ferramenta. Arquivos do original tocados: nenhum.
+    escolha é da pessoa. O seletor mostra o nome de cada categoria e, abaixo, a
+    descrição que o modelo recebe (`caminhos_descricao` do vocabulário
+    publicado pelo motor; sem ela, só o nome), em lista que cresce com o texto
+    sem mexer no `ui/select` do original (2026-10-10). Falha de conexão na
+    confirmação, em geral o login do Access que expirou com a página aberta,
+    vira uma frase na linha do site com o botão Recarregar (2026-10-10). Pela
+    regra 10, o texto da seção não cita comando, arquivo nem ferramenta.
+    Arquivos do original tocados: nenhum.
 
 ## Adiado até virar produto (decidido em 2026-10-02)
 
