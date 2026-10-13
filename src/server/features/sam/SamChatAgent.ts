@@ -27,7 +27,8 @@ import {
 import { SamSessionRepository } from "@/server/features/sam/SamSessionRepository";
 import { ProjectContextService } from "@/server/features/project-context/services/ProjectContextService";
 import { ProjectRepository } from "@/server/features/projects/repositories/ProjectRepository";
-import { buildSamMcpTools } from "@/server/features/sam/samChatTools";
+// Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+import { carregarFerramentasDoSam } from "@/server/features/creative/partida/ferramentasDoSam";
 import { buildSamSkillSource } from "@/server/features/sam/samSkills";
 import { buildSamSystemPrompt } from "@/server/features/sam/samSystemPrompt";
 import {
@@ -417,7 +418,12 @@ export class SamChatAgent extends Think {
 
       return {
         model: this.buildModel("max"), // Creative SEO: chave do workspace.
-        tools: buildSamMcpTools(authContext, ctx.project, turn.turnId),
+        // Creative SEO: partida sob demanda (creative/DECISOES.md, regra 17).
+        tools: await carregarFerramentasDoSam(
+          authContext,
+          ctx.project,
+          turn.turnId,
+        ),
         // SAM runs complex multi-step work in one turn (site-read intake plus
         // a full research chain, multi-competitor sweeps), so the step budget
         // is generous; cost is bounded by per-step metering and the model
