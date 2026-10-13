@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   archiveProject,
   createProject,
+  deleteArchivedProject,
   listProjectsEnsuringOne,
   restoreProject,
   setProjectWebsite,
@@ -14,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   updateProjectWebsite: vi.fn(),
   archiveProject: vi.fn(),
   restoreProject: vi.fn(),
+  deleteArchivedProject: vi.fn(),
   countProjects: vi.fn(),
   listProjects: vi.fn(),
   tryCreateDefaultProject: vi.fn(),
@@ -164,6 +166,28 @@ describe("project service", () => {
       await expect(
         restoreProject("org_1", { archivedProjectId: "project_default" }),
       ).rejects.toMatchObject({ code: "CONFLICT" });
+    });
+  });
+
+  describe("deleteArchivedProject", () => {
+    it("deletes through the repository, scoped to the organization", async () => {
+      mocks.deleteArchivedProject.mockResolvedValue(true);
+
+      await expect(
+        deleteArchivedProject("org_1", { archivedProjectId: "project_acme" }),
+      ).resolves.toEqual({ success: true });
+      expect(mocks.deleteArchivedProject).toHaveBeenCalledWith(
+        "project_acme",
+        "org_1",
+      );
+    });
+
+    it("maps a project that was not deleted to NOT_FOUND", async () => {
+      mocks.deleteArchivedProject.mockResolvedValue(false);
+
+      await expect(
+        deleteArchivedProject("org_1", { archivedProjectId: "project_acme" }),
+      ).rejects.toMatchObject({ code: "NOT_FOUND" });
     });
   });
 });

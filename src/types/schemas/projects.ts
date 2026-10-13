@@ -86,9 +86,17 @@ export const restoreProjectSchema = z.object({
   archivedProjectId: z.string().min(1),
 });
 
+// Same `archivedProjectId` naming as restoreProjectSchema, for the same reason.
+export const deleteArchivedProjectSchema = z.object({
+  archivedProjectId: z.string().min(1),
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ArchiveProjectInput = z.infer<typeof archiveProjectSchema>;
 export type RestoreProjectInput = z.infer<typeof restoreProjectSchema>;
+export type DeleteArchivedProjectInput = z.infer<
+  typeof deleteArchivedProjectSchema
+>;
 
 export type SetProjectWebsiteInput = z.infer<typeof setProjectWebsiteSchema>;
