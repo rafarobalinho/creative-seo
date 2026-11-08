@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handleReportRequest, NOT_FOUND_BODY } from "@/routes/r/$reportId";
-import { PRINT_SCRIPT, REPORT_CSP, reportCsp } from "@/shared/report-sandbox";
+import {
+  PRINT_SCRIPT,
+  PRINT_STYLE,
+  REPORT_CSP,
+  reportCsp,
+} from "@/shared/report-sandbox";
 
 const mocks = vi.hoisted(() => ({
   resolveUserContextFromHeaders: vi.fn(),
@@ -77,7 +82,7 @@ describe("handleReportRequest", () => {
     );
 
     expect(await response.text()).toBe(
-      `<!doctype html><html><body>report<script>${PRINT_SCRIPT}</script></body></html>`,
+      `<!doctype html><html><body>report<style>${PRINT_STYLE}</style><script>${PRINT_SCRIPT}</script></body></html>`,
     );
     expect(response.headers.get("content-security-policy")).toBe(
       reportCsp(true),
@@ -101,7 +106,7 @@ describe("handleReportRequest", () => {
     // nothing but a valueless `<script` attribute name.
     expect(body).toBe(
       '<!doctype html><html><body><script src="https://evil.example/x.js" ' +
-        `<script>${PRINT_SCRIPT}</script></body></html>`,
+        `<style>${PRINT_STYLE}</style><script>${PRINT_SCRIPT}</script></body></html>`,
     );
     expect(response.headers.get("content-security-policy")).not.toContain(
       "'nonce-",

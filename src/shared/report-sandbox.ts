@@ -43,6 +43,29 @@ export const PRINT_SCRIPT =
   'addEventListener("load",()=>{for(const d of document.querySelectorAll("details"))d.open=true;setTimeout(()=>print(),150)})';
 
 /**
+ * The stylesheet print mode appends next to PRINT_SCRIPT. A saved report
+ * carries the app\u0027s own `html, body { height: 100%; overflow: hidden }` (a
+ * rule without a class always survives the capture), and scroll boxes such as
+ * `max-h-[400px] overflow-y-auto`. On screen that is a layout; in the print
+ * dialog it clips the document to one viewport and to the height of each box,
+ * so the PDF came out as a cut-off screenshot. Everything here is scoped to
+ * `@media print`, so nothing changes how a report looks on screen, and it is
+ * applied when the document is served, so reports saved before this existed are
+ * fixed too. `style-src \u0027unsafe-inline\u0027` already allows it; no CSP change.
+ */
+export const PRINT_STYLE =
+  "@page{size:A4;margin:12mm}" +
+  "@media print{" +
+  "html,body{height:auto!important;min-height:0!important;overflow:visible!important}" +
+  "*{max-height:none!important;overflow:visible!important}" +
+  ".sticky,.fixed{position:static!important}" +
+  "table{width:100%!important}" +
+  "thead{display:table-header-group}" +
+  "tr,img,svg,pre,blockquote{break-inside:avoid}" +
+  "img,svg{max-width:100%!important;height:auto}" +
+  "}";
+
+/**
  * Base64 SHA-256 of PRINT_SCRIPT, for the `script-src` hash source. Hardcoded
  * rather than computed at module load: the digest is needed synchronously and
  * Web Crypto is async. report-sandbox.test.ts recomputes it from PRINT_SCRIPT,
@@ -83,14 +106,15 @@ export function textResponse(body: string, status: number): Response {
 }
 
 /**
- * Appends PRINT_SCRIPT to a stored document, last so it runs after the page.
+ * Appends PRINT_STYLE and PRINT_SCRIPT to a stored document, last so they win
+ * over the page's own rules and the script runs after it.
  * The splice happens without parsing a document we did not write, so a report
  * ending in a dangling `<script src="…" ` absorbs whatever we put on our tag;
  * an attribute-free tag gives such a document nothing but a valueless
  * attribute name, and printing simply no-ops there.
  */
 function withPrintScript(html: string): string {
-  const tag = `<script>${PRINT_SCRIPT}</script>`;
+  const tag = `<style>${PRINT_STYLE}</style><script>${PRINT_SCRIPT}</script>`;
   const bodyClose = html.lastIndexOf("</body>");
   if (bodyClose !== -1)
     return html.slice(0, bodyClose) + tag + html.slice(bodyClose);
