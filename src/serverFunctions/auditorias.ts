@@ -62,6 +62,13 @@ export const lerCicloAuditoria = createServerFn({ method: "GET" })
     ),
   );
 
+export const lerSerieAuditoria = createServerFn({ method: "GET" })
+  .middleware(requireProjectContext)
+  .validator(porProjetoSchema)
+  .handler(async ({ context }) =>
+    (await montarService(context.project.id)).lerSerie(context.project.domain),
+  );
+
 export const lerEntregavelAuditoria = createServerFn({ method: "GET" })
   .middleware(requireProjectContext)
   .validator(porEntregavelSchema)
