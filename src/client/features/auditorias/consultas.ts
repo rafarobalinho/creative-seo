@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import {
   lerCicloAuditoria,
   lerEntregavelAuditoria,
+  lerSerieAuditoria,
   listarCiclosAuditoria,
 } from "@/serverFunctions/auditorias";
 import {
@@ -27,6 +28,15 @@ export function consultaCiclo(projectId: string, ciclo: string) {
   return queryOptions({
     queryKey: ["auditorias", projectId, "ciclo", ciclo],
     queryFn: () => lerCicloAuditoria({ data: { projectId, ciclo } }),
+    ...LEITURA,
+  });
+}
+
+/** A evolução do agregado nos últimos ciclos, para a home do projeto. */
+export function consultaSerie(projectId: string) {
+  return queryOptions({
+    queryKey: ["auditorias", projectId, "serie"],
+    queryFn: () => lerSerieAuditoria({ data: { projectId } }),
     ...LEITURA,
   });
 }

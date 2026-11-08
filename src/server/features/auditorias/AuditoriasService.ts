@@ -10,6 +10,11 @@ import type {
 } from "@/shared/auditorias/tipos";
 import { lerJulgamentos } from "@/shared/auditorias/julgamentos";
 import { PADRAO_CICLO } from "@/shared/auditorias/padroes";
+import {
+  montarSerie,
+  type CicloLido,
+  type ResultadoSerie,
+} from "@/shared/auditorias/serie";
 import { etapasAguardando, lerManifesto } from "./aguardando";
 import { FalhaDeLeitura, type LeitorCiclos } from "./LeitorCiclos";
 import {
@@ -93,6 +98,32 @@ function perguntasDoInstrumento(texto: string | null): string[] | null {
   return textos;
 }
 
+/** Quantos ciclos a série lê: um `scores.json` por ciclo, então há um teto. */
+const LIMITE_DA_SERIE = 12;
+
+/** As pastas de ciclo (`AAAA-MM-DD`) do cliente, da mais nova à mais antiga. */
+async function datasDosCiclos(
+  leitor: LeitorCiclos,
+  cliente: string,
+): Promise<string[]> {
+  const raizes = await leitor.listar(`${cliente}/`, "/");
+  return sortBy(
+    raizes.prefixos
+      .map((p) => p.slice(`${cliente}/`.length).replace(/\/$/, ""))
+      .filter((nome) => PADRAO_CICLO.test(nome)),
+    [(nome) => nome, "desc"],
+  );
+}
+
+/** JSON quebrado ou fora do formato nunca vira zero nem exceção. */
+function resumoDoTexto(texto: string): ResumoScores | null {
+  try {
+    return resumirScores(JSON.parse(texto));
+  } catch {
+    return null;
+  }
+}
+
 export function criarAuditoriasService(d: DependenciasAuditoria) {
   async function listarCiclos(
     dominio: string | null,
@@ -102,13 +133,7 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
     const { cliente, leitor } = contexto;
 
     return comoDado(async () => {
-      const raizes = await leitor.listar(`${cliente}/`, "/");
-      const datas = sortBy(
-        raizes.prefixos
-          .map((p) => p.slice(`${cliente}/`.length).replace(/\/$/, ""))
-          .filter((nome) => PADRAO_CICLO.test(nome)),
-        [(nome) => nome, "desc"],
-      );
+      const datas = await datasDosCiclos(leitor, cliente);
       const ciclos: CicloListado[] = await Promise.all(
         datas.map(async (ciclo) => {
           const raiz = `${cliente}/${ciclo}`;
@@ -163,12 +188,7 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
       if (tem("scores.json")) {
         const texto = await leitor.lerTexto(`${raiz}/scores.json`);
         if (texto !== null) {
-          try {
-            resumo = resumirScores(JSON.parse(texto));
-          } catch {
-            // JSON quebrado nunca vira zero nem exceção.
-            resumo = null;
-          }
+          resumo = resumoDoTexto(texto);
           // O arquivo existe e não deu resumo: é defeito do ciclo, e a tela
           // precisa dizer isso em vez de "não tem score".
           scoresIlegivel = resumo === null;
@@ -205,6 +225,41 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
     });
   }
 
+  /**
+   * A evolução do agregado: lê só o `scores.json` dos últimos ciclos, sem listar
+   * cada pasta. Pasta sem `scores.json` (um ciclo só de benchmark) não entra;
+   * arquivo ilegível entra como lacuna marcada, para a tela não esconder que
+   * houve um ciclo.
+   */
+  async function lerSerie(
+    dominio: string | null,
+    limite: number = LIMITE_DA_SERIE,
+  ): Promise<ResultadoSerie> {
+    const contexto = contextoDe(d, dominio);
+    if (ehFalha(contexto)) return contexto;
+    const { cliente, leitor } = contexto;
+
+    return comoDado(async (): Promise<ResultadoSerie> => {
+      const datas = (await datasDosCiclos(leitor, cliente)).slice(0, limite);
+      const lidos = await Promise.all(
+        datas.map(async (ciclo): Promise<CicloLido | null> => {
+          const texto = await leitor.lerTexto(
+            `${cliente}/${ciclo}/scores.json`,
+          );
+          return texto === null
+            ? null
+            : { ciclo, resumo: resumoDoTexto(texto) };
+        }),
+      );
+      return {
+        estado: "ok",
+        cliente,
+        pontos: montarSerie(lidos.filter((l) => l !== null)),
+        vocabulario: await lerVocabulario(leitor),
+      };
+    });
+  }
+
   async function lerEntregavel(
     dominio: string | null,
     ciclo: string,
@@ -233,5 +288,5 @@ export function criarAuditoriasService(d: DependenciasAuditoria) {
     });
   }
 
-  return { listarCiclos, lerCiclo, lerEntregavel };
+  return { listarCiclos, lerCiclo, lerSerie, lerEntregavel };
 }

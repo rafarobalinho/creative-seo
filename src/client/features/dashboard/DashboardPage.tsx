@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sort } from "remeda";
 import { DashboardOnboarding } from "./DashboardOnboarding";
+import { EvolucaoAeo } from "@/client/features/auditorias/EvolucaoAeo";
 import {
   AuditHealthCard,
   BacklinkPulseCard,
@@ -166,6 +167,8 @@ export function DashboardPage({ projectId }: { projectId: string }) {
             isRetrying={overviewQuery.isFetching}
           />
         ) : null}
+
+        <EvolucaoAeo projectId={projectId} />
 
         {/* Every card is half width on large screens (only the checklist spans).
           Cards with data render before setup pitches and empty states. Cards in

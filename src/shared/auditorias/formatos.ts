@@ -16,6 +16,13 @@ export function decimal(v: number | null): string {
   return v === null ? AUSENTE : umaCasa(v);
 }
 
+/** Variação com sinal explícito: +1,2 / −3,0 / 0,0. Null é travessão. */
+export function variacaoDecimal(v: number | null): string {
+  if (v === null) return AUSENTE;
+  if (v === 0) return umaCasa(0);
+  return `${v > 0 ? "+" : "\u2212"}${umaCasa(Math.abs(v))}`;
+}
+
 // Fatiamento de texto e não `new Date`: "2026-09-02" lido como UTC vira o dia
 // 01 num fuso a oeste e a tela mostraria o ciclo errado.
 export function dataCurta(ciclo: string): string {
