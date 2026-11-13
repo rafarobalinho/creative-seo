@@ -56,13 +56,21 @@ export function EvolucaoAeo({ projectId }: { projectId: string }) {
   }
   if (dados.pontos.length === 0) return null;
 
-  return <Corpo pontos={dados.pontos} vocabulario={dados.vocabulario} />;
+  return (
+    <Corpo
+      projectId={projectId}
+      pontos={dados.pontos}
+      vocabulario={dados.vocabulario}
+    />
+  );
 }
 
 function Corpo({
+  projectId,
   pontos,
   vocabulario,
 }: {
+  projectId: string;
   pontos: PontoDaSerie[];
   vocabulario: Vocabulario | null;
 }) {
@@ -92,6 +100,7 @@ function Corpo({
             <AnteriorEAtual anterior={anterior} atual={atual} />
             <GraficoDaEvolucao pontos={pontos} />
             <CompararPeriodos
+              projectId={projectId}
               pontos={pontos}
               comScore={comScore}
               vocabulario={vocabulario}

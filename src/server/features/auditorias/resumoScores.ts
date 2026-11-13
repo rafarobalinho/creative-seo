@@ -3,6 +3,7 @@ import type {
   CheckResumido,
   EixoResumido,
   ResumoScores,
+  SiteCitado,
 } from "@/shared/auditorias/tipos";
 
 const checkBruto = z
@@ -15,13 +16,35 @@ const checkBruto = z
   })
   .passthrough();
 
+// `metrics` é diferente em cada eixo; só a lista de sites do eixo de citações
+// é lida, e por um esquema próprio que falha para vazio, nunca para erro.
+const siteBruto = z.object({
+  dominio: z.string(),
+  citacoes: z.number(),
+  prompts_distintos: z.number(),
+  corrobora: z.record(z.string(), z.unknown()).optional(),
+});
+const listaDeSites = z.array(siteBruto);
+
 const eixoBruto = z
   .object({
     score: z.number().nullish(),
     weight: z.number(),
     checks: z.array(checkBruto).optional(),
+    metrics: z.record(z.string(), z.unknown()).optional(),
   })
   .passthrough();
+
+function sitesDoEixo(e: z.infer<typeof eixoBruto>): SiteCitado[] {
+  const lido = listaDeSites.safeParse(e.metrics?.superficies_ocupaveis);
+  if (!lido.success) return [];
+  return lido.data.map((s) => ({
+    dominio: s.dominio,
+    citacoes: s.citacoes,
+    perguntasDistintas: s.prompts_distintos,
+    quemAparece: Object.keys(s.corrobora ?? {}),
+  }));
+}
 
 const indisponivelBruto = z.union([
   z.string(),
@@ -68,6 +91,7 @@ function resumirEixo(id: string, e: z.infer<typeof eixoBruto>): EixoResumido {
     checksPassados: checks.filter((c) => c.passou).length,
     checksAplicaveis: checks.length,
     checks,
+    sitesCitados: sitesDoEixo(e),
     // `weight` já é fração (0.2 = 20%): dividir por 100 de novo daria +0,2
     // onde o diagnóstico do mesmo ciclo diz +20,0.
     rende: score === null ? null : (100 - score) * e.weight,

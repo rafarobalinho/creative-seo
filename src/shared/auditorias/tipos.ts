@@ -19,6 +19,15 @@ export type CheckResumido = {
   evidencia: string;
 };
 
+/** Um site de terceiro que os assistentes citaram nas respostas medidas. */
+export type SiteCitado = {
+  dominio: string;
+  citacoes: number;
+  perguntasDistintas: number;
+  /** Nomes (marca e concorrentes) que a resposta ligou a este site. */
+  quemAparece: string[];
+};
+
 export type EixoResumido = {
   id: string;
   score: number | null;
@@ -26,6 +35,8 @@ export type EixoResumido = {
   checksPassados: number;
   checksAplicaveis: number;
   checks: CheckResumido[];
+  /** Só o eixo de citações os traz; nos demais é lista vazia. */
+  sitesCitados: SiteCitado[];
   /** Pontos que o agregado ganharia se o eixo fosse a 100; null sem score. */
   rende: number | null;
 };

@@ -13,7 +13,7 @@ import type {
 import { FaixaIc } from "./FaixaIc";
 import { fraseDoMotivo, nomeDoCheck, nomeDoEixo } from "./frasesDoCiclo";
 
-function LinhaCheck({
+export function LinhaCheck({
   check,
   vocabulario,
 }: {
