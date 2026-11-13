@@ -19,6 +19,7 @@ function resumo(
       checksPassados: 0,
       checksAplicaveis: 0,
       checks: [],
+      sitesCitados: [],
       rende: null,
     })),
   };

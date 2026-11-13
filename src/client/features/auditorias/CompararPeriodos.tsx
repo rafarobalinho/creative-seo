@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/client/components/ui/button";
 import {
   Table,
@@ -15,13 +15,16 @@ import {
 } from "@/shared/auditorias/formatos";
 import { compararCiclos, type PontoDaSerie } from "@/shared/auditorias/serie";
 import type { Vocabulario } from "@/shared/auditorias/tipos";
+import { DetalheDoEixo, type SelecaoDoDetalhe } from "./DetalheDoEixo";
 import { nomeDoEixo } from "./frasesDoCiclo";
 
 export function CompararPeriodos({
+  projectId,
   pontos,
   comScore,
   vocabulario,
 }: {
+  projectId: string;
   pontos: PontoDaSerie[];
   comScore: PontoDaSerie[];
   vocabulario: Vocabulario | null;
@@ -36,6 +39,30 @@ export function CompararPeriodos({
         : [...atuais, ciclo],
     );
   const comparacao = compararCiclos(pontos, escolhidos);
+  const [selecao, setSelecao] = useState<SelecaoDoDetalhe | null>(null);
+  // Célula de um ciclo: o detalhe é contra o ciclo anterior da série.
+  const abrirDetalhe = (ciclo: string, eixo: string | null) => {
+    const ponto = pontos.find((p) => p.ciclo === ciclo);
+    setSelecao({
+      ciclo,
+      eixo,
+      anterior: ponto?.anterior ?? null,
+      comparavel: ponto?.comparavelComAnterior ?? false,
+    });
+  };
+  // Nome do eixo e variação: o detalhe é contra o primeiro ciclo escolhido, o
+  // mesmo par que a coluna Variação mostra, para a explicação bater com o número.
+  const abrirVariacao = (eixo: string | null) => {
+    const primeiro = comparacao.colunas.at(0)?.ciclo ?? null;
+    const ultimo = comparacao.colunas.at(-1)?.ciclo ?? null;
+    if (ultimo === null) return;
+    setSelecao({
+      ciclo: ultimo,
+      eixo,
+      anterior: primeiro === ultimo ? null : primeiro,
+      comparavel: comparacao.comparavel,
+    });
+  };
 
   if (comScore.length < 2) return null;
 
@@ -88,22 +115,37 @@ export function CompararPeriodos({
                     <TableCell
                       className={l.eixo === null ? "font-semibold" : ""}
                     >
-                      {l.eixo === null
-                        ? "Agregado"
-                        : nomeDoEixo(vocabulario, l.eixo)}
+                      <BotaoDeDetalhe
+                        aria={`Ver o que mudou em ${nomeDaLinha(vocabulario, l.eixo)}`}
+                        aoClicar={() => abrirVariacao(l.eixo)}
+                      >
+                        {nomeDaLinha(vocabulario, l.eixo)}
+                      </BotaoDeDetalhe>
                     </TableCell>
                     {l.valores.map((v, i) => (
                       <TableCell
                         key={comparacao.colunas[i].ciclo}
                         className="text-right tabular-nums"
                       >
-                        {decimal(v)}
+                        <BotaoDeDetalhe
+                          aria={`Ver o detalhe de ${nomeDaLinha(vocabulario, l.eixo)} em ${dataLonga(comparacao.colunas[i].ciclo)}`}
+                          aoClicar={() =>
+                            abrirDetalhe(comparacao.colunas[i].ciclo, l.eixo)
+                          }
+                        >
+                          {decimal(v)}
+                        </BotaoDeDetalhe>
                       </TableCell>
                     ))}
                     <TableCell
                       className={`text-right font-medium tabular-nums ${classeDaVariacao(l.variacao)}`}
                     >
-                      {variacaoDecimal(l.variacao)}
+                      <BotaoDeDetalhe
+                        aria={`Ver o que mudou em ${nomeDaLinha(vocabulario, l.eixo)}`}
+                        aoClicar={() => abrirVariacao(l.eixo)}
+                      >
+                        {variacaoDecimal(l.variacao)}
+                      </BotaoDeDetalhe>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -119,7 +161,39 @@ export function CompararPeriodos({
           )}
         </>
       )}
+      <DetalheDoEixo
+        projectId={projectId}
+        selecao={selecao}
+        vocabulario={vocabulario}
+        aoFechar={() => setSelecao(null)}
+      />
     </section>
+  );
+}
+
+function nomeDaLinha(vocabulario: Vocabulario | null, eixo: string | null) {
+  return eixo === null ? "Agregado" : nomeDoEixo(vocabulario, eixo);
+}
+
+/** O número ou nome vira botão: é o que abre o painel de detalhe. */
+function BotaoDeDetalhe({
+  aria,
+  aoClicar,
+  children,
+}: {
+  aria: string;
+  aoClicar: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={aria}
+      onClick={aoClicar}
+      className="cursor-pointer rounded-sm underline decoration-dotted decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground focus-visible:outline-2 focus-visible:outline-ring"
+    >
+      {children}
+    </button>
   );
 }
 

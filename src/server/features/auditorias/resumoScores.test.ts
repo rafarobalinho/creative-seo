@@ -86,6 +86,61 @@ describe("resumirScores", () => {
     }
   });
 
+  describe("sitesCitados", () => {
+    const comSites = {
+      ...bruto,
+      axes: {
+        ...bruto.axes,
+        c: {
+          score: 40,
+          weight: 0.1,
+          checks: [],
+          metrics: {
+            superficies_ocupaveis: [
+              {
+                dominio: "reddit.com",
+                citacoes: 6,
+                prompts_distintos: 2,
+                corrobora: { Marca: "trecho", Rival: "outro trecho" },
+              },
+              { dominio: "exemplo.com.br", citacoes: 11, prompts_distintos: 3 },
+            ],
+          },
+        },
+      },
+    };
+
+    it("lê domínio, citações, perguntas e quem aparece em cada site", () => {
+      const eixo = resumirScores(comSites)?.eixos.find((e) => e.id === "c");
+      expect(eixo?.sitesCitados).toEqual([
+        {
+          dominio: "reddit.com",
+          citacoes: 6,
+          perguntasDistintas: 2,
+          quemAparece: ["Marca", "Rival"],
+        },
+        {
+          dominio: "exemplo.com.br",
+          citacoes: 11,
+          perguntasDistintas: 3,
+          quemAparece: [],
+        },
+      ]);
+    });
+
+    it("eixo sem a lista de sites, ou com lista fora do formato, fica vazio", () => {
+      const r = resumirScores({
+        ...comSites,
+        axes: {
+          ...comSites.axes,
+          d: { score: 1, weight: 0.1, metrics: { superficies_ocupaveis: 7 } },
+        },
+      });
+      expect(r?.eixos.find((e) => e.id === "a")?.sitesCitados).toEqual([]);
+      expect(r?.eixos.find((e) => e.id === "d")?.sitesCitados).toEqual([]);
+    });
+  });
+
   it("passa o code e devolve null quando o item não tem code", () => {
     const r = resumirScores({
       ...bruto,
